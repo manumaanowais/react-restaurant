@@ -11,11 +11,14 @@ main {
     background-color: #f2f2f2;
     border: 1px solid #ccc;
     margin: 10px;
+    display: flex;
+    flex-direction: column;
+    max-height: 450px;
+    overflow-y: auto;
 }
 
 #section1 {
     overflow-y: auto;
-    height: 300px;
 }
 
 .section1 .btn {
@@ -32,9 +35,10 @@ main {
 
 #section2-content .section2-content-buttons {
     .section2-content-buttons-btn {
-        width: 200px;
+        width: 110px;
         margin: 20px;
         border-radius: 6px;
+        padding: 5px;
     }
 }
 
@@ -44,7 +48,6 @@ main {
 }
 
 #section3-content {
-    order: -1;
     overflow-y: auto;
     height: 300px;
     display: flex;
@@ -85,7 +88,8 @@ main {
 .billing-table {
     text-align: center;
     margin-bottom: 10px;
-}
+    border: 1;
+} 
 
 tr td:first-child {
     font-weight: bold;
@@ -105,14 +109,14 @@ td{
     display: flex;
     flex-direction: row;
     justify-content: space-between;
+    margin-top: auto;
 }
 
-.printBill {
+.btn-outline {
     padding: 5px !important;
 }
 
 #total-section {
-    order: 1;
     position: inherit;
     bottom: 75px;
     font-weight: bold;
@@ -120,15 +124,18 @@ td{
     text-align: right;
 }
 
-@media print {
-    .billing-details,
-    .billing-details * {
-      visibility: visible;
+@media screen and (max-width: 768px) {
+    main {
+        display: flex;
+        flex-direction: column;
     }
-    .billing-details {
-      position: absolute;
-      left: 0;
-      top: 0;
+
+    .section {
+        width: 90% !important;
     }
-  }
-  
+
+    .col-lg-3 {
+        padding: 0 !important;
+        width: 40%;
+    }
+}
