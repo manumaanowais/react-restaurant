@@ -9,7 +9,7 @@ function Header() {
       <header id="header">
                 <div className="header-inner;">
                     <div className="container">
-                        <div id="mainMenu-trigger"> <a className="lines-button x"><span className="lines"></span></a> </div>
+                        <div id="mainMenu-trigger"> <a href="#blank" className="lines-button x"><span className="lines"></span></a> </div>
                         <div id="mainMenu" className="menu-center">
                             <div className="container">
                                 <nav>
