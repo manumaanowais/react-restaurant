@@ -1,0 +1,14 @@
+.grid-item {
+    width: 150px !important;
+    height: 150px !important;
+    background-color: lightblue;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 16px;
+    font-weight: bold;
+    border: 1px solid black !important;
+    margin: 10px !important;
+    padding: 0 !important;
+}

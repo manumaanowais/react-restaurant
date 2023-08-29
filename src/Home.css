@@ -1,0 +1,134 @@
+main {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+}
+
+.section {
+    width: 30%;
+    padding: 10px;
+    background-color: #f2f2f2;
+    border: 1px solid #ccc;
+    margin: 10px;
+}
+
+#section1 {
+    overflow-y: auto;
+    height: 300px;
+}
+
+.section1 .btn {
+    width: 100%;
+    height: 30px;
+    border-radius: 6px;
+}
+
+.menu-item {
+    border: 1px solid black;
+    border-radius: 6px;
+    padding: 5px;
+}
+
+#section2-content .section2-content-buttons {
+    .section2-content-buttons-btn {
+        width: 200px;
+        margin: 20px;
+        border-radius: 6px;
+    }
+}
+
+.section3 {
+    display: flex;
+    flex-direction: column;
+}
+
+#section3-content {
+    order: -1;
+    overflow-y: auto;
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+
+    .menu-item {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+    }
+}
+
+.increment-decrement-btn {
+    display: flex;
+    justify-content: space-between;
+    font-size: 20px;
+    border-radius: 4px;
+    padding: 0;
+
+    .decrement-btn {
+        width: 25%;
+        border: none;
+        outline: none;
+        border-right: 1px solid black;
+        background-color: red;
+    }
+
+    .increment-btn {
+        width: 25%;
+        border: none;
+        outline: none;
+        border-left: 1px solid black;
+        background-color: green;
+    }
+}
+
+.billing-table {
+    text-align: center;
+    margin-bottom: 10px;
+}
+
+tr td:first-child {
+    font-weight: bold;
+    text-align: left;
+}
+
+tr td:last-child {
+    font-weight: bold;
+    text-align: right;
+}
+
+td{
+    padding: 5px;
+}
+
+.billing-details {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+}
+
+.printBill {
+    padding: 5px !important;
+}
+
+#total-section {
+    order: 1;
+    position: inherit;
+    bottom: 75px;
+    font-weight: bold;
+    margin-right: 10px;
+    text-align: right;
+}
+
+@media print {
+    .billing-details,
+    .billing-details * {
+      visibility: visible;
+    }
+    .billing-details {
+      position: absolute;
+      left: 0;
+      top: 0;
+    }
+  }
+  
