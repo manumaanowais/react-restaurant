@@ -14,7 +14,7 @@ function Header() {
                             <div className="container">
                                 <nav>
                                     <ul>
-                                        <li><Link to="/home">Home</Link></li>
+                                        <li><Link to="/">Home</Link></li>
                                         <li><Link to="/tables">Tables</Link></li>
                                         <li><Link to="/">Order</Link></li>
                                         <li><Link to="/">Delivery</Link></li>
