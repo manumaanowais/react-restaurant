@@ -263,6 +263,7 @@ function Home({ gridItemsData }) {
                         <div className="col-lg-3">
                             <button type="button" className="btn btn-outline" onClick={handlePrint} disabled={selectedButtons.length === 0}>Print Bill</button>
                         </div>
+                        {/* eslint-disable-next-line eqeqeq */}
                         <div id="total-section">Total : RS {total.toFixed(2) === 0 ? selectedItem?.price : total.toFixed(2)}</div>
                     </div>
                 </div>
