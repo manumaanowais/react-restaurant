@@ -37,8 +37,8 @@ function App() {
   return (
     <Router>
       <Routes>
-        <Route path="/" element={<Home gridItemsData={gridItemsData} />} />
-        <Route path="/:id" element={<Home gridItemsData={gridItemsData} />} />
+        <Route path="/home" element={<Home gridItemsData={gridItemsData} />} />
+        <Route path="/home/:id" element={<Home gridItemsData={gridItemsData} />} />
         <Route path="/tables" element={<Tables gridItemsData={gridItemsData} />} />
       </Routes>
     </Router>

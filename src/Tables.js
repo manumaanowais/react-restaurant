@@ -19,7 +19,7 @@ function Tables({ gridItemsData }) {
       <div className="container">
         <div className="grid-3-columns" data-margin="20" data-item="grid-item" data-lightbox="gallery">
           {gridItemsData.map((item) => (
-            <Link to={`/${item.id}`} key={item.id} className="grid-item"  onClick={() => handleDivClick(item)}>
+            <Link to={`/home/${item.id}`} key={item.id} className="grid-item"  onClick={() => handleDivClick(item)}>
             {item.content}<br />{item.price}
             </Link>
           ))}
