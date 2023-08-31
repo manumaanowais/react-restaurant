@@ -1,8 +1,38 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import './Home.css';
 import Header from './Header';
+import { useParams } from 'react-router-dom';
 
-function Home() {
+function Home({ gridItemsData }) {
+    const { id } = useParams();
+    const selectedItem = gridItemsData.find(item => item.id === parseInt(id));
+
+  const [timer, setTimer] = useState(0);
+
+
+    useEffect(() => {
+        const interval = setInterval(() => {
+          setTimer(prev => prev + 1);
+          if(selectedItem) {
+            selectedItem.timer = timer;
+          }
+        }, 1000);
+        return () => clearInterval(interval);
+      }, [timer]);
+
+    const formatTime = (timeInSeconds) => {
+        const hours = Math.floor(timeInSeconds / 3600);
+        const minutes = Math.floor((timeInSeconds % 3600) / 60);
+        const seconds = timeInSeconds % 60;
+    
+        const formattedHours = hours.toString().padStart(2, '0');
+        const formattedMinutes = minutes.toString().padStart(2, '0');
+        const formattedSeconds = seconds.toString().padStart(2, '0');
+    
+        return `${formattedHours}:${formattedMinutes}:${formattedSeconds}`;
+      };
+    
+
     const [buttonCountMap, setButtonCountMap] = useState({});
     const [total, setTotal] = useState(0);
     const [section2Content, setSection2Content] = useState([]);
@@ -100,14 +130,39 @@ function Home() {
     };
 
     const handlePrint = () => {
-        const printContent = document.getElementById('section3-content');
-        const originalContent = document.body.innerHTML;
-        document.body.innerHTML = printContent.innerHTML;
+        var printableContent = document.getElementById('section3-content').innerHTML + "<br><br>";
+        printableContent += document.getElementById('total-section').innerHTML;
 
-        window.print();
+        const printWindow = window.open('', '', 'height=900, width=1200');
 
-        document.body.innerHTML = originalContent;
+        printWindow.document.write('<html>');
+        printWindow.document.write('<head>');
+        printWindow.document.write('<style>');
+        printWindow.document.write(`
+          .decrement-btn,
+          .increment-btn {
+            display: none;
+          }
+
+          .billing-table {
+            border: none;
+            margin: 50px;
+          }
+        `);
+        printWindow.document.write('</style>');
+        printWindow.document.write('</head>');
+        printWindow.document.write('<body>');
+
+        printWindow.document.write('<h1>Restaurant</h1><p>Hyderabad Telangana State</p><br>');
+        printWindow.document.write(printableContent);
+
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+
+        printWindow.print();
+        printWindow.close();
     };
+
 
     return (
         <div className="Home">
@@ -156,7 +211,7 @@ function Home() {
                     <h2>Billing Details</h2>
                     <div id="section3-content">
                         {selectedButtons.length > 0 ? (
-                            <table border={3} className='billing-table'>
+                            <table border={1} className='billing-table'>
                                 <thead>
                                     <tr>
                                         <th>Item</th>
@@ -179,14 +234,36 @@ function Home() {
                                 </tbody>
                             </table>
                         ) : (
-                            <p>No items selected.</p>
+                            <div>
+                                {selectedItem ? (
+                                    <><h6>Table {selectedItem.id} is occupied from {formatTime(selectedItem?.timer)}</h6>
+                                    <table border={1} className='billing-table'>
+                                        <thead>
+                                            <tr>
+                                                <th>Items</th>
+                                                <th>Quantity</th>
+                                                <th>Price</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>{selectedItem.items}</td>
+                                                <td><span>{selectedItem.quantity}</span></td>
+                                                <td>{selectedItem.price}</td>
+                                            </tr>
+                                        </tbody>
+                                    </table></>
+                                ) : (
+                                    <p>No item found.</p>
+                                )}
+                            </div>
                         )}
                     </div>
                     <div className='billing-details'>
-                        <div class="col-lg-3">
-                            <button type="button" class="btn btn-outline printBill" onClick={handlePrint} disabled={selectedButtons.length === 0}>Print Bill</button>
+                        <div className="col-lg-3">
+                            <button type="button" className="btn btn-outline" onClick={handlePrint} disabled={selectedButtons.length === 0}>Print Bill</button>
                         </div>
-                        <div id="total-section">Total Price: RS {total.toFixed(2)}</div>
+                        <div id="total-section">Total : RS {total.toFixed(2) == 0 ? selectedItem?.price : total.toFixed(2)}</div>
                     </div>
                 </div>
             </main>
