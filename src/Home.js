@@ -18,7 +18,7 @@ function Home({ gridItemsData }) {
           }
         }, 1000);
         return () => clearInterval(interval);
-      }, [timer]);
+      }, [timer, selectedItem]);
 
     const formatTime = (timeInSeconds) => {
         const hours = Math.floor(timeInSeconds / 3600);
@@ -263,7 +263,7 @@ function Home({ gridItemsData }) {
                         <div className="col-lg-3">
                             <button type="button" className="btn btn-outline" onClick={handlePrint} disabled={selectedButtons.length === 0}>Print Bill</button>
                         </div>
-                        <div id="total-section">Total : RS {total.toFixed(2) == 0 ? selectedItem?.price : total.toFixed(2)}</div>
+                        <div id="total-section">Total : RS {total.toFixed(2) === 0 ? selectedItem?.price : total.toFixed(2)}</div>
                     </div>
                 </div>
             </main>
