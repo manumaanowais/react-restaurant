@@ -30,8 +30,12 @@ main {
     margin: 0 !important;
     border: 1px solid white !important;
     border-radius: 0 !important;
-    background-color: darkred !important;
+    background-color: gray !important;
 }
+
+.section1 .selected {
+    background-color: darkred !important;
+  }
 
 .menu-item {
     border: 1px solid black;
@@ -47,6 +51,11 @@ main {
         padding: 5px;
         background-color: gold;
     }
+}
+
+.section2-content-buttons .selected {
+    background-color: green !important;
+    color: white !important;
 }
 
 .section3 {

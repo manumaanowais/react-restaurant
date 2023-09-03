@@ -4,6 +4,9 @@ import Header from './Header';
 import { useParams } from 'react-router-dom';
 
 function Home({ gridItemsData }) {
+
+    const [selectedButton, setSelectedButton] = useState(null);
+
     const { id } = useParams();
     const selectedItem = gridItemsData.find(item => item.id === parseInt(id));
 
@@ -155,7 +158,6 @@ function Home({ gridItemsData }) {
 
         setButtonCountMap(updatedButtonCountMap);
 
-        // Updating the total price
         setTotal((prevTotal) => prevTotal + parseFloat(buttonPrice));
     };
 
@@ -231,50 +233,50 @@ function Home({ gridItemsData }) {
         <div className="Home">
             <Header />
             <main className="Home-main">
-                <div className="section" style={{ width: '20%' }}>
+                <div className="section" style={{ width: '15%' }}>
                     <h4>Menu Items</h4>
                     <div id="section1">
                         <div className="section1">
-                            <button className="btn" id="mandi" onClick={() => showSection2Content('mandi')}> Mandi </button>
+                            <button className={`btn ${selectedButton === 'mandi' ? 'selected' : ''}`} id="mandi" onClick={() => {setSelectedButton('mandi');showSection2Content('mandi')}}> Mandi </button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="biryani" onClick={() => showSection2Content('biryani')}>Biryani</button>
+                            <button className={`btn ${selectedButton === 'biryani' ? 'selected' : ''}`} id="biryani" onClick={() => {setSelectedButton('biryani');showSection2Content('biryani')}}>Biryani</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="curry" onClick={() => showSection2Content('curry')}>Curries</button>
+                            <button className={`btn ${selectedButton === 'curry' ? 'selected' : ''}`} id="curry" onClick={() => {setSelectedButton('curry');showSection2Content('curry')}}>Curries</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="fish" onClick={() => showSection2Content('fish')}>Fish</button>
+                            <button className={`btn ${selectedButton === 'fish' ? 'selected' : ''}`} id="fish" onClick={() => {setSelectedButton('fish');showSection2Content('fish')}}>Fish</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="mutton" onClick={() => showSection2Content('mutton')}>Mutton</button>
+                            <button className={`btn ${selectedButton === 'mutton' ? 'selected' : ''}`} id="mutton" onClick={() => {setSelectedButton('mutton');showSection2Content('mutton')}}>Mutton</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="prawns" onClick={() => showSection2Content('prawns')}>Prawns</button>
+                            <button className={`btn ${selectedButton === 'prawns' ? 'selected' : ''}`} id="prawns" onClick={() => {setSelectedButton('prawns');showSection2Content('prawns')}}>Prawns</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="egg" onClick={() => showSection2Content('egg')}>Egg</button>
+                            <button className={`btn ${selectedButton === 'egg' ? 'selected' : ''}`} id="egg" onClick={() => {setSelectedButton('egg');showSection2Content('egg')}}>Egg</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="veg" onClick={() => showSection2Content('veg')}>Veg</button>
+                            <button className={`btn ${selectedButton === 'veg' ? 'selected' : ''}`} id="veg" onClick={() => {setSelectedButton('veg');showSection2Content('veg')}}>Veg</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="maggie" onClick={() => showSection2Content('maggie')}>Maggie</button>
+                            <button className={`btn ${selectedButton === 'maggie' ? 'selected' : ''}`} id="maggie" onClick={() => {setSelectedButton('maggie');showSection2Content('maggie')}}>Maggie</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="meals" onClick={() => showSection2Content('meals')}>Meals</button>
+                            <button className={`btn ${selectedButton === 'meals' ? 'selected' : ''}`} id="meals" onClick={() => {setSelectedButton('meals');showSection2Content('meals')}}>Meals</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="tea" onClick={() => showSection2Content('tea')}>Tea</button>
+                            <button className={`btn ${selectedButton === 'tea' ? 'selected' : ''}`} id="tea" onClick={() => {setSelectedButton('tea');showSection2Content('tea')}}>Tea</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="coffee" onClick={() => showSection2Content('coffee')}>Coffee</button>
+                            <button className={`btn ${selectedButton === 'coffee' ? 'selected' : ''}`} id="coffee" onClick={() => {setSelectedButton('coffee');showSection2Content('coffee')}}>Coffee</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="fastfood" onClick={() => showSection2Content('fastfood')}>Fast Food</button>
+                            <button className={`btn ${selectedButton === 'fastfood' ? 'selected' : ''}`} id="fastfood" onClick={() => {setSelectedButton('fastfood');showSection2Content('fastfood')}}>Fast Food</button>
                         </div>
                         <div className="section1">
-                            <button className="btn" id="dessert" onClick={() => showSection2Content('dessert')}>Dessert</button>
+                            <button className={`btn ${selectedButton === 'dessert' ? 'selected' : ''}`} id="dessert" onClick={() => {setSelectedButton('dessert');showSection2Content('dessert')}}>Dessert</button>
                         </div>
                     </div>
                 </div>
@@ -284,9 +286,9 @@ function Home({ gridItemsData }) {
                         {section2Content.length > 0 ? (
                             <div className="section2-content-buttons">
                                 {section2Content.map((button, index) => (
-                                    <button className='section2-content-buttons-btn'
+                                    <button className={`section2-content-buttons-btn ${selectedButton === button.label ? 'selected' : ''}`}
                                         key={index}
-                                        onClick={() => addSection3Content(button.label, button.price)}
+                                        onClick={() => {setSelectedButton(button.label);addSection3Content(button.label, button.price)}}
                                     >
                                         {button.label} <br></br> ({button.price})
                                     </button>
