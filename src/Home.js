@@ -2,23 +2,39 @@ import React, { useState, useEffect } from 'react';
 import './Home.css';
 import Header from './Header';
 import { Link, useParams } from 'react-router-dom';
+import Modal from 'react-modal';
 
+Modal.setAppElement('#root');
 function Home({ gridItemsData }) {
+    const [section1Data, setSection1Data] = useState([]);
 
     const [data, setData] = useState([]);
     const { id } = useParams();
 
     useEffect(() => {
-        const apiUrl = `http://localhost:8080/mainmenu/${id}`;
+        const apiUrl = 'http://localhost:8080/mainmenu';
 
         fetch(apiUrl)
             .then((response) => response.json())
             .then((result) => {
-                setData(result);
+                setSection1Data(result);
             })
             .catch((error) => {
                 console.error('Error fetching data:', error);
             });
+
+        if (id) {
+            const additionalDataUrl = `http://localhost:8080/mainmenu/${id}`;
+
+            fetch(additionalDataUrl)
+                .then((response) => response.json())
+                .then((result) => {
+                    setData(result);
+                })
+                .catch((error) => {
+                    console.error('Error fetching additional data:', error);
+                });
+        }
     }, [id]);
 
     const [selectedButtonSection1, setSelectedButtonSection1] = useState(null);
@@ -145,95 +161,136 @@ function Home({ gridItemsData }) {
         printWindow.close();
     };
 
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [newMenuItem, setNewMenuItem] = useState('');
+
+    const openModal = () => {
+        setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+        setIsModalOpen(false);
+    };
+
+    const handleSubmit = (e) => {
+        e.preventDefault();
+        if (newMenuItem.trim() === '') {
+            return;
+        }
+
+        const newMenuItemData = {
+            itemName: newMenuItem.trim(),
+        };
+
+        fetch('http://localhost:8080/mainmenu', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(newMenuItemData),
+        })
+            .then((response) => response.json())
+            .then((data) => {
+                console.log('New menu item added successfully:', data);
+                setSection1Data([...section1Data, newMenuItemData]);
+                setNewMenuItem('');
+                closeModal();
+            })
+            .catch((error) => {
+                console.error('Error adding new menu item:', error);
+            });
+    };
+
+    const [isSubMenuModalOpen, setIsSubMenuModalOpen] = useState(false);
+    const [newSubMenuItem, setNewSubMenuItem] = useState('');
+    const [newItemPrice, setNewItemPrice] = useState('');
+    const [selectedMainMenu, setSelectedMainMenu] = useState('');
+
+    const openSubMenuModal = () => {
+        setIsSubMenuModalOpen(true);
+    };
+
+    const closeSubMenuModal = () => {
+        setIsSubMenuModalOpen(false);
+    };
+
+    const handleSubMenuSubmit = (e) => {
+        if (newSubMenuItem.trim() === '' || newItemPrice.trim() === '' || selectedMainMenu.trim() === '') {
+            return;
+        }
+
+        let menuItemId = 0;
+        const menuItem = section1Data.find((item) => item.itemName === selectedMainMenu);
+        if (menuItem) {
+            menuItemId = menuItem.id;
+        }
+        const formData = {
+            mainMenuItemId: menuItemId,
+            itemName: newSubMenuItem.toUpperCase(),
+            itemPrice: parseFloat(newItemPrice),
+        };
+
+        const apiUrl = 'http://localhost:8080/menuitem';
+
+        fetch(apiUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData),
+        })
+            .then((response) => response.json())
+            .then((result) => {
+                console.log('New item added:', result);
+            })
+            .catch((error) => {
+                console.error('Error adding new item:', error);
+            });
+
+        setNewSubMenuItem('');
+        setNewItemPrice('');
+        setSelectedMainMenu('');
+        closeSubMenuModal();
+    };
 
     return (
         <div className="Home">
             <Header />
+            <div className='add-buttons'>
+                <button className="btn" onClick={openModal}>Add Menu</button>
+                <button className="btn" onClick={openSubMenuModal}>Add Menu Item</button>
+            </div>
             <main className="Home-main">
                 <div className="section" style={{ width: '15%' }}>
                     <h4>Menu Items</h4>
+                    {section1Data.length > 0 ? (
                     <div id="section1">
-                        <div className='section1'>
-                            <Link to="/1">
-                                <button className={`btn ${selectedButtonSection1 === 'mandi' ? 'selected' : ''}`} id="mandi" onClick={() => { setSelectedButtonSection1('mandi'); showSection2Content('mandi') }}>Mandi</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/2">
-                                <button className={`btn ${selectedButtonSection1 === 'biryani' ? 'selected' : ''}`} id="biryani" onClick={() => { setSelectedButtonSection1('biryani'); showSection2Content('biryani') }}>Biryani</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/3">
-                                <button className={`btn ${selectedButtonSection1 === 'curry' ? 'selected' : ''}`} id="curry" onClick={() => { setSelectedButtonSection1('curry'); showSection2Content('curry') }}>Curries</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/4">
-                                <button className={`btn ${selectedButtonSection1 === 'fish' ? 'selected' : ''}`} id="fish" onClick={() => { setSelectedButtonSection1('fish'); showSection2Content('fish') }}>Fish</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/5">
-                                <button className={`btn ${selectedButtonSection1 === 'mutton' ? 'selected' : ''}`} id="mutton" onClick={() => { setSelectedButtonSection1('mutton'); showSection2Content('mutton') }}>Mutton</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/6">
-                                <button className={`btn ${selectedButtonSection1 === 'prawns' ? 'selected' : ''}`} id="prawns" onClick={() => { setSelectedButtonSection1('prawns'); showSection2Content('prawns') }}>Prawns</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/7">
-                                <button className={`btn ${selectedButtonSection1 === 'egg' ? 'selected' : ''}`} id="egg" onClick={() => { setSelectedButtonSection1('egg'); showSection2Content('egg') }}>Egg</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/8">
-                                <button className={`btn ${selectedButtonSection1 === 'veg' ? 'selected' : ''}`} id="veg" onClick={() => { setSelectedButtonSection1('veg'); showSection2Content('veg') }}>Veg</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/9">
-                                <button className={`btn ${selectedButtonSection1 === 'maggie' ? 'selected' : ''}`} id="maggie" onClick={() => { setSelectedButtonSection1('maggie'); showSection2Content('maggie') }}>Maggie</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/10">
-                                <button className={`btn ${selectedButtonSection1 === 'meals' ? 'selected' : ''}`} id="meals" onClick={() => { setSelectedButtonSection1('meals'); showSection2Content('meals') }}>Meals</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/11">
-                                <button className={`btn ${selectedButtonSection1 === 'tea' ? 'selected' : ''}`} id="tea" onClick={() => { setSelectedButtonSection1('tea'); showSection2Content('tea') }}>Tea</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/12">
-                                <button className={`btn ${selectedButtonSection1 === 'coffee' ? 'selected' : ''}`} id="coffee" onClick={() => { setSelectedButtonSection1('coffee'); showSection2Content('coffee') }}>Coffee</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/13">
-                                <button className={`btn ${selectedButtonSection1 === 'fastfood' ? 'selected' : ''}`} id="fastfood" onClick={() => { setSelectedButtonSection1('fastfood'); showSection2Content('fastfood') }}>Fast Food</button>
-                            </Link>
-                        </div>
-                        <div className="section1">
-                            <Link to="/14">
-                                <button className={`btn ${selectedButtonSection1 === 'dessert' ? 'selected' : ''}`} id="dessert" onClick={() => { setSelectedButtonSection1('dessert'); showSection2Content('dessert') }}>Dessert</button>
-                            </Link>
-                        </div>
+                        {section1Data.map((menuItem,index) => (
+                            <div className='section1' key={index}>
+                                <Link to={`/${menuItem.id}`}>
+                                    <button
+                                        className={`btn ${selectedButtonSection1 === menuItem.itemName ? 'selected' : ''}`}
+                                        onClick={() => { setSelectedButtonSection1(menuItem.itemName); showSection2Content(menuItem.itemName) }}
+                                    >
+                                        {menuItem.itemName}
+                                    </button>
+                                </Link>
+                            </div>
+                        ))}
                     </div>
+                    ):(
+                        <p>Add Menues</p>
+                    )}
                 </div>
                 <div className="section">
                     <h4>Items</h4>
                     <div id="section2-content">
                         {data.length > 0 ? (
                             <div className="section2-content-buttons">
-                                {data.map((menuItem) => (
+                                {data.map((menuItem, index) => (
                                     <button
                                         className={`section2-content-buttons-btn ${selectedButtonSection2 === menuItem.itemName ? 'selected' : ''}`}
-                                        key={menuItem.id}
+                                        key={index}
                                         onClick={() => {
                                             setSelectedButtonSection2(menuItem.itemName);
                                             addSection3Content(menuItem.itemName, menuItem.itemPrice);
@@ -261,8 +318,8 @@ function Home({ gridItemsData }) {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {selectedButtons.map((buttonLabel) => (
-                                        <tr key={buttonLabel}>
+                                    {selectedButtons.map((buttonLabel, index) => (
+                                        <tr key={index}>
                                             <td>{buttonLabel}</td>
                                             <td className='increment-decrement-btn'>
                                                 <button className='decrement-btn' onClick={() => updateQuantity(buttonLabel, -1, buttonCountMap[buttonLabel].itemPrice)}>-</button>
@@ -302,11 +359,80 @@ function Home({ gridItemsData }) {
                     </div>
                     <div className='billing-details'>
                         <div className="col-lg-3">
-                            <button type="button" className="btn btn-outline" onClick={handlePrint} disabled={selectedButtons.length === 0}>Print Bill</button>
+                            <button type="button" className="btn btn-outline" onClick={handlePrint} disabled={selectedButtons.length === 0}>Save & Print</button>
+                            <button type="button" className="btn btn-outline" onClick={handlePrint} disabled={selectedButtons.length === 0}>Clear All</button>
                         </div>
                         {/* eslint-disable-next-line eqeqeq */}
                         <div id="total-section">Total : RS {total.toFixed(2) == 0 ? selectedItem?.price : total.toFixed(2)}</div>
                     </div>
+                    <Modal
+                        isOpen={isModalOpen}
+                        onRequestClose={closeModal}
+                        className="custom-modal"
+                        contentLabel="Add Menu"
+                    >
+                        <h4 style={{ paddingTop: '8px' }}>Add Menu</h4>
+                        <form onSubmit={handleSubmit} className='form'>
+                            <input
+                                className='formInput'
+                                type="text"
+                                placeholder="Enter Menu"
+                                value={newMenuItem}
+                                required
+                                onChange={(e) => setNewMenuItem(e.target.value)}
+                            /><br />
+                            <div className='formActions'>
+                                <button className='formBtn' type="submit">Add</button>
+                                <button className='formBtn' type="button" onClick={closeModal}>Cancel</button>
+                            </div>
+                        </form>
+                    </Modal>
+
+                    {/* For sub menuitems */}
+
+                    <Modal
+                        isOpen={isSubMenuModalOpen}
+                        onRequestClose={closeModal}
+                        className="custom-modal-menu-item"
+                        contentLabel="Add Menu Item"
+                    >
+                        <h4 style={{ paddingTop: '8px' }}>Add Menu Item</h4>
+                        <form onSubmit={handleSubMenuSubmit} className='menuItemForm'>
+                            <select
+                                className='formInput'
+                                value={selectedMainMenu}
+                                onChange={(e) => setSelectedMainMenu(e.target.value)}
+                                required
+                            >
+                                <option value="" disabled>Select Main Menu</option>
+                                {section1Data.map((menuItem, index) => (
+                                    <option key={index} value={menuItem.itemName}>
+                                        {menuItem.itemName.toUpperCase()}
+                                    </option>
+                                ))}
+                            </select><br/>
+                            <input
+                                className='formInput'
+                                type="text"
+                                placeholder="Enter Menu Item"
+                                value={newSubMenuItem}
+                                onChange={(e) => setNewSubMenuItem(e.target.value)}
+                                required
+                            /><br />
+                            <input
+                                className='formSubMenuInput'
+                                type="number"
+                                placeholder="Enter Price"
+                                value={newItemPrice}
+                                onChange={(e) => setNewItemPrice(e.target.value)}
+                                required
+                            /><br />
+                            <div className='formActions'>
+                                <button className='formBtn' type="submit">Add</button>
+                                <button className='formBtn' type="button" onClick={closeSubMenuModal}>Cancel</button>
+                            </div>
+                        </form>
+                    </Modal>
                 </div>
             </main>
         </div>
