@@ -11,4 +11,5 @@
     border: 1px solid black !important;
     margin: 10px !important;
     padding: 0 !important;
+    border-radius: 8px;
 }

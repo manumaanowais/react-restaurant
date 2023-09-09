@@ -147,6 +147,7 @@ td{
     text-align: center;
     margin: auto;
     margin-top: 100px;
+    border-radius: 8px;
 }
 
 .form, .menuItemForm {
@@ -172,6 +173,7 @@ td{
     text-align: center;
     margin: auto;
     margin-top: 100px;
+    border-radius: 8px;
 }
 
 @media screen and (max-width: 768px) {

@@ -40,7 +40,21 @@ function Home({ gridItemsData }) {
     const [selectedButtonSection1, setSelectedButtonSection1] = useState(null);
     const [selectedButtonSection2, setSelectedButtonSection2] = useState(null);
 
-    const selectedItem = gridItemsData.find(item => item.id === parseInt(id));
+    // const selectedItem = gridItemsData.find(item => item.id === parseInt(id));
+    const [selectedTableData, setSelectedTableData] = useState(null);
+
+    useEffect(() => {
+        const apiUrl = 'http://localhost:8080/tables';
+
+        fetch(apiUrl)
+            .then((response) => response.json())
+            .then((result) => {
+                setSelectedTableData(result);
+            })
+            .catch((error) => {
+                console.error('Error fetching tabale data:', error);
+            });
+    }, []);
 
     const [timer, setTimer] = useState(0);
 
@@ -48,12 +62,12 @@ function Home({ gridItemsData }) {
     useEffect(() => {
         const interval = setInterval(() => {
             setTimer(prev => prev + 1);
-            if (selectedItem) {
-                selectedItem.timer = timer;
+            if (selectedTableData) {
+                // selectedTableData.timer = timer;
             }
         }, 1000);
         return () => clearInterval(interval);
-    }, [timer, selectedItem]);
+    }, [timer, selectedTableData]);
 
     const formatTime = (timeInSeconds) => {
         const hours = Math.floor(timeInSeconds / 3600);
@@ -161,6 +175,12 @@ function Home({ gridItemsData }) {
         printWindow.close();
     };
 
+    const handleClear = () => {
+        setButtonCountMap({});
+        setTotal(0);
+        setSelectedButtons([]);
+    };
+
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newMenuItem, setNewMenuItem] = useState('');
 
@@ -253,6 +273,13 @@ function Home({ gridItemsData }) {
         closeSubMenuModal();
     };
 
+    const kotAndPrint = () => {
+        console.log("selected items : ", selectedButtons);
+        // console.log("Table id : ", selectedTableData.id);
+        console.log("Selected Table : ", selectedTableData);
+        console.log("Selected Items : ",  )
+    }
+
     return (
         <div className="Home">
             <Header />
@@ -264,21 +291,21 @@ function Home({ gridItemsData }) {
                 <div className="section" style={{ width: '15%' }}>
                     <h4>Menu Items</h4>
                     {section1Data.length > 0 ? (
-                    <div id="section1">
-                        {section1Data.map((menuItem,index) => (
-                            <div className='section1' key={index}>
-                                <Link to={`/${menuItem.id}`}>
-                                    <button
-                                        className={`btn ${selectedButtonSection1 === menuItem.itemName ? 'selected' : ''}`}
-                                        onClick={() => { setSelectedButtonSection1(menuItem.itemName); showSection2Content(menuItem.itemName) }}
-                                    >
-                                        {menuItem.itemName}
-                                    </button>
-                                </Link>
-                            </div>
-                        ))}
-                    </div>
-                    ):(
+                        <div id="section1">
+                            {section1Data.map((menuItem, index) => (
+                                <div className='section1' key={index}>
+                                    <Link to={`/${menuItem.id}`}>
+                                        <button
+                                            className={`btn ${selectedButtonSection1 === menuItem.itemName ? 'selected' : ''}`}
+                                            onClick={() => { setSelectedButtonSection1(menuItem.itemName); showSection2Content(menuItem.itemName) }}
+                                        >
+                                            {menuItem.itemName}
+                                        </button>
+                                    </Link>
+                                </div>
+                            ))}
+                        </div>
+                    ) : (
                         <p>Add Menues</p>
                     )}
                 </div>
@@ -333,8 +360,10 @@ function Home({ gridItemsData }) {
                             </table>
                         ) : (
                             <div>
-                                {selectedItem ? (
-                                    <><h6>Table {selectedItem.id} is occupied from {formatTime(selectedItem?.timer)}</h6>
+                                {selectedTableData?.bill > 0 ? (
+                                    // Render the table when selectedTableData has data
+                                    <>
+                                        <h6>Table {selectedTableData.id} is occupied from {formatTime(selectedTableData?.id)}</h6>
                                         <table border={1} className='billing-table'>
                                             <thead>
                                                 <tr>
@@ -345,95 +374,99 @@ function Home({ gridItemsData }) {
                                             </thead>
                                             <tbody>
                                                 <tr>
-                                                    <td>{selectedItem.items}</td>
-                                                    <td><span>{selectedItem.quantity}</span></td>
-                                                    <td>{selectedItem.price}</td>
+                                                    <td>{selectedTableData.name}</td>
+                                                    <td><span>{selectedTableData.sequence}</span></td>
+                                                    <td>{selectedTableData.id}</td>
                                                 </tr>
                                             </tbody>
-                                        </table></>
+                                        </table>
+                                    </>
                                 ) : (
+                                    // Render "No item found." when selectedTableData is empty
                                     <p>No item found.</p>
                                 )}
                             </div>
+
                         )}
                     </div>
                     <div className='billing-details'>
                         <div className="col-lg-3">
                             <button type="button" className="btn btn-outline" onClick={handlePrint} disabled={selectedButtons.length === 0}>Save & Print</button>
-                            <button type="button" className="btn btn-outline" onClick={handlePrint} disabled={selectedButtons.length === 0}>Clear All</button>
+                            <button type="button" className="btn btn-outline" onClick={handleClear} disabled={selectedButtons.length === 0}>Clear All</button>
+                            <button type="button" className="btn btn-outline" onClick={kotAndPrint} disabled={selectedButtons.length === 0}>KOT & Print</button>
                         </div>
                         {/* eslint-disable-next-line eqeqeq */}
-                        <div id="total-section">Total : RS {total.toFixed(2) == 0 ? selectedItem?.price : total.toFixed(2)}</div>
+                        <div id="total-section">Total : RS { total.toFixed(2)}</div>
                     </div>
-                    <Modal
-                        isOpen={isModalOpen}
-                        onRequestClose={closeModal}
-                        className="custom-modal"
-                        contentLabel="Add Menu"
-                    >
-                        <h4 style={{ paddingTop: '8px' }}>Add Menu</h4>
-                        <form onSubmit={handleSubmit} className='form'>
-                            <input
-                                className='formInput'
-                                type="text"
-                                placeholder="Enter Menu"
-                                value={newMenuItem}
-                                required
-                                onChange={(e) => setNewMenuItem(e.target.value)}
-                            /><br />
-                            <div className='formActions'>
-                                <button className='formBtn' type="submit">Add</button>
-                                <button className='formBtn' type="button" onClick={closeModal}>Cancel</button>
-                            </div>
-                        </form>
-                    </Modal>
-
-                    {/* For sub menuitems */}
-
-                    <Modal
-                        isOpen={isSubMenuModalOpen}
-                        onRequestClose={closeModal}
-                        className="custom-modal-menu-item"
-                        contentLabel="Add Menu Item"
-                    >
-                        <h4 style={{ paddingTop: '8px' }}>Add Menu Item</h4>
-                        <form onSubmit={handleSubMenuSubmit} className='menuItemForm'>
-                            <select
-                                className='formInput'
-                                value={selectedMainMenu}
-                                onChange={(e) => setSelectedMainMenu(e.target.value)}
-                                required
-                            >
-                                <option value="" disabled>Select Main Menu</option>
-                                {section1Data.map((menuItem, index) => (
-                                    <option key={index} value={menuItem.itemName}>
-                                        {menuItem.itemName.toUpperCase()}
-                                    </option>
-                                ))}
-                            </select><br/>
-                            <input
-                                className='formInput'
-                                type="text"
-                                placeholder="Enter Menu Item"
-                                value={newSubMenuItem}
-                                onChange={(e) => setNewSubMenuItem(e.target.value)}
-                                required
-                            /><br />
-                            <input
-                                className='formSubMenuInput'
-                                type="number"
-                                placeholder="Enter Price"
-                                value={newItemPrice}
-                                onChange={(e) => setNewItemPrice(e.target.value)}
-                                required
-                            /><br />
-                            <div className='formActions'>
-                                <button className='formBtn' type="submit">Add</button>
-                                <button className='formBtn' type="button" onClick={closeSubMenuModal}>Cancel</button>
-                            </div>
-                        </form>
-                    </Modal>
                 </div>
+                <Modal
+                    isOpen={isModalOpen}
+                    onRequestClose={closeModal}
+                    className="custom-modal"
+                    contentLabel="Add Menu"
+                >
+                    <h4 style={{ paddingTop: '8px' }}>Add Menu</h4>
+                    <form onSubmit={handleSubmit} className='form'>
+                        <input
+                            className='formInput'
+                            type="text"
+                            placeholder="Enter Menu"
+                            value={newMenuItem}
+                            required
+                            onChange={(e) => setNewMenuItem(e.target.value)}
+                        /><br />
+                        <div className='formActions'>
+                            <button className='formBtn' type="submit">Add</button>
+                            <button className='formBtn' type="button" onClick={closeModal}>Cancel</button>
+                        </div>
+                    </form>
+                </Modal>
+
+                {/* For sub menuitems */}
+
+                <Modal
+                    isOpen={isSubMenuModalOpen}
+                    onRequestClose={closeSubMenuModal}
+                    className="custom-modal-menu-item"
+                    contentLabel="Add Menu Item"
+                >
+                    <h4 style={{ paddingTop: '8px' }}>Add Menu Item</h4>
+                    <form onSubmit={handleSubMenuSubmit} className='menuItemForm'>
+                        <select
+                            className='formInput'
+                            value={selectedMainMenu}
+                            onChange={(e) => setSelectedMainMenu(e.target.value)}
+                            required
+                        >
+                            <option value="" disabled>Select Main Menu</option>
+                            {section1Data.map((menuItem, index) => (
+                                <option key={index} value={menuItem.itemName}>
+                                    {menuItem.itemName.toUpperCase()}
+                                </option>
+                            ))}
+                        </select><br />
+                        <input
+                            className='formInput'
+                            type="text"
+                            placeholder="Enter Menu Item"
+                            value={newSubMenuItem}
+                            onChange={(e) => setNewSubMenuItem(e.target.value)}
+                            required
+                        /><br />
+                        <input
+                            className='formSubMenuInput'
+                            type="number"
+                            placeholder="Enter Price"
+                            value={newItemPrice}
+                            onChange={(e) => setNewItemPrice(e.target.value)}
+                            required
+                        /><br />
+                        <div className='formActions'>
+                            <button className='formBtn' type="submit">Add</button>
+                            <button className='formBtn' type="button" onClick={closeSubMenuModal}>Cancel</button>
+                        </div>
+                    </form>
+                </Modal>
             </main>
         </div>
     );
