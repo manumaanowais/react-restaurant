@@ -3,13 +3,33 @@ import './Home.css';
 import Header from './Header';
 import { Link, useParams } from 'react-router-dom';
 import Modal from 'react-modal';
+import Swal from 'sweetalert2';
+import DeleteIcon from '@mui/icons-material/Delete';
+import EditIcon from '@mui/icons-material/Edit';
 
 Modal.setAppElement('#root');
-function Home({ gridItemsData }) {
+function Home() {
     const [section1Data, setSection1Data] = useState([]);
 
     const [data, setData] = useState([]);
     const { id } = useParams();
+
+    const [allMenuItems, setAllMenuItems] = useState([]);
+
+    //get all menuitems
+    useEffect(() => {
+        const apiUrl = 'http://localhost:8080/menuitems';
+
+        fetch(apiUrl)
+            .then((response) => response.json())
+            .then((result) => {
+                setAllMenuItems(result);
+            })
+            .catch((error) => {
+                console.error('Error fetching menu items :', error);
+            });
+    });
+
 
     useEffect(() => {
         const apiUrl = 'http://localhost:8080/mainmenu';
@@ -36,6 +56,117 @@ function Home({ gridItemsData }) {
                 });
         }
     }, [id]);
+
+    //Delete mainmenu with id
+
+    const handleDeleteMainMenu = (itemId) => {
+        const itemToDelete = section1Data.filter((item) => item.id === itemId).map((name) => name.itemName.toUpperCase());
+
+        // Show a confirmation dialog
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `You want to delete ${itemToDelete}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Delete It!',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                // User confirmed, proceed with deletion
+                fetch(`http://localhost:8080/mainmenu/${itemId}`, {
+                    method: 'DELETE',
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        // Remove the deleted item from your state
+                        const updatedSection1Data = section1Data.filter((item) => item.id !== itemId);
+                        setSection1Data(updatedSection1Data);
+                        console.log('Menu item deleted successfully: ', itemToDelete);
+                        Swal.fire({
+                            icon: 'success',
+                            title: `${itemToDelete} Removed Successfully`,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            },
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Error deleting menu item:', error);
+                        Swal.fire(
+                            `${itemToDelete} can not be deleted!`,
+                            `${itemToDelete} contains menu items or have items in an existing bill.`,
+                            'error'
+                        );
+                    });
+            }
+        })
+    };
+
+
+    //Delete Menu item with id
+
+    const handleDeleteMenuItem = (itemId) => {
+        const itemToDelete = data.filter((item) => item.id === itemId).map((name) => name.itemName.toUpperCase());
+
+        // Show a confirmation dialog
+        Swal.fire({
+            title: 'Are you sure?',
+            text: `You want to delete ${itemToDelete}`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, Delete It!',
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`http://localhost:8080/menuitem/${itemId}`, {
+                    method: 'DELETE',
+                })
+                    .then((response) => {
+                        if (!response.ok) {
+                            throw new Error(`HTTP error! Status: ${response.status}`);
+                        }
+                        const updatedSection2Data = data.filter((item) => item.id !== itemId);
+                        setData(updatedSection2Data);
+                        console.log('Menu item deleted successfully : ', itemId);
+                        Swal.fire({
+                            icon: 'success',
+                            title: `${itemToDelete} Removed Successfully`,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            },
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Error deleting menu item:', error);
+                        Swal.fire(
+                            `${itemToDelete} was not deleted! try again`,
+                            `${itemToDelete} may exist in an existing bill`,
+                            'error'
+                        );
+                    })
+                    .catch((error) => {
+                        console.error('Error deleting menu item:', error);
+                    });
+            }
+        })
+    };
+
 
     const [selectedButtonSection1, setSelectedButtonSection1] = useState(null);
     const [selectedButtonSection2, setSelectedButtonSection2] = useState(null);
@@ -97,11 +228,11 @@ function Home({ gridItemsData }) {
         const updatedButtonCountMap = { ...buttonCountMap };
 
         if (!updatedButtonCountMap[buttonLabel]) {
-            updatedButtonCountMap[buttonLabel] = { count: 1, itemPrice: buttonPrice };
+            updatedButtonCountMap[buttonLabel] = { item: buttonLabel, count: 1, itemPrice: buttonPrice };
             setSelectedButtons([...selectedButtons, buttonLabel]);
         } else {
             updatedButtonCountMap[buttonLabel].count++;
-            updatedButtonCountMap[buttonLabel].itemPrice += buttonPrice;
+            updatedButtonCountMap[buttonLabel].itemPrice += parseFloat(buttonPrice);
         }
 
         setButtonCountMap(updatedButtonCountMap);
@@ -111,14 +242,6 @@ function Home({ gridItemsData }) {
 
     const updateQuantity = (buttonLabel, change, buttonPrice) => {
         const updatedButtonCountMap = { ...buttonCountMap };
-        let price = 0;
-
-        for (const item of data) {
-            if (item.itemName === buttonLabel) {
-                price = parseFloat(item.itemPrice);
-                break;
-            }
-        }
 
         if (updatedButtonCountMap[buttonLabel]) {
             updatedButtonCountMap[buttonLabel].count += change;
@@ -127,9 +250,8 @@ function Home({ gridItemsData }) {
                 delete updatedButtonCountMap[buttonLabel];
                 setSelectedButtons(selectedButtons.filter(label => label !== buttonLabel));
             } else {
-                if (price !== 0) {
-                    updatedButtonCountMap[buttonLabel].itemPrice += change * price;
-                }
+                let price = allMenuItems.find((item) => item.itemName === buttonLabel)?.itemPrice;
+                updatedButtonCountMap[buttonLabel].itemPrice += change * price;
             }
 
             setButtonCountMap(updatedButtonCountMap);
@@ -141,44 +263,101 @@ function Home({ gridItemsData }) {
         }
     };
 
-    const handlePrint = () => {
-        var printableContent = document.getElementById('section3-content').innerHTML + "<br><br>";
-        printableContent += document.getElementById('total-section').innerHTML;
 
-        const printWindow = window.open('', '', 'height=900, width=1200');
+    const saveAndPrint = async () => {
+        // var printableContent = document.getElementById('section3-content').innerHTML + "<br><br>";
+        // printableContent += document.getElementById('total-section').innerHTML;
 
-        printWindow.document.write('<html>');
-        printWindow.document.write('<head>');
-        printWindow.document.write('<style>');
-        printWindow.document.write(`
-          .decrement-btn,
-          .increment-btn {
-            display: none;
-          }
+        // const printWindow = window.open('', '', 'height=900, width=1200');
 
-          .billing-table {
-            border: none;
-            margin: 50px;
-          }
-        `);
-        printWindow.document.write('</style>');
-        printWindow.document.write('</head>');
-        printWindow.document.write('<body>');
+        // printWindow.document.write('<html>');
+        // printWindow.document.write('<head>');
+        // printWindow.document.write('<style>');
+        // printWindow.document.write(`
+        //   .decrement-btn,
+        //   .increment-btn {
+        //     display: none;
+        //   }
 
-        printWindow.document.write('<h1>Restaurant</h1><p>Hyderabad Telangana State</p><br>');
-        printWindow.document.write(printableContent);
+        //   .billing-table {
+        //     border: none;
+        //     margin: 50px;
+        //   }
+        // `);
+        // printWindow.document.write('</style>');
+        // printWindow.document.write('</head>');
+        // printWindow.document.write('<body>');
 
-        printWindow.document.write('</body></html>');
-        printWindow.document.close();
+        // printWindow.document.write('<h1>Restaurant</h1><p>Hyderabad Telangana State</p><br>');
+        // printWindow.document.write(printableContent);
 
-        printWindow.print();
-        printWindow.close();
+        // printWindow.document.write('</body></html>');
+        // printWindow.document.close();
+
+        // printWindow.print();
+        // printWindow.close();
+        const billData = {
+            items: selectedButtons.map(buttonLabel => {
+                const item = allMenuItems.find(item => item.itemName === buttonLabel);
+
+                return {
+                    menuItem: {
+                        id: item?.id,
+                        mainMenuItemId: item?.mainMenuItemId,
+                        itemName: item?.itemName,
+                        itemPrice: item?.itemPrice
+                    },
+                    qty: buttonCountMap[buttonLabel]?.count
+                };
+            })
+        };
+
+        try {
+            fetch("http://localhost:8080/bill", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    tableId: 0,
+                    items: billData.items
+                }),
+            })
+                .then((response) => {
+                    if (response.ok) {
+                        return response.json();
+                    } else {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                })
+                .then((data) => {
+                    console.log("New bill added successfully:", data);
+                })
+                .catch((error) => {
+                    console.error("Error adding new bill:", error);
+                });
+        } catch (error) {
+            console.error(error);
+        }
     };
 
     const handleClear = () => {
         setButtonCountMap({});
         setTotal(0);
         setSelectedButtons([]);
+        Swal.fire({
+            icon: 'success',
+            title: 'Billing Section Cleared',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+        });
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -211,14 +390,25 @@ function Home({ gridItemsData }) {
         })
             .then((response) => response.json())
             .then((data) => {
-                console.log('New menu item added successfully:', data);
+                console.log('New menu added successfully:', data);
                 setSection1Data([...section1Data, newMenuItemData]);
                 setNewMenuItem('');
                 closeModal();
+            }).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: `${newMenuItemData.itemName.toUpperCase()} Added Successfully`,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    },
+                });
             })
-            .catch((error) => {
-                console.error('Error adding new menu item:', error);
-            });
     };
 
     const [isSubMenuModalOpen, setIsSubMenuModalOpen] = useState(false);
@@ -261,7 +451,21 @@ function Home({ gridItemsData }) {
         })
             .then((response) => response.json())
             .then((result) => {
-                console.log('New item added:', result);
+                console.log('New Menu item added:', result);
+            }).then(() => {
+                Swal.fire({
+                    icon: 'success',
+                    title: `${formData.itemName.toUpperCase()} Added Successfully`,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    },
+                });
             })
             .catch((error) => {
                 console.error('Error adding new item:', error);
@@ -273,11 +477,12 @@ function Home({ gridItemsData }) {
         closeSubMenuModal();
     };
 
+    //To display actions
+
+    const [showActions, setShowActions] = useState(false);
+
     const kotAndPrint = () => {
-        console.log("selected items : ", selectedButtons);
-        // console.log("Table id : ", selectedTableData.id);
-        console.log("Selected Table : ", selectedTableData);
-        console.log("Selected Items : ",  )
+        console.log("Selected Items for KOT : ", selectedButtons.map((buttonLabel) => buttonCountMap[buttonLabel]))
     }
 
     return (
@@ -286,6 +491,9 @@ function Home({ gridItemsData }) {
             <div className='add-buttons'>
                 <button className="btn" onClick={openModal}>Add Menu</button>
                 <button className="btn" onClick={openSubMenuModal}>Add Menu Item</button>
+                <button onClick={() => setShowActions(!showActions)} className="btn">
+                    {showActions ? 'Disable Actions' : 'Enable Actions'}
+                </button>
             </div>
             <main className="Home-main">
                 <div className="section" style={{ width: '15%' }}>
@@ -294,37 +502,65 @@ function Home({ gridItemsData }) {
                         <div id="section1">
                             {section1Data.map((menuItem, index) => (
                                 <div className='section1' key={index}>
-                                    <Link to={`/${menuItem.id}`}>
+                                    <Link className='section1-link' to={`/${menuItem.id}`}>
                                         <button
                                             className={`btn ${selectedButtonSection1 === menuItem.itemName ? 'selected' : ''}`}
                                             onClick={() => { setSelectedButtonSection1(menuItem.itemName); showSection2Content(menuItem.itemName) }}
                                         >
                                             {menuItem.itemName}
                                         </button>
+                                        <div className={`${showActions ? 'actions' : 'displayNone'}`}>
+                                            {showActions && (
+                                                <>
+                                                    <EditIcon />
+                                                    <DeleteIcon
+                                                        className="btn-delete"
+                                                        onClick={() => 
+                                                            handleDeleteMainMenu(menuItem.id)
+                                                        }
+                                                    />
+                                                </>
+                                            )}
+                                        </div>
                                     </Link>
                                 </div>
                             ))}
                         </div>
                     ) : (
-                        <p>Add Menues</p>
+                        <p>No menu items found.</p>
                     )}
                 </div>
+
                 <div className="section">
                     <h4>Items</h4>
                     <div id="section2-content">
                         {data.length > 0 ? (
                             <div className="section2-content-buttons">
                                 {data.map((menuItem, index) => (
-                                    <button
-                                        className={`section2-content-buttons-btn ${selectedButtonSection2 === menuItem.itemName ? 'selected' : ''}`}
-                                        key={index}
-                                        onClick={() => {
-                                            setSelectedButtonSection2(menuItem.itemName);
-                                            addSection3Content(menuItem.itemName, menuItem.itemPrice);
-                                        }}
-                                    >
-                                        {menuItem.itemName} <br /> ({menuItem.itemPrice})
-                                    </button>
+                                    <div key={index} className="menu-item">
+                                        <button
+                                            className={`section2-content-buttons-btn ${selectedButtonSection2 === menuItem.itemName ? 'selected' : ''}`}
+                                            key={index}
+                                            onClick={() => {
+                                                setSelectedButtonSection2(menuItem.itemName);
+                                                addSection3Content(menuItem.itemName, menuItem.itemPrice);
+                                            }}
+                                        >
+                                            {menuItem.itemName} <br /> ({menuItem.itemPrice})
+                                            {showActions && (
+                                                <>
+                                                    <EditIcon onClick={(e) => e.stopPropagation()} />
+                                                    <DeleteIcon
+                                                        className="delete-menu-item-btn"
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            handleDeleteMenuItem(menuItem.id);
+                                                        }}
+                                                    />
+                                                </>
+                                            )}
+                                        </button>
+                                    </div>
                                 ))}
                             </div>
                         ) : (
@@ -349,9 +585,9 @@ function Home({ gridItemsData }) {
                                         <tr key={index}>
                                             <td>{buttonLabel}</td>
                                             <td className='increment-decrement-btn'>
-                                                <button className='decrement-btn' onClick={() => updateQuantity(buttonLabel, -1, buttonCountMap[buttonLabel].itemPrice)}>-</button>
+                                                <button className='decrement-btn' onClick={() => updateQuantity(buttonLabel, -1, data.find(item => item.itemName === buttonLabel)?.itemPrice)}>-</button>
                                                 <span>{buttonCountMap[buttonLabel]?.count}</span>
-                                                <button className='increment-btn' onClick={() => updateQuantity(buttonLabel, 1, buttonCountMap[buttonLabel].itemPrice)}>+</button>
+                                                <button className='increment-btn' onClick={() => updateQuantity(buttonLabel, 1, data.find(item => item.itemName === buttonLabel)?.itemPrice)}>+</button>
                                             </td>
                                             <td>{buttonCountMap[buttonLabel].itemPrice.toFixed(2)}</td>
                                         </tr>
@@ -390,13 +626,17 @@ function Home({ gridItemsData }) {
                         )}
                     </div>
                     <div className='billing-details'>
-                        <div className="col-lg-3">
-                            <button type="button" className="btn btn-outline" onClick={handlePrint} disabled={selectedButtons.length === 0}>Save & Print</button>
-                            <button type="button" className="btn btn-outline" onClick={handleClear} disabled={selectedButtons.length === 0}>Clear All</button>
-                            <button type="button" className="btn btn-outline" onClick={kotAndPrint} disabled={selectedButtons.length === 0}>KOT & Print</button>
-                        </div>
                         {/* eslint-disable-next-line eqeqeq */}
-                        <div id="total-section">Total : RS { total.toFixed(2)}</div>
+                        <div id="total-section" className={`${selectedButtons.length > 0 ? 'diplayTotalBorder' : ''}`}>{selectedButtons.length === 0 ? '' : `Total  RS ${total.toFixed(2)}`}</div><br />
+                        <div className="col-lg-3">
+                            {selectedButtons.length !== 0 ? (
+                                <>
+                                    <button type="button" className="btn btn-success" onClick={saveAndPrint} disabled={selectedButtons.length === 0}>Save & Print</button>
+                                    <button type="button" className="btn btn-danger" onClick={handleClear} disabled={selectedButtons.length === 0}>Clear All</button>
+                                    <button type="button" className="btn btn-primary" onClick={kotAndPrint} disabled={selectedButtons.length === 0}>KOT & Print</button>
+                                </>
+                            ) : ''}
+                        </div>
                     </div>
                 </div>
                 <Modal

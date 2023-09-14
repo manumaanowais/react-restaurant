@@ -30,20 +30,27 @@ main {
     margin: 0 !important;
     border: 1px solid white !important;
     border-radius: 0 !important;
-    background-color: gray !important;
+    background-color: darkcyan !important;
 }
 
 .section1 .selected {
     background-color: darkred !important;
   }
 
+.section1-link {
+    display: flex;
+    align-items: center;
+}
+
 .menu-item {
-    border: 1px solid black;
     border-radius: 6px;
     padding: 5px;
+
 }
 
 #section2-content .section2-content-buttons {
+    display: flex;
+    flex-wrap: wrap;
     .section2-content-buttons-btn {
         width: 110px;
         margin: 20px;
@@ -101,6 +108,22 @@ main {
     }
 }
 
+.actions {
+    border: 1px solid white;
+    padding: 8px;
+    display: flex;
+    gap: 5px;
+    background-color: black;
+}
+
+.btn-delete {
+    color: orangered;
+}
+
+.displayNone {
+    display: none;
+}
+
 .billing-table {
     text-align: center;
     margin-bottom: 10px;
@@ -121,11 +144,8 @@ td{
     padding: 5px;
 }
 
-.billing-details {
+.col-lg-3 {
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    margin-top: auto;
 }
 
 .btn-outline {
@@ -136,8 +156,13 @@ td{
     position: inherit;
     bottom: 75px;
     font-weight: bold;
-    margin-right: 10px;
     text-align: right;
+}
+
+.diplayTotalBorder {
+    border: 1px solid black;
+    border-left: 0;
+    border-right: 0;
 }
 
 .custom-modal {
@@ -185,10 +210,5 @@ td{
     .section {
         width: 84% !important;
         min-height: 0px;
-    }
-
-    .col-lg-3 {
-        padding: 0 !important;
-        width: 40%;
     }
 }
