@@ -6,9 +6,55 @@ import Modal from 'react-modal';
 import Swal from 'sweetalert2';
 import DeleteIcon from '@mui/icons-material/Delete';
 import EditIcon from '@mui/icons-material/Edit';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 Modal.setAppElement('#root');
 function Home() {
+    const { tableId } = useParams();
+    const [allTables, setAllTables] = useState([]);
+    useEffect(() => {
+        // Fetch data from localhost:8080/tables
+        fetch('http://localhost:8080/tables')
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((data) => {
+                setAllTables(data);
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+    }, []);
+    const [tableData, setTableData] = useState(allTables);
+
+    useEffect(() => {
+        if (tableId) {
+            const apiUrl = `http://localhost:8080/tables/${tableId}`;
+
+            fetch(apiUrl)
+                .then((response) => response.json())
+                .then((result) => {
+                    setTableData(result);
+                })
+                .catch((error) => {
+                    console.error('Error fetching menu items :', error);
+                });
+        }
+    }, [tableId]);
+
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
+
     const [section1Data, setSection1Data] = useState([]);
 
     const [data, setData] = useState([]);
@@ -28,8 +74,7 @@ function Home() {
             .catch((error) => {
                 console.error('Error fetching menu items :', error);
             });
-    });
-
+    }, []);
 
     useEffect(() => {
         const apiUrl = 'http://localhost:8080/mainmenu';
@@ -115,7 +160,7 @@ function Home() {
     //Delete Menu item with id
 
     const handleDeleteMenuItem = (itemId) => {
-        const itemToDelete = data.filter((item) => item.id === itemId).map((name) => name.itemName.toUpperCase());
+        const itemToDelete = data.filter((item) => item.id === itemId).map((name) => name.itemName);
 
         // Show a confirmation dialog
         Swal.fire({
@@ -217,6 +262,18 @@ function Home() {
     const [total, setTotal] = useState(0);
     const [selectedButtons, setSelectedButtons] = useState([]);
 
+    useEffect(() => {
+        // Calculate the total from billing data (tableData.bill.items) and update the 'total' state.
+        let newTotal = 0;
+        if (tableData?.bill?.items.length > 0) {
+            newTotal = tableData.bill.items.reduce((acc, item) => {
+                return acc + (item.qty * item.menuItem.itemPrice);
+            }, 0);
+        }
+        setTotal(newTotal);
+    }, [tableData]);
+
+
     const showSection2Content = (buttonId) => {
         data[buttonId]?.map((button) => ({
             itemName: button.itemName,
@@ -225,41 +282,102 @@ function Home() {
     };
 
     const addSection3Content = (buttonLabel, buttonPrice) => {
-        const updatedButtonCountMap = { ...buttonCountMap };
+        if (tableData?.bill?.items.length > 0) {
 
-        if (!updatedButtonCountMap[buttonLabel]) {
-            updatedButtonCountMap[buttonLabel] = { item: buttonLabel, count: 1, itemPrice: buttonPrice };
-            setSelectedButtons([...selectedButtons, buttonLabel]);
+            if (tableData) {
+                const existingItem = tableData.bill.items.find((item) => item.menuItem.itemName === buttonLabel);
+
+                if (existingItem) {
+                    // If the item exists, increment the quantity and update the price
+                    existingItem.qty += 1;
+                    existingItem.itemPrice += buttonPrice;
+                } else {
+                    // If the item doesn't exist, add a new item
+                    const item = allMenuItems.find((item) => item.itemName === buttonLabel);
+
+                    if (item) {
+                        const newItem = {
+                            menuItem: item,
+                            qty: 1,
+                        };
+                        tableData.bill.items.push(newItem);
+                    }
+                }
+                // Update the total price
+                tableData.bill.price += buttonPrice;
+                setTotal(tableData.bill.price)
+                console.log("total : ", total)
+
+                // Update the state with the modified table data
+                setTableData({
+                    ...tableData
+                });
+            }
         } else {
-            updatedButtonCountMap[buttonLabel].count++;
-            updatedButtonCountMap[buttonLabel].itemPrice += parseFloat(buttonPrice);
-        }
+            const updatedButtonCountMap = { ...buttonCountMap };
 
-        setButtonCountMap(updatedButtonCountMap);
-
-        setTotal((prevTotal) => prevTotal + buttonPrice);
-    };
-
-    const updateQuantity = (buttonLabel, change, buttonPrice) => {
-        const updatedButtonCountMap = { ...buttonCountMap };
-
-        if (updatedButtonCountMap[buttonLabel]) {
-            updatedButtonCountMap[buttonLabel].count += change;
-
-            if (updatedButtonCountMap[buttonLabel].count <= 0) {
-                delete updatedButtonCountMap[buttonLabel];
-                setSelectedButtons(selectedButtons.filter(label => label !== buttonLabel));
+            if (!updatedButtonCountMap[buttonLabel]) {
+                updatedButtonCountMap[buttonLabel] = { item: buttonLabel, count: 1, itemPrice: buttonPrice };
+                setSelectedButtons([...selectedButtons, buttonLabel]);
             } else {
-                let price = allMenuItems.find((item) => item.itemName === buttonLabel)?.itemPrice;
-                updatedButtonCountMap[buttonLabel].itemPrice += change * price;
+                updatedButtonCountMap[buttonLabel].count++;
+                updatedButtonCountMap[buttonLabel].itemPrice += parseFloat(buttonPrice);
             }
 
             setButtonCountMap(updatedButtonCountMap);
-            const newTotal = Object.values(updatedButtonCountMap).reduce((acc, item) => {
-                return acc + item.itemPrice;
-            }, 0);
 
-            setTotal(newTotal);
+            setTotal((prevTotal) => prevTotal + buttonPrice);
+        }
+    };
+
+    const updateQuantity = (buttonLabel, change, buttonPrice) => {
+        if (tableData?.bill?.items.length > 0) {
+            // Check if the item already exists in the billing items
+            const existingItem = tableData.bill.items.find((item) => item.menuItem.itemName === buttonLabel);
+
+            if (existingItem) {
+                // Increment the quantity and update the price
+                existingItem.qty += change;
+                existingItem.itemPrice += change * buttonPrice;
+
+                // If the quantity goes less than 1, remove it from billing items
+                if (existingItem.qty <= 0) {
+                    const index = tableData.bill.items.indexOf(existingItem);
+                    if (index !== -1) {
+                        tableData.bill.items.splice(index, 1);
+                    }
+                }
+
+                // Update the total price
+                tableData.bill.price += change * buttonPrice;
+                setTotal(tableData.bill.price)
+                console.log("total : ", total)
+
+                // Update the state with the modified table data
+                setTableData({ ...tableData });
+            }
+        } else {
+
+            const updatedButtonCountMap = { ...buttonCountMap };
+
+            if (updatedButtonCountMap[buttonLabel]) {
+                updatedButtonCountMap[buttonLabel].count += change;
+
+                if (updatedButtonCountMap[buttonLabel].count <= 0) {
+                    delete updatedButtonCountMap[buttonLabel];
+                    setSelectedButtons(selectedButtons.filter(label => label !== buttonLabel));
+                } else {
+                    let price = allMenuItems.find((item) => item.itemName === buttonLabel)?.itemPrice;
+                    updatedButtonCountMap[buttonLabel].itemPrice += change * price;
+                }
+
+                setButtonCountMap(updatedButtonCountMap);
+                const newTotal = Object.values(updatedButtonCountMap).reduce((acc, item) => {
+                    return acc + item.itemPrice;
+                }, 0);
+
+                setTotal(newTotal);
+            }
         }
     };
 
@@ -312,42 +430,26 @@ function Home() {
             })
         };
 
-        try {
-            fetch("http://localhost:8080/bill", {
-                method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({
-                    tableId: 0,
-                    items: billData.items
-                }),
-            })
-                .then((response) => {
-                    if (response.ok) {
-                        return response.json();
-                    } else {
-                        throw new Error(`HTTP error! Status: ${response.status}`);
-                    }
-                })
-                .then((data) => {
-                    console.log("New bill added successfully:", data);
-                })
-                .catch((error) => {
-                    console.error("Error adding new bill:", error);
-                });
-        } catch (error) {
-            console.error(error);
-        }
-    };
+        const response = await fetch("http://localhost:8080/bill", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                tableId: 0,
+                items: billData.items,
+            }),
+        });
 
-    const handleClear = () => {
-        setButtonCountMap({});
-        setTotal(0);
-        setSelectedButtons([]);
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log("New bill added successfully:", data);
         Swal.fire({
             icon: 'success',
-            title: 'Billing Section Cleared',
+            title: 'Bill Created',
             toast: true,
             position: 'top-end',
             showConfirmButton: false,
@@ -358,6 +460,28 @@ function Home() {
                 toast.addEventListener('mouseleave', Swal.resumeTimer);
             },
         });
+        // window.print(billData);
+        handleClear();
+    };
+
+    const handleClear = () => {
+        setButtonCountMap({});
+        setTotal(0);
+        setSelectedButtons([]);
+        setTableData([]);
+        // Swal.fire({
+        //     icon: 'success',
+        //     title: 'Billing Section Cleared',
+        //     toast: true,
+        //     position: 'top-end',
+        //     showConfirmButton: false,
+        //     timer: 1500,
+        //     timerProgressBar: true,
+        //     didOpen: (toast) => {
+        //         toast.addEventListener('mouseenter', Swal.stopTimer);
+        //         toast.addEventListener('mouseleave', Swal.resumeTimer);
+        //     },
+        // });
     };
 
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -378,7 +502,7 @@ function Home() {
         }
 
         const newMenuItemData = {
-            itemName: newMenuItem.trim(),
+            itemName: newMenuItem.toUpperCase(),
         };
 
         fetch('http://localhost:8080/mainmenu', {
@@ -415,6 +539,11 @@ function Home() {
     const [newSubMenuItem, setNewSubMenuItem] = useState('');
     const [newItemPrice, setNewItemPrice] = useState('');
     const [selectedMainMenu, setSelectedMainMenu] = useState('');
+    const [showOptions, setShowOptions] = useState(false);
+
+    const toggleOptions = () => {
+        setShowOptions(!showOptions);
+    };
 
     const openSubMenuModal = () => {
         setIsSubMenuModalOpen(true);
@@ -489,15 +618,18 @@ function Home() {
         <div className="Home">
             <Header />
             <div className='add-buttons'>
-                <button className="btn" onClick={openModal}>Add Menu</button>
-                <button className="btn" onClick={openSubMenuModal}>Add Menu Item</button>
-                <button onClick={() => setShowActions(!showActions)} className="btn">
+                <button className={`${showActions ? 'btn' : 'displayNone'}`} onClick={openModal}>Add Menu</button>
+                <button className={`${showActions ? 'btn' : 'displayNone'}`} onClick={openSubMenuModal}>Add Menu Item</button>
+                <button
+                    onClick={() => setShowActions(!showActions)}
+                    className={`btn ${showActions ? 'btn-danger' : 'btn-success'}`}
+                >
                     {showActions ? 'Disable Actions' : 'Enable Actions'}
                 </button>
             </div>
             <main className="Home-main">
                 <div className="section" style={{ width: '15%' }}>
-                    <h4>Menu Items</h4>
+                    {/* <h4>Menu Items</h4> */}
                     {section1Data.length > 0 ? (
                         <div id="section1">
                             {section1Data.map((menuItem, index) => (
@@ -515,7 +647,7 @@ function Home() {
                                                     <EditIcon />
                                                     <DeleteIcon
                                                         className="btn-delete"
-                                                        onClick={() => 
+                                                        onClick={() =>
                                                             handleDeleteMainMenu(menuItem.id)
                                                         }
                                                     />
@@ -532,7 +664,7 @@ function Home() {
                 </div>
 
                 <div className="section">
-                    <h4>Items</h4>
+                    {/* <h4>Items</h4> */}
                     <div id="section2-content">
                         {data.length > 0 ? (
                             <div className="section2-content-buttons">
@@ -569,7 +701,7 @@ function Home() {
                     </div>
                 </div>
                 <div className="section">
-                    <h4>Billing Details</h4>
+                    {/* <h4>Billing Details</h4> */}
                     <div id="section3-content">
                         {selectedButtons.length > 0 ? (
                             <table border={1} className='billing-table'>
@@ -595,118 +727,152 @@ function Home() {
                                 </tbody>
                             </table>
                         ) : (
-                            <div>
-                                {selectedTableData?.bill > 0 ? (
+                            <>
+                                {tableData?.bill?.items.length > 0 ? (
                                     // Render the table when selectedTableData has data
                                     <>
-                                        <h6>Table {selectedTableData.id} is occupied from {formatTime(selectedTableData?.id)}</h6>
+                                        <h6>Table {tableData?.id} is occupied from {formatTime(tableData?.id)}</h6>
                                         <table border={1} className='billing-table'>
                                             <thead>
                                                 <tr>
-                                                    <th>Items</th>
+                                                    <th>Item</th>
                                                     <th>Quantity</th>
                                                     <th>Price</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
-                                                <tr>
-                                                    <td>{selectedTableData.name}</td>
-                                                    <td><span>{selectedTableData.sequence}</span></td>
-                                                    <td>{selectedTableData.id}</td>
-                                                </tr>
+                                                {tableData.bill?.items.map((item, index) => (
+                                                    <tr key={index}>
+                                                        <td>{item.menuItem?.itemName}</td>
+                                                        <td className='increment-decrement-btn'>
+                                                            <button className='decrement-btn' onClick={() => updateQuantity(item.menuItem.itemName, -1, item.menuItem.itemPrice)}>-</button>
+                                                            <span>{item.qty}</span>
+                                                            <button className='increment-btn' onClick={() => updateQuantity(item.menuItem.itemName, 1, item.menuItem.itemPrice)}>+</button>
+                                                        </td>
+                                                        <td>{(item.qty * item.menuItem?.itemPrice).toFixed(2)}</td>
+                                                    </tr>
+                                                ))}
                                             </tbody>
                                         </table>
+
                                     </>
                                 ) : (
                                     // Render "No item found." when selectedTableData is empty
                                     <p>No item found.</p>
                                 )}
-                            </div>
+                            </>
 
                         )}
                     </div>
                     <div className='billing-details'>
                         {/* eslint-disable-next-line eqeqeq */}
-                        <div id="total-section" className={`${selectedButtons.length > 0 ? 'diplayTotalBorder' : ''}`}>{selectedButtons.length === 0 ? '' : `Total  RS ${total.toFixed(2)}`}</div><br />
+                        <div id="total-section" className={`${(selectedButtons.length > 0 || (tableData && tableData.bill && tableData.bill.items && tableData.bill.items.length > 0)) ? 'displayTotalBorder' : ''}`}>
+                            {(selectedButtons.length !== 0 || (tableData && tableData.bill && tableData.bill.items && tableData.bill.items.length > 0)) ? `Total RS ${total.toFixed(2)}` : ''}
+                        </div>
+                        <br />
+
                         <div className="col-lg-3">
-                            {selectedButtons.length !== 0 ? (
+                            {selectedButtons.length > 0 || tableData?.bill?.items.length > 0 ? (
                                 <>
-                                    <button type="button" className="btn btn-success" onClick={saveAndPrint} disabled={selectedButtons.length === 0}>Save & Print</button>
-                                    <button type="button" className="btn btn-danger" onClick={handleClear} disabled={selectedButtons.length === 0}>Clear All</button>
-                                    <button type="button" className="btn btn-primary" onClick={kotAndPrint} disabled={selectedButtons.length === 0}>KOT & Print</button>
+                                    <button type="button" className="btn btn-success" onClick={saveAndPrint}>Save & Print</button>
+                                    <button type="button" className="btn btn-danger" onClick={handleClear}>Clear All</button>
+                                    <button type="button" className="btn btn-primary" onClick={kotAndPrint}>KOT & Print</button>
                                 </>
                             ) : ''}
                         </div>
                     </div>
                 </div>
-                <Modal
-                    isOpen={isModalOpen}
-                    onRequestClose={closeModal}
+                {/* For Adding Main Menu */}
+                <Dialog
+                    fullScreen={fullScreen}
+                    open={isModalOpen}
+                    onClose={closeModal}
                     className="custom-modal"
-                    contentLabel="Add Menu"
+                    aria-labelledby="responsive-dialog-title"
                 >
-                    <h4 style={{ paddingTop: '8px' }}>Add Menu</h4>
-                    <form onSubmit={handleSubmit} className='form'>
-                        <input
-                            className='formInput'
-                            type="text"
-                            placeholder="Enter Menu"
-                            value={newMenuItem}
-                            required
-                            onChange={(e) => setNewMenuItem(e.target.value)}
-                        /><br />
-                        <div className='formActions'>
-                            <button className='formBtn' type="submit">Add</button>
-                            <button className='formBtn' type="button" onClick={closeModal}>Cancel</button>
-                        </div>
-                    </form>
-                </Modal>
+                    <DialogTitle id="responsive-dialog-title" className="formHeading">
+                        {"Add Main Menu"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            <input
+                                className='formInput'
+                                type="text"
+                                placeholder="Enter Main Menu"
+                                value={newMenuItem}
+                                required
+                                onChange={(e) => setNewMenuItem(e.target.value)} />
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button className="formBtn" onClick={handleSubmit}>
+                            Add
+                        </Button>
+                        <Button className="formBtn" onClick={closeModal}>
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </Dialog>
 
                 {/* For sub menuitems */}
-
-                <Modal
-                    isOpen={isSubMenuModalOpen}
-                    onRequestClose={closeSubMenuModal}
-                    className="custom-modal-menu-item"
-                    contentLabel="Add Menu Item"
+                <Dialog
+                    fullScreen={fullScreen}
+                    open={isSubMenuModalOpen}
+                    onClose={closeSubMenuModal}
+                    className="custom-modal"
+                    aria-labelledby="responsive-dialog-title"
                 >
-                    <h4 style={{ paddingTop: '8px' }}>Add Menu Item</h4>
-                    <form onSubmit={handleSubMenuSubmit} className='menuItemForm'>
-                        <select
-                            className='formInput'
-                            value={selectedMainMenu}
-                            onChange={(e) => setSelectedMainMenu(e.target.value)}
-                            required
-                        >
-                            <option value="" disabled>Select Main Menu</option>
-                            {section1Data.map((menuItem, index) => (
-                                <option key={index} value={menuItem.itemName}>
-                                    {menuItem.itemName.toUpperCase()}
-                                </option>
-                            ))}
-                        </select><br />
-                        <input
-                            className='formInput'
-                            type="text"
-                            placeholder="Enter Menu Item"
-                            value={newSubMenuItem}
-                            onChange={(e) => setNewSubMenuItem(e.target.value)}
-                            required
-                        /><br />
-                        <input
-                            className='formSubMenuInput'
-                            type="number"
-                            placeholder="Enter Price"
-                            value={newItemPrice}
-                            onChange={(e) => setNewItemPrice(e.target.value)}
-                            required
-                        /><br />
-                        <div className='formActions'>
-                            <button className='formBtn' type="submit">Add</button>
-                            <button className='formBtn' type="button" onClick={closeSubMenuModal}>Cancel</button>
-                        </div>
-                    </form>
-                </Modal>
+                    <DialogTitle id="responsive-dialog-title" className="formHeading">
+                        {"Add Menu Item"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            <div className="custom-select">
+                                <div onClick={toggleOptions} className="selected-option">
+                                    {selectedMainMenu || 'Select Main Menu'}
+                                </div>
+                                <div className={`options ${showOptions ? 'show' : ''}`}>
+                                    {section1Data.map((menuItem, index) => (
+                                        <div
+                                            key={index}
+                                            className="option"
+                                            onClick={() => {
+                                                setSelectedMainMenu(menuItem.itemName);
+                                                toggleOptions();
+                                            }}
+                                        >
+                                            {menuItem.itemName.toUpperCase()}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div><br />
+                            <input
+                                className='formInput'
+                                type="text"
+                                placeholder="Enter Menu Item"
+                                value={newSubMenuItem}
+                                onChange={(e) => setNewSubMenuItem(e.target.value)}
+                                required
+                            /><br />
+                            <input
+                                className='formInput'
+                                type="text"
+                                placeholder="Enter Price"
+                                value={newItemPrice}
+                                onChange={(e) => setNewItemPrice(e.target.value)}
+                                required
+                            /><br />
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button className="formBtn" onClick={handleSubMenuSubmit}>
+                            Add
+                        </Button>
+                        <Button className="formBtn" onClick={closeSubMenuModal}>
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </Dialog>
             </main>
         </div>
     );

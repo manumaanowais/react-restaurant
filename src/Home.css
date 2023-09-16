@@ -7,8 +7,7 @@ main {
 }
 
 .section {
-    width: 30%;
-    background-color: #f2f2f2;
+    width: 34%;
     border: 1px solid #ccc;
     display: flex;
     flex-direction: column;
@@ -30,11 +29,15 @@ main {
     margin: 0 !important;
     border: 1px solid white !important;
     border-radius: 0 !important;
-    background-color: darkcyan !important;
+    background-color: white !important;
+    border: 1px solid darkcyan !important;
+    border-left-width: 5px !important;
+    color: black !important;
 }
 
 .section1 .selected {
-    background-color: darkred !important;
+    border: 1px solid darkred !important;
+    border-left-width: 5px !important;
   }
 
 .section1-link {
@@ -56,14 +59,20 @@ main {
         margin: 20px;
         border-radius: 4px;
         padding: 5px;
-        background-color: gold;
+        min-height: 70px;
+        min-width: 94px;
+        outline: none;
+        font-weight: 550;
+        background-color: white !important;
+        border: 1px solid green;
+        border-left-width: 5px !important;
     }
 }
 
-.section2-content-buttons .selected {
-    background-color: green !important;
-    color: white !important;
-}
+/* .section2-content-buttons .selected {
+    border: 1px solid lightgreen !important;
+    border-left-width: 5px !important;
+} */
 
 .section3 {
     display: flex;
@@ -109,13 +118,20 @@ main {
 }
 
 .actions {
-    border: 1px solid white;
+    border: 1px solid darkcyan;
+    border-left-width: 4px;
     padding: 8px;
     display: flex;
     gap: 5px;
-    background-color: black;
+    background-color: white;
 }
 
+
+.selected + .actions {
+    border: 1px solid darkred;
+    border-left-width: 4px;
+}
+  
 .btn-delete {
     color: orangered;
 }
@@ -146,6 +162,8 @@ td{
 
 .col-lg-3 {
     display: flex;
+    justify-content: center;
+    max-width: 100%;
 }
 
 .btn-outline {
@@ -159,48 +177,84 @@ td{
     text-align: right;
 }
 
-.diplayTotalBorder {
+.displayTotalBorder {
     border: 1px solid black;
     border-left: 0;
     border-right: 0;
 }
 
-.custom-modal {
-    width: 50%;
-    height: 40%;
-    background: darkgray;
+ .custom-modal {
     text-align: center;
     margin: auto;
-    margin-top: 100px;
-    border-radius: 8px;
 }
 
-.form, .menuItemForm {
-    display: flex;
-    flex-direction: column;
-    padding: 20px;
+.formHeading {
+    width: 400px;
 }
 
-.formInput, .formSubMenuInput {
+.formInput {
+    width: 250px;
+    border: none;
+    outline: none;
+    border-bottom: 1px solid black;
+    font-size: 15px;
+}
+
+.formSelectInput {
+    width: 250px;
+    outline: none;
+    font-size: 15px;
     border-radius: 6px;
 }
 
 .formBtn {
-    padding: 5px;
-    margin: 10px;
-    width: 90px;
+    outline: none !important;
 }
 
-.custom-modal-menu-item {
-    width: 50%;
-    height: 50%;
-    background: darkgray;
-    text-align: center;
-    margin: auto;
-    margin-top: 100px;
-    border-radius: 8px;
-}
-
+/* CustomSelect.css */
+.custom-select {
+    width: 250px;
+  }
+  
+  .custom-select select {
+    appearance: none;
+    padding: 10px;
+    width: 100%;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+  }
+  
+  .custom-select select:focus {
+    outline: none;
+    border-color: #007bff;
+  }
+  
+  .custom-select .options {
+    display: none;
+    max-height: 135px;
+    overflow-y: auto;
+    border: 1px solid #ccc;
+    margin-top: 8px;
+    border-top: none;
+    position: absolute;
+    width: 58%;
+    background-color: #fff;
+    z-index: 1;
+  }
+  
+  .custom-select .options.show {
+    display: block;
+  }
+  
+  .custom-select .option {
+    padding: 10px;
+    cursor: pointer;
+  }
+  
+  .custom-select .option:hover {
+    background-color: #f0f0f0;
+  }
+  
 @media screen and (max-width: 768px) {
     main {
         display: flex;
@@ -210,5 +264,9 @@ td{
     .section {
         width: 84% !important;
         min-height: 0px;
+    }
+    
+    .formHeading {
+        width: 250px;
     }
 }
