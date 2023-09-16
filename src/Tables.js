@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import './Tables.css';
 import Header from './Header';
 import { Link } from 'react-router-dom';
-import { SortableContainer, SortableElement } from 'react-sortable-hoc';
 import Modal from 'react-modal';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -12,31 +11,11 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import { DragDropContext, Droppable, Draggable } from 'react-beautiful-dnd';
 
 Modal.setAppElement('#root');
 
-const SortableGridItem = SortableElement(({ item }) => (
-  <Link to={`/${item.id}`} className="grid-item">
-    {item.name}<br />
-    {item.sequence}
-  </Link>
-));
-
-const SortableGrid = SortableContainer(({ items }) => (
-  <div
-    className="grid-3-columns"
-    data-margin="20"
-    data-item="grid-item"
-    data-lightbox="gallery"
-  >
-    {items.map((item, index) => (
-      <SortableGridItem key={item.id} index={index} item={item} />
-    ))}
-  </div>
-));
-
 function Tables() {
-
   const theme = useTheme();
   const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
   const [tableData, setTableData] = useState([]);
@@ -71,16 +50,16 @@ function Tables() {
     const apiUrl = 'http://localhost:8080/bill/28';
 
     fetch(apiUrl)
-        .then((response) => response.json())
-        .then((result) => {
-            setBill(result);
-        })
-        .catch((error) => {
-            console.error('Error fetching menu items :', error);
-        });
-});
+      .then((response) => response.json())
+      .then((result) => {
+        setBill(result);
+      })
+      .catch((error) => {
+        console.error('Error fetching menu items :', error);
+      });
+  });
 
-  //Form for adding table
+  // Form for adding table
   const [isTableOpen, setIsTableOpen] = useState(false);
   const [newTableName, setNewTableName] = useState('');
   const [newTableSequence, setNewTableSequence] = useState('');
@@ -88,6 +67,7 @@ function Tables() {
   const openTable = () => {
     setIsTableOpen(true);
   };
+
   const closeTable = () => {
     setIsTableOpen(false);
   };
@@ -96,11 +76,11 @@ function Tables() {
     if (newTableName.trim() === '') {
       return;
     }
-    
+
     const formData = {
       name: newTableName.toUpperCase(),
       sequence: newTableSequence,
-      bill: bill
+      bill: bill,
     };
 
     const apiUrl = 'http://localhost:8080/table';
@@ -124,6 +104,19 @@ function Tables() {
     closeTable();
   };
 
+  // Function to handle drag-and-drop reordering
+  const handleDragEnd = (result) => {
+    if (!result.destination) {
+      return; // Item was dropped outside of the droppable area
+    }
+
+    const reorderedTableData = [...tableData];
+    const [reorderedItem] = reorderedTableData.splice(result.source.index, 1);
+    reorderedTableData.splice(result.destination.index, 0, reorderedItem);
+
+    // Update the state with the reordered data
+    setTableData(reorderedTableData);
+  };
 
   return (
     <div>
@@ -132,11 +125,50 @@ function Tables() {
         <button onClick={() => setDragEnabled(!dragEnabled)} className="btn">
           {dragEnabled ? 'Stop Customization' : 'Customize Tables'}
         </button>
-        <button className="btn" onClick={openTable}>Add Table</button>
+        <button className="btn" onClick={openTable}>
+          Add Table
+        </button>
         {tableData.length === 0 ? (
           <p>No Tables Found</p>
         ) : dragEnabled ? (
-          <SortableGrid items={tableData} axis="xy" />
+          <DragDropContext onDragEnd={handleDragEnd}>
+            <Droppable droppableId="tableList">
+              {(provided) => (
+                <div
+                  {...provided.droppableProps}
+                  ref={provided.innerRef}
+                  className="grid-3-columns"
+                  data-margin="20"
+                  data-item="grid-item"
+                  data-lightbox="gallery"
+                >
+                  {tableData.map((table, index) => (
+                    <Draggable
+                      key={table.id}
+                      draggableId={table.id.toString()}
+                      index={index}
+                    >
+                      {(provided) => (
+                        <div
+                          ref={provided.innerRef}
+                          {...provided.draggableProps}
+                          {...provided.dragHandleProps}
+                          className="grid-item"
+                        >
+                          {table.id}
+                          <br />
+                          {table.name}
+                          <br />
+                          {table.sequence}
+                        </div>
+                      )}
+                    </Draggable>
+                  ))}
+                  {provided.placeholder}
+                </div>
+              )}
+            </Droppable>
+          </DragDropContext>
         ) : (
           <div
             className="grid-3-columns"
@@ -146,8 +178,10 @@ function Tables() {
           >
             {tableData.map((table) => (
               <Link to={`/table/${table.id}`} key={table.id} className="grid-item">
-                {table.id}<br />
-                {table.name}<br />
+                {table.id}
+                <br />
+                {table.name}
+                <br />
                 {table.sequence}
               </Link>
             ))}
@@ -169,15 +203,16 @@ function Tables() {
         <DialogContent>
           <DialogContentText>
             <input
-              className='formInput'
+              className="formInput"
               type="text"
               placeholder="Enter Table Name"
               value={newTableName}
               onChange={(e) => setNewTableName(e.target.value)}
               required
-            /><br />
+            />
+            <br />
             <input
-              className='formInput'
+              className="formInput"
               type="text"
               placeholder="Enter Table Sequence"
               value={newTableSequence}
