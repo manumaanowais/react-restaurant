@@ -1,7 +1,7 @@
 .grid-item {
     width: 150px !important;
     height: 150px !important;
-    background-color: lightblue;
+    background-color: greenyellow;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -18,4 +18,13 @@
   height: 400px;
   overflow-y: auto;
   scroll-behavior: smooth;
+  text-align: center;
+}
+
+.occupied {
+  background-color: red;
+}
+
+.empty {
+  background-color: greenyellow;
 }
