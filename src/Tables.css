@@ -25,6 +25,10 @@
   background-color: red;
 }
 
+.occupied a{
+  color: white !important;
+  }
+
 .empty {
   background-color: greenyellow;
 }

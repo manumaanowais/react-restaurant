@@ -466,30 +466,30 @@ function Home() {
     };
 
     const handleCreateBillClick = async () => {
-        if (tableData.bill.price > 0) {
+        if (tableData.bill?.price > 0) {
             console.log("Table data : ", tableData)
             const billDataForModification = {
                 bill: tableData.bill
-              };
-              console.log("Tabledata after modify : ", tableData.bill.id)
-          
-              const response = await fetch(`http://localhost:8080/bill/${tableData.bill.id}`, {
+            };
+            console.log("Tabledata after modify : ", tableData.bill.id)
+
+            const response = await fetch(`http://localhost:8080/bill/${tableData.bill.id}`, {
                 method: "PUT", // Use PUT or PATCH depending on your API
                 headers: {
-                  "Content-Type": "application/json",
+                    "Content-Type": "application/json",
                 },
                 body: JSON.stringify(billDataForModification),
-              });
-          
-              if (!response.ok) {
+            });
+
+            if (!response.ok) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
-              }
-          
-              const data = await response.json();
-              console.log("Bill modified successfully:", data);
-          
-              // Display a success message or handle other UI updates
-              Swal.fire({
+            }
+
+            const data = await response.json();
+            console.log("Bill modified successfully:", data);
+
+            // Display a success message or handle other UI updates
+            Swal.fire({
                 icon: 'success',
                 title: 'Bill Modified',
                 toast: true,
@@ -498,8 +498,8 @@ function Home() {
                 timer: 1500,
                 timerProgressBar: true,
                 didOpen: (toast) => {
-                  toast.addEventListener('mouseenter', Swal.stopTimer);
-                  toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
                 },
             });
         } else {
@@ -704,11 +704,10 @@ function Home() {
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours() % 12 || 12).padStart(2, '0'); // Convert to 12-hour format
+        const hours = String(now.getHours()).padStart(2, '0'); // 24-hour format
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
-        const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-        return `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${ampm}`;
+        return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
     }
 
     //Calculating from how much time the table is occupied
@@ -729,7 +728,7 @@ function Home() {
         const hoursDiff = Math.floor(totalSeconds / 3600);
         const minutesDiff = Math.floor((totalSeconds % 3600) / 60);
         const secondsDiff = totalSeconds % 60;
-        const formattedTime = `${hoursDiff} : ${minutesDiff} : ${secondsDiff}`;
+        const formattedTime = `${hoursDiff.toString().padStart(2, '0')} : ${minutesDiff.toString().padStart(2, '0')} : ${secondsDiff.toString().padStart(2, '0')}`;
         return formattedTime;
     }
 

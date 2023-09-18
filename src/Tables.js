@@ -63,40 +63,57 @@ function Tables() {
   //     });
   // });
 
+  const [occupiedTimes, setOccupiedTimes] = useState({});
   //Get current time
   const getCurrentTime = () => {
     const now = new Date();
     const year = now.getFullYear();
     const month = String(now.getMonth() + 1).padStart(2, '0');
     const day = String(now.getDate()).padStart(2, '0');
-    const hours = String(now.getHours() % 12 || 12).padStart(2, '0'); // Convert to 12-hour format
+    const hours = String(now.getHours()).padStart(2, '0'); // 24-hour format
     const minutes = String(now.getMinutes()).padStart(2, '0');
     const seconds = String(now.getSeconds()).padStart(2, '0');
-    const ampm = now.getHours() >= 12 ? 'PM' : 'AM';
-    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds} ${ampm}`;
+    return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
   }
 
-  //Calculating from how much time the table is occupied
-  const getOccupiedTime = (tableId) => {
-    const currentTable = tableData.find((table) => table.id === tableId);
-    const createdTime = currentTable.bill.createdTime;
-    const [datePart, timePart] = createdTime.split(' ');
-    const [day, month, year] = datePart.split('-');
-    const [hours, minutes, seconds] = timePart.split(':');
-    const createTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:${seconds}`);
-    const currentTime = getCurrentTime();
-    const [currentDatePart, currentTimePart] = currentTime.split(' ');
-    const [currentDay, currentMonth, currentYear] = currentDatePart.split('-');
-    const [currentHours, currentMinutes, currentSeconds] = currentTimePart.split(':');
-    const currentTimeObj = new Date(`${currentYear}-${currentMonth}-${currentDay}T${currentHours}:${currentMinutes}:${currentSeconds}`);
-    const timeDifference = currentTimeObj - createTime;
-    const totalSeconds = Math.floor(timeDifference / 1000);
-    const hoursDiff = Math.floor(totalSeconds / 3600);
-    const minutesDiff = Math.floor((totalSeconds % 3600) / 60);
-    const secondsDiff = totalSeconds % 60;
-    const formattedTime = `${hoursDiff} : ${minutesDiff} : ${secondsDiff}`;
-    return formattedTime;
-  }
+  useEffect(() => {
+    //Calculating from how much time the table is occupied
+    const getOccupiedTime = (tableId) => {
+      const currentTable = tableData.find((table) => table.id === tableId);
+      const createdTime = currentTable.bill.createdTime;
+      const [datePart, timePart] = createdTime.split(' ');
+      const [day, month, year] = datePart.split('-');
+      const [hours, minutes, seconds] = timePart.split(':');
+      const createTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:${seconds}`);
+      const currentTime = getCurrentTime();
+      const [currentDatePart, currentTimePart] = currentTime.split(' ');
+      const [currentDay, currentMonth, currentYear] = currentDatePart.split('-');
+      const [currentHours, currentMinutes, currentSeconds] = currentTimePart.split(':');
+      const currentTimeObj = new Date(`${currentYear}-${currentMonth}-${currentDay}T${currentHours}:${currentMinutes}:${currentSeconds}`);
+      const timeDifference = currentTimeObj - createTime;
+      const totalSeconds = Math.floor(timeDifference / 1000);
+      const hoursDiff = Math.floor(totalSeconds / 3600);
+      const minutesDiff = Math.floor((totalSeconds % 3600) / 60);
+      const secondsDiff = totalSeconds % 60;
+      const formattedTime = `${hoursDiff.toString().padStart(2, '0')} : ${minutesDiff.toString().padStart(2, '0')} : ${secondsDiff.toString().padStart(2, '0')}`;
+      return formattedTime;
+    }
+
+    const intervalId = setInterval(() => {
+      const updatedOccupiedTimes = {};
+      // Calculate occupied times for each table
+      tableData.forEach((table) => {
+        if (table.bill && table.bill.createdTime) {
+          const occupiedTime = getOccupiedTime(table.id);
+          updatedOccupiedTimes[table.id] = occupiedTime;
+        }
+      });
+      // Update the state with the new occupied times
+      setOccupiedTimes(updatedOccupiedTimes);
+    }, 1000); // Update every 1000ms (1 second)
+
+    return () => clearInterval(intervalId);
+  }, [tableData]);
 
   // Form for adding table
   const [isTableOpen, setIsTableOpen] = useState(false);
@@ -278,9 +295,9 @@ function Tables() {
                           ref={provided.innerRef}
                           {...provided.draggableProps}
                           {...provided.dragHandleProps}
-                          className={`grid-3-columns ${table.bill?.price > 0 ? 'occupied' : 'empty'}`}
+                          className={`grid-item ${table.bill?.price > 0 ? 'occupied' : 'empty'}`}
                         >
-                          {table.bill?.price > 0 && (getOccupiedTime(table.id))}
+                          {table.bill?.price > 0 && occupiedTimes[table.id]}
                           <br />
                           {table.id}
                           <br />
@@ -293,7 +310,7 @@ function Tables() {
                             <>
                               <EditIcon onClick={(e) => e.stopPropagation()} />
                               <DeleteIcon
-                                className="delete-menu-item-btn"
+                                className="delete-table-btn"
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleDeleteTable(table.id);
@@ -320,7 +337,7 @@ function Tables() {
             {tableData.map((table) => (
               <div key={table.id} className={`grid-item ${table.bill?.price > 0 ? 'occupied' : 'empty'}`}>
                 <Link to={`/table/${table.id}`}>
-                  {table.bill?.price > 0 && (getOccupiedTime(table.id))}
+                  {table.bill?.price > 0 && occupiedTimes[table.id]}
                   <br />
                   {table.id}
                   <br />
