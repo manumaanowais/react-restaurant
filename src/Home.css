@@ -214,6 +214,7 @@ td{
 /* CustomSelect.css */
 .custom-select {
     width: 250px;
+    margin: auto;
   }
   
   .custom-select select {

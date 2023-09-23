@@ -473,12 +473,12 @@ function Home() {
             };
             console.log("Tabledata after modify : ", tableData.bill.id)
 
-            const response = await fetch(`http://localhost:8080/bill/${tableData.bill.id}`, {
-                method: "PUT", // Use PUT or PATCH depending on your API
+            const response = await fetch(`http://localhost:8080/bill`, {
+                method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
                 },
-                body: JSON.stringify(billDataForModification),
+                body: JSON.stringify(billDataForModification.bill),
             });
 
             if (!response.ok) {
@@ -553,6 +553,49 @@ function Home() {
         }
     };
 
+    const handleCloseTable = async () => {
+        console.log("Table data for closing : ", tableData);
+        const editedTableData = {...tableData};
+        console.log("Edited table Data before : ", editedTableData)
+        editedTableData.bill.id = null;
+        editedTableData.bill.status = "closed";
+        console.log("Edited table Data : ", editedTableData)
+  
+        try {
+          const response = await fetch("http://localhost:8080/table", {
+            method: "PATCH",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(editedTableData),
+          });
+      
+          if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+          }
+      
+          const data = await response.json();
+          console.log("Table Modified successfully:", data);
+          Swal.fire({
+            icon: 'success',
+            title: 'Table Modified',
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+              toast.addEventListener('mouseenter', Swal.stopTimer);
+              toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+          });
+        } catch (error) {
+          console.error("Error modifying table:", error);
+        }
+        console.log("Table closed : ", tableData)
+        handleClear();
+    }
+
     const handleClear = () => {
         setButtonCountMap({});
         setTotal(0);
@@ -624,6 +667,30 @@ function Home() {
             })
     };
 
+    //For Editing Main Menu
+
+    const [editedMainMenu, setEditedMainMenu] = useState(null);
+    const [isEditMainMenuFormOpen, setIsEditMainMenuFormOpen] = useState(false);
+
+    // const openEditMainMenu = () => {
+    //     setIsEditMainMenuFormOpen(true)
+    // }
+
+    const closeEditMainMenu = () => {
+        setIsEditMainMenuFormOpen(false)
+    }
+    const handleEditMainMenu = (mId) => {
+        const mainMenuToEdit = section1Data.find((item) => item.id === mId);
+        setEditedMainMenu(mainMenuToEdit);
+        setIsEditMainMenuFormOpen(true);
+    };
+
+    const handleMainMenuSubmit = (e) => {
+        alert("From submitted")
+        closeEditMainMenu();
+    }
+
+
     const [isSubMenuModalOpen, setIsSubMenuModalOpen] = useState(false);
     const [newSubMenuItem, setNewSubMenuItem] = useState('');
     const [newItemPrice, setNewItemPrice] = useState('');
@@ -694,6 +761,29 @@ function Home() {
         setSelectedMainMenu('');
         closeSubMenuModal();
     };
+
+    //For Editing Menu Item
+
+    const [editedMenuItem, setEditedMenuItem] = useState(null);
+    const [isEditMenuItemFormOpen, setIsEditMenuItemFormOpen] = useState(false);
+
+    // const openEditMenuItem = () => {
+    //     setIsEditMenuItemFormOpen(true)
+    // }
+
+    const closeEditMenuItem = () => {
+        setIsEditMenuItemFormOpen(false)
+    }
+    const handleEditMenuItem = (mId) => {
+        const menuItemToEdit = allMenuItems.find((item) => item.id === mId);
+        setEditedMenuItem(menuItemToEdit);
+        setIsEditMenuItemFormOpen(true);
+    };
+
+    const handleMenuItemSubmit = (e) => {
+        alert("From submitted")
+        closeEditMenuItem();
+    }
 
     //To display actions
     const [showActions, setShowActions] = useState(false);
@@ -767,7 +857,7 @@ function Home() {
                                         <div className={`${showActions ? 'actions' : 'displayNone'}`}>
                                             {showActions && (
                                                 <>
-                                                    <EditIcon />
+                                                    <EditIcon className="btn-edit" onClick={() => handleEditMainMenu(menuItem.id)} />
                                                     <DeleteIcon
                                                         className="btn-delete"
                                                         onClick={() =>
@@ -804,7 +894,7 @@ function Home() {
                                             {menuItem.itemName} <br /> ({menuItem.itemPrice})
                                             {showActions && (
                                                 <>
-                                                    <EditIcon onClick={(e) => e.stopPropagation()} />
+                                                    <EditIcon onClick={(e) => { e.stopPropagation(); handleEditMenuItem(menuItem.id) }} />
                                                     <DeleteIcon
                                                         className="delete-menu-item-btn"
                                                         onClick={(e) => {
@@ -899,7 +989,8 @@ function Home() {
                                 <>
                                     <button type="button" className="btn btn-success" onClick={saveAndPrint}>Save & Print</button>
                                     <button type="button" className="btn btn-danger" onClick={handleClear}>Clear All</button>
-                                    <button type="button" className="btn btn-info" onClick={handleCreateBillClick}>{tableData.bill?.price > 0 ? 'KOT & Print' : 'Create Bill'}</button>
+                                    {(!tableData.id) ? ('') : (<button type="button" className="btn btn-info" onClick={handleCreateBillClick}>KOT & Print</button>)}
+                                    {(!tableData.id) ? ('') : (<button type="button" className="btn btn-info" onClick={handleCloseTable}>Close Table</button>)}
                                 </>
                             ) : ''}
                             {/* {tableData.bill?.price > 0 ? (
@@ -940,6 +1031,42 @@ function Home() {
                     </DialogActions>
                 </Dialog>
 
+                {/* For Editing Main Menu */}
+                <Dialog
+                    fullScreen={fullScreen}
+                    open={isEditMainMenuFormOpen}
+                    onClose={closeEditMainMenu}
+                    className="custom-modal"
+                    aria-labelledby="responsive-dialog-title"
+                >
+                    <DialogTitle id="responsive-dialog-title" className="formHeading">
+                        {"Modify Main Menu"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            <input
+                                className='formInput'
+                                type="text"
+                                placeholder="Enter Main Menu"
+                                value={editedMainMenu ? editedMainMenu.itemName : newMenuItem}
+                                onChange={(e) =>
+                                    editedMainMenu
+                                        ? setEditedMainMenu({ ...editedMainMenu, itemName: e.target.value })
+                                        : setNewMenuItem(e.target.value)
+                                }
+                                required />
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button className="formBtn" onClick={handleMainMenuSubmit}>
+                            {editedMainMenu ? 'Update' : 'Add'}
+                        </Button>
+                        <Button className="formBtn" onClick={closeEditMainMenu}>
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
                 {/* For sub menuitems */}
                 <Dialog
                     fullScreen={fullScreen}
@@ -951,27 +1078,27 @@ function Home() {
                     <DialogTitle id="responsive-dialog-title" className="formHeading">
                         {"Add Menu Item"}
                     </DialogTitle>
+                    <div className="custom-select">
+                        <div onClick={toggleOptions} className="selected-option">
+                            {selectedMainMenu || 'Select Main Menu'}
+                        </div>
+                        <div className={`options ${showOptions ? 'show' : ''}`}>
+                            {section1Data.map((menuItem, index) => (
+                                <div
+                                    key={index}
+                                    className="option"
+                                    onClick={() => {
+                                        setSelectedMainMenu(menuItem.itemName);
+                                        toggleOptions();
+                                    }}
+                                >
+                                    {menuItem.itemName.toUpperCase()}
+                                </div>
+                            ))}
+                        </div>
+                    </div>
                     <DialogContent>
                         <DialogContentText>
-                            <div className="custom-select">
-                                <div onClick={toggleOptions} className="selected-option">
-                                    {selectedMainMenu || 'Select Main Menu'}
-                                </div>
-                                <div className={`options ${showOptions ? 'show' : ''}`}>
-                                    {section1Data.map((menuItem, index) => (
-                                        <div
-                                            key={index}
-                                            className="option"
-                                            onClick={() => {
-                                                setSelectedMainMenu(menuItem.itemName);
-                                                toggleOptions();
-                                            }}
-                                        >
-                                            {menuItem.itemName.toUpperCase()}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div><br />
                             <input
                                 className='formInput'
                                 type="text"
@@ -995,6 +1122,73 @@ function Home() {
                             Add
                         </Button>
                         <Button className="formBtn" onClick={closeSubMenuModal}>
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </Dialog>
+
+                {/* For Editing Menu Item */}
+                <Dialog
+                    fullScreen={fullScreen}
+                    open={isEditMenuItemFormOpen}
+                    onClose={closeEditMenuItem}
+                    className="custom-modal"
+                    aria-labelledby="responsive-dialog-title"
+                >
+                    <DialogTitle id="responsive-dialog-title" className="formHeading">
+                        {"Modify Menu Item"}
+                    </DialogTitle>
+                    <div className="custom-select">
+                                <div onClick={toggleOptions} className="selected-option">
+                                    {selectedMainMenu || 'Select Main Menu'}
+                                </div>
+                                <div className={`options ${showOptions ? 'show' : ''}`}>
+                                    {section1Data.map((menuItem, index) => (
+                                        <div
+                                            key={index}
+                                            className="option"
+                                            value={editedMenuItem ? selectedMainMenu : ''}
+                                            onClick={() => {
+                                                setSelectedMainMenu(menuItem.itemName);
+                                                toggleOptions();
+                                            }}
+                                        >
+                                            {menuItem.itemName.toUpperCase()}
+                                        </div>
+                                    ))}
+                                </div>
+                            </div><br />
+                    <DialogContent>
+                        <DialogContentText>
+                            <input
+                                className='formInput'
+                                type="text"
+                                placeholder="Enter Menu Item"
+                                value={editedMenuItem ? editedMenuItem.itemName : newSubMenuItem}
+                                onChange={(e) =>
+                                    editedMenuItem
+                                        ? setEditedMenuItem({ ...editedMenuItem, itemName: e.target.value })
+                                        : setNewSubMenuItem(e.target.value)
+                                }
+                                required /><br />
+                            <input
+                                className='formInput'
+                                type="text"
+                                placeholder="Enter Price"
+                                value={editedMenuItem ? editedMenuItem.itemPrice : newItemPrice}
+                                onChange={(e) =>
+                                    editedMenuItem
+                                        ? setEditedMenuItem({ ...editedMenuItem, itemPrice: e.target.value })
+                                        : setNewItemPrice(e.target.value)
+                                }
+                                required />
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button className="formBtn" onClick={handleMenuItemSubmit}>
+                            {editedMenuItem ? 'Update' : 'Add'}
+                        </Button>
+                        <Button className="formBtn" onClick={closeEditMenuItem}>
                             Cancel
                         </Button>
                     </DialogActions>

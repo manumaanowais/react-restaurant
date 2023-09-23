@@ -15,7 +15,6 @@
 }
 
 .grid-3-columns {
-  height: 400px;
   overflow-y: auto;
   scroll-behavior: smooth;
   text-align: center;
