@@ -19,7 +19,7 @@ function Header() {
                                         <li><Link to="/">Order</Link></li>
                                         <li><Link to="/">Delivery</Link></li>
                                         <li><Link to="/">About Us</Link></li>
-                                        <li><Link to="/">Contact Us</Link></li>
+                                        <li><Link to="/report">Report</Link></li>
                                     </ul>
                                 </nav>
                             </div>

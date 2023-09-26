@@ -555,19 +555,14 @@ function Home() {
 
     const handleCloseTable = async () => {
         console.log("Table data for closing : ", tableData);
-        const editedTableData = {...tableData};
-        console.log("Edited table Data before : ", editedTableData)
-        editedTableData.bill.id = null;
-        editedTableData.bill.status = "closed";
-        console.log("Edited table Data : ", editedTableData)
   
         try {
-          const response = await fetch("http://localhost:8080/table", {
+          const response = await fetch(`http://localhost:8080/bill/${tableData.bill.id}/completeBill`, {
             method: "PATCH",
             headers: {
               "Content-Type": "application/json",
             },
-            body: JSON.stringify(editedTableData),
+            body: JSON.stringify(tableData),
           });
       
           if (!response.ok) {
