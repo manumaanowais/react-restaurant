@@ -43,6 +43,7 @@ main {
 .section1-link {
     display: flex;
     align-items: center;
+    text-decoration: none;
 }
 
 .menu-item {
@@ -69,11 +70,6 @@ main {
     }
 }
 
-/* .section2-content-buttons .selected {
-    border: 1px solid lightgreen !important;
-    border-left-width: 5px !important;
-} */
-
 .section3 {
     display: flex;
     flex-direction: column;
@@ -98,22 +94,34 @@ main {
     justify-content: space-between;
     font-size: 20px;
     border-radius: 4px;
-    padding: 0;
+    padding: 0 !important;
 
     .decrement-btn {
-        width: 25%;
-        border: none;
+        width: 30%;
         outline: none;
-        border-right: 1px solid black;
+        border: 2px solid red;
+        border-radius: 4px;
+        background-color: white;
+        color: red;
+    }
+
+    .decrement-btn:hover {
+        color: white;
         background-color: red;
     }
 
     .increment-btn {
-        width: 25%;
-        border: none;
+        width: 30%;
         outline: none;
-        border-left: 1px solid black;
-        background-color: greenyellow;
+        border: 2px solid green;
+        border-radius: 4px;
+        background-color: white;
+        color: green;
+    }
+
+    .increment-btn:hover {
+        color: white;
+        background-color: green;
     }
 }
 
@@ -140,30 +148,11 @@ main {
     display: none;
 }
 
-.billing-table {
-    text-align: center;
-    margin-bottom: 10px;
-    border: 1;
-} 
-
-tr td:first-child {
-    font-weight: bold;
-    text-align: left;
-}
-
-tr td:last-child {
-    font-weight: bold;
-    text-align: center;
-}
-
-td{
-    padding: 5px;
-}
-
 .col-lg-3 {
     display: flex;
-    justify-content: center;
+    justify-content: space-between;
     max-width: 100%;
+    width: -webkit-fill-available !important;
 }
 
 .btn-outline {

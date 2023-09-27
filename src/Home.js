@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import './Home.css';
 import Header from './Header';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useLocation } from 'react-router-dom';
 import Modal from 'react-modal';
 import Swal from 'sweetalert2';
 import DeleteIcon from '@mui/icons-material/Delete';
@@ -36,6 +36,14 @@ function Home() {
             });
     }, []);
     const [tableData, setTableData] = useState(allTables);
+
+    const location = useLocation();
+    useEffect(() => {
+        if (location.pathname === '/order') {
+          handleClear();
+          setTableData({})
+        }
+      }, [location.pathname]);
 
     useEffect(() => {
         if (tableId) {
@@ -415,54 +423,57 @@ function Home() {
 
         // printWindow.print();
         // printWindow.close();
-        const billData = {
-            items: selectedButtons.map(buttonLabel => {
-                const item = allMenuItems.find(item => item.itemName === buttonLabel);
+        if (tableData && tableData.bill?.id && tableData.bill?.price > 0) {
+            handleCloseTable();
+        } else {
+            const billData = {
+                items: selectedButtons.map(buttonLabel => {
+                    const item = allMenuItems.find(item => item.itemName === buttonLabel);
 
-                return {
-                    menuItem: {
-                        id: item?.id,
-                        mainMenuItemId: item?.mainMenuItemId,
-                        itemName: item?.itemName,
-                        itemPrice: item?.itemPrice
-                    },
-                    qty: buttonCountMap[buttonLabel]?.count
-                };
-            })
-        };
+                    return {
+                        menuItem: {
+                            id: item?.id,
+                            mainMenuItemId: item?.mainMenuItemId,
+                            itemName: item?.itemName,
+                            itemPrice: item?.itemPrice
+                        },
+                        qty: buttonCountMap[buttonLabel]?.count
+                    };
+                })
+            };
 
-        const response = await fetch("http://localhost:8080/bill", {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-                tableId: 0,
-                items: billData.items,
-            }),
-        });
+            const response = await fetch("http://localhost:8080/bill", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    tableId: 0,
+                    items: billData.items,
+                }),
+            });
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("New bill added successfully:", data);
+            Swal.fire({
+                icon: 'success',
+                title: 'Bill Created',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
+            handleClear();
         }
-
-        const data = await response.json();
-        console.log("New bill added successfully:", data);
-        Swal.fire({
-            icon: 'success',
-            title: 'Bill Created',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            },
-        });
-        // window.print(billData);
-        handleClear();
     };
 
     const handleCreateBillClick = async () => {
@@ -555,37 +566,38 @@ function Home() {
 
     const handleCloseTable = async () => {
         console.log("Table data for closing : ", tableData);
-  
+        const tableDataToClose = { ...tableData }
+
         try {
-          const response = await fetch(`http://localhost:8080/bill/${tableData.bill.id}/completeBill`, {
-            method: "PATCH",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify(tableData),
-          });
-      
-          if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-          }
-      
-          const data = await response.json();
-          console.log("Table Modified successfully:", data);
-          Swal.fire({
-            icon: 'success',
-            title: 'Table Modified',
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-              toast.addEventListener('mouseenter', Swal.stopTimer);
-              toast.addEventListener('mouseleave', Swal.resumeTimer);
-            },
-          });
+            const response = await fetch(`http://localhost:8080/bill/${tableData.bill.id}/completeBill`, {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(tableDataToClose),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Table Modified successfully:", data);
+            Swal.fire({
+                icon: 'success',
+                title: 'Table Modified',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
         } catch (error) {
-          console.error("Error modifying table:", error);
+            console.error("Error modifying table:", error);
         }
         console.log("Table closed : ", tableData)
         handleClear();
@@ -685,7 +697,6 @@ function Home() {
         closeEditMainMenu();
     }
 
-
     const [isSubMenuModalOpen, setIsSubMenuModalOpen] = useState(false);
     const [newSubMenuItem, setNewSubMenuItem] = useState('');
     const [newItemPrice, setNewItemPrice] = useState('');
@@ -783,44 +794,64 @@ function Home() {
     //To display actions
     const [showActions, setShowActions] = useState(false);
 
-    //Get current time
-    const getCurrentTime = () => {
+    // Get current time in 12-hour format with AM/PM
+    const getCurrentTime12Hr = () => {
         const now = new Date();
         const year = now.getFullYear();
         const month = String(now.getMonth() + 1).padStart(2, '0');
         const day = String(now.getDate()).padStart(2, '0');
-        const hours = String(now.getHours()).padStart(2, '0'); // 24-hour format
+        const hours = now.getHours();
+        const ampm = hours >= 12 ? 'PM' : 'AM';
+        const formattedHours = (hours % 12 || 12).toString().padStart(2, '0'); // Convert to 12-hour format
         const minutes = String(now.getMinutes()).padStart(2, '0');
         const seconds = String(now.getSeconds()).padStart(2, '0');
-        return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
+        return `${day}-${month}-${year} ${formattedHours}:${minutes}:${seconds} ${ampm}`;
     }
 
-    //Calculating from how much time the table is occupied
-    const getOccupiedTime = (tableId) => {
+    // Calculate occupied time
+    const getOccupiedTime = () => {
         const currentTable = tableData;
+        if (!currentTable || !currentTable.bill || !currentTable.bill.createdTime) {
+            return "Bill doesn't exist";
+        }
         const createdTime = currentTable.bill.createdTime;
+        // Parse createdTime
         const [datePart, timePart] = createdTime.split(' ');
         const [day, month, year] = datePart.split('-');
-        const [hours, minutes, seconds] = timePart.split(':');
-        const createTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:${seconds}`);
-        const currentTime = getCurrentTime();
+        const [hours, minutes, seconds, ampm] = timePart.split(/:| /); // Split on ':' or space
+        // Convert hours to 24-hour format
+        let hours24 = parseInt(hours, 10);
+        if (ampm === 'pm' && hours24 < 12) {
+            hours24 += 12;
+        } else if (ampm === 'am' && hours24 === 12) {
+            hours24 = 0;
+        }
+        const createTime = new Date(year, month - 1, day, hours24, parseInt(minutes, 10), parseInt(seconds, 10));
+        // Get current time in 12-hour format with AM/PM
+        const currentTime = getCurrentTime12Hr();
         const [currentDatePart, currentTimePart] = currentTime.split(' ');
         const [currentDay, currentMonth, currentYear] = currentDatePart.split('-');
-        const [currentHours, currentMinutes, currentSeconds] = currentTimePart.split(':');
-        const currentTimeObj = new Date(`${currentYear}-${currentMonth}-${currentDay}T${currentHours}:${currentMinutes}:${currentSeconds}`);
+        const [currentHours, currentMinutes, currentSeconds, currentAmPm] = currentTimePart.split(/:| /); // Split on ':' or space
+        // Convert current hours to 24-hour format
+        let currentHours24 = parseInt(currentHours, 10);
+        if (currentAmPm === 'pm' && currentHours24 < 12) {
+            currentHours24 += 12;
+        } else if (currentAmPm === 'am' && currentHours24 === 12) {
+            currentHours24 = 0;
+        }
+        const currentTimeObj = new Date(currentYear, currentMonth - 1, currentDay, currentHours24, parseInt(currentMinutes, 10), parseInt(currentSeconds, 10));
+        // Calculate time difference in seconds
         const timeDifference = currentTimeObj - createTime;
         const totalSeconds = Math.floor(timeDifference / 1000);
+        // Calculate hours, minutes, and seconds
         const hoursDiff = Math.floor(totalSeconds / 3600);
         const minutesDiff = Math.floor((totalSeconds % 3600) / 60);
         const secondsDiff = totalSeconds % 60;
+        // Format the result with AM/PM
+        // const amPm = currentAmPm === 'am' ? 'AM' : 'PM';
         const formattedTime = `${hoursDiff.toString().padStart(2, '0')} : ${minutesDiff.toString().padStart(2, '0')} : ${secondsDiff.toString().padStart(2, '0')}`;
         return formattedTime;
     }
-
-    //For KOT
-    // const kotAndPrint = () => {
-    //     console.log("Selected Items for KOT : ", tableData)
-    // }
 
     return (
         <div className="Home">
@@ -842,7 +873,7 @@ function Home() {
                         <div id="section1">
                             {section1Data.map((menuItem, index) => (
                                 <div className='section1' key={index}>
-                                    <Link className='section1-link' to={`/${menuItem.id}`}>
+                                    <Link className='section1-link' to={`/order/${menuItem.id}`}>
                                         <button
                                             className={`btn ${selectedButtonSection1 === menuItem.itemName ? 'selected' : ''}`}
                                             onClick={() => { setSelectedButtonSection1(menuItem.itemName); showSection2Content(menuItem.itemName) }}
@@ -912,8 +943,8 @@ function Home() {
                     {/* <h4>Billing Details</h4> */}
                     <div id="section3-content">
                         {selectedButtons.length > 0 ? (
-                            <table border={1} className='billing-table'>
-                                <thead>
+                            <table className='billing-table table table-bordered'>
+                                <thead className="table-dark">
                                     <tr>
                                         <th>Item</th>
                                         <th>Quantity</th>
@@ -939,9 +970,9 @@ function Home() {
                                 {tableData?.bill?.items.length > 0 ? (
                                     // Render the table when selectedTableData has data
                                     <>
-                                        {tableData.bill?.items.length > 0 ? (<h6>Table {tableData?.name} is occupied from <b style={{ color: 'green' }}>{getOccupiedTime(tableData.id)}</b></h6>) : ('')}
-                                        <table border={1} className='billing-table'>
-                                            <thead>
+                                        {tableData.bill?.items.length > 0 ? (<h6 style={{ textAlign: 'center' }}>Table {tableData?.name} is occupied from <b style={{ color: 'green' }}>{getOccupiedTime(tableData.id)}</b></h6>) : ('')}
+                                        <table className='billing-table table table-bordered'>
+                                            <thead className="table-dark">
                                                 <tr>
                                                     <th>Item</th>
                                                     <th>Quantity</th>
@@ -985,7 +1016,7 @@ function Home() {
                                     <button type="button" className="btn btn-success" onClick={saveAndPrint}>Save & Print</button>
                                     <button type="button" className="btn btn-danger" onClick={handleClear}>Clear All</button>
                                     {(!tableData.id) ? ('') : (<button type="button" className="btn btn-info" onClick={handleCreateBillClick}>KOT & Print</button>)}
-                                    {(!tableData.id) ? ('') : (<button type="button" className="btn btn-info" onClick={handleCloseTable}>Close Table</button>)}
+                                    {(!tableData.id || !tableData.bill) ? ('') : (<button type="button" className="btn btn-info" onClick={handleCloseTable}>Close Table</button>)}
                                 </>
                             ) : ''}
                             {/* {tableData.bill?.price > 0 ? (
@@ -1134,25 +1165,25 @@ function Home() {
                         {"Modify Menu Item"}
                     </DialogTitle>
                     <div className="custom-select">
-                                <div onClick={toggleOptions} className="selected-option">
-                                    {selectedMainMenu || 'Select Main Menu'}
+                        <div onClick={toggleOptions} className="selected-option">
+                            {selectedMainMenu || 'Select Main Menu'}
+                        </div>
+                        <div className={`options ${showOptions ? 'show' : ''}`}>
+                            {section1Data.map((menuItem, index) => (
+                                <div
+                                    key={index}
+                                    className="option"
+                                    value={editedMenuItem ? selectedMainMenu : ''}
+                                    onClick={() => {
+                                        setSelectedMainMenu(menuItem.itemName);
+                                        toggleOptions();
+                                    }}
+                                >
+                                    {menuItem.itemName.toUpperCase()}
                                 </div>
-                                <div className={`options ${showOptions ? 'show' : ''}`}>
-                                    {section1Data.map((menuItem, index) => (
-                                        <div
-                                            key={index}
-                                            className="option"
-                                            value={editedMenuItem ? selectedMainMenu : ''}
-                                            onClick={() => {
-                                                setSelectedMainMenu(menuItem.itemName);
-                                                toggleOptions();
-                                            }}
-                                        >
-                                            {menuItem.itemName.toUpperCase()}
-                                        </div>
-                                    ))}
-                                </div>
-                            </div><br />
+                            ))}
+                        </div>
+                    </div><br />
                     <DialogContent>
                         <DialogContentText>
                             <input

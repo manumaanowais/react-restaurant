@@ -1,7 +1,7 @@
 .grid-item {
     width: 150px !important;
     height: 150px !important;
-    background-color: greenyellow;
+    background-color: #F0E68C;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -14,6 +14,14 @@
     border-radius: 8px;
 }
 
+.grid-item a {
+  text-decoration: none;
+  color: black !important;
+  width: -webkit-fill-available;
+  height: -webkit-fill-available;
+  padding: 5px;
+}
+
 .grid-3-columns {
   overflow-y: auto;
   scroll-behavior: smooth;
@@ -21,13 +29,13 @@
 }
 
 .occupied {
-  background-color: red;
+  background-color: #800000;
 }
 
-.occupied a{
+.occupied a {
   color: white !important;
-  }
+}
 
 .empty {
-  background-color: greenyellow;
+  background-color: #F0E68C;
 }
