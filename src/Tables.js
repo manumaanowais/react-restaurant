@@ -400,19 +400,85 @@ function Tables() {
   }
 
   // Function to handle drag-and-drop reordering
-  const handleDragEnd = (result) => {
+  const handleDragEnd = async (result) => {
     if (!result.destination) {
       return; // Item was dropped outside of the droppable area
     }
-
+  
     const reorderedTableData = [...tableData];
-    const [reorderedItem] = reorderedTableData.splice(result.source.index, 1);
+    const [reorderedItem] = reorderedTableData.splice(result.source?.index, 1);
     reorderedTableData.splice(result.destination.index, 0, reorderedItem);
-
-    // Update the state with the reordered data
+  
     setTableData(reorderedTableData);
+  
+    const updatedSequence = reorderedTableData.map((table, index) => ({
+      id: table.id,
+      name: table.name,
+      bill: table.bill,
+      sequence: index + 1,
+    }));
+  
+    let successCount = 0;
+    let errorCount = 0;
+  
+    for (const table of updatedSequence) {
+      try {
+        const response = await fetch("http://localhost:8080/table", {
+          method: "PATCH",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify(table),
+        });
+  
+        if (response.ok) {
+          successCount++;
+        } else {
+          errorCount++;
+        }
+      } catch (error) {
+        console.error("Error modifying tables:", error);
+        errorCount++;
+      }
+    }
+  
+    if (successCount > 0) {
+      const successMessage = `Successfully modified ${successCount} table(s)`;
+      console.log(successMessage);
+      Swal.fire({
+        icon: 'success',
+        title: successMessage,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer);
+          toast.addEventListener('mouseleave', Swal.resumeTimer);
+        },
+      });
+    }
+  
+    if (errorCount > 0) {
+      const errorMessage = `Failed to modify ${errorCount} table(s)`;
+      console.error(errorMessage);
+      Swal.fire({
+        icon: 'error',
+        title: errorMessage,
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer);
+          toast.addEventListener('mouseleave', Swal.resumeTimer);
+        },
+      });
+    }
   };
-
+  
   return (
     <div>
       <Header />
@@ -420,13 +486,13 @@ function Tables() {
         <button className={`${showActions ? 'btn' : 'displayNone'}`} onClick={() => setDragEnabled(!dragEnabled)}>
           {dragEnabled ? 'Stop Customization' : 'Customize Tables'}</button>
         <button className={`${showActions ? 'btn' : 'displayNone'}`} onClick={openTable}>Add Table</button>
-        <button onClick={() => setShowActions(!showActions)} className={`btn ${showActions ? 'btn-danger' : 'btn-success'}`}>
+        <button className='btn' onClick={() => getTotalOrdervalue()}>Total Order Value</button>
+        <button onClick={() => { setShowActions(!showActions); setDragEnabled(false) }} className={`btn ${showActions ? 'btn-danger' : 'btn-success'}`}>
           {showActions ? 'Disable Actions' : 'Enable Actions'}
         </button>
-        <button className='btn' onClick={() => getTotalOrdervalue()}>Total Order Value</button>
         {tableData.length === 0 ? (
           <p>No Tables Found</p>
-        ) : dragEnabled ? (
+        ) : dragEnabled && showActions ? (
           <DragDropContext onDragEnd={handleDragEnd}>
             <Droppable droppableId="tableList" direction="horizontal">
               {(provided) => (
@@ -451,13 +517,13 @@ function Tables() {
                           {...provided.dragHandleProps}
                           className={`grid-item ${table.bill?.status === 'open' ? 'occupied' : 'empty'}`}
                         >
+                          {dragEnabled ? `Sequence: ${table.sequence}` : ''}
+                          <br />
                           {table.bill?.status === 'open' && occupiedTimes[table.id]}
                           <br />
                           {/* {table.id}
                           <br /> */}
                           {table.name}
-                          <br />
-                          Sequence: {table.sequence}
                           <br />
                           {table.bill?.status === 'open' && (`Order Value : ${table.bill?.price}`)}
                           {showActions && (
@@ -491,13 +557,13 @@ function Tables() {
             {tableData.map((table) => (
               <div key={table.id} className={`grid-item ${table.bill?.status === 'open' ? 'occupied' : 'empty'}`}>
                 <Link to={`/table/${table.id}`}>
+                  {dragEnabled ? `Sequence: ${table.sequence}` : ''}
+                  <br />
                   {table.bill?.status === 'open' && occupiedTimes[table.id]}
                   <br />
                   {/* {table.id}
                   <br /> */}
                   {table.name}
-                  <br />
-                  Sequence: {table.sequence}
                   <br />
                   {table.bill?.status === 'open' && (`Order Value : ${table.bill?.price}`)}
                 </Link>

@@ -1,0 +1,21 @@
+.report-actions {
+    display: flex;
+    justify-content: space-between;
+    padding: 10px;
+}
+
+.report-type-dropdown {
+    display: flex;
+}
+
+.report-label {
+    display: flex;
+    align-items: center;
+}
+
+.form-select-sm {
+    width: auto !important;
+    margin-left: 10px;
+    background-color: black !important;
+    color: white !important;
+}

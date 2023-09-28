@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import Header from './Header';
 import { styled } from '@mui/material/styles';
 import Table from '@mui/material/Table';
@@ -15,10 +15,11 @@ import FirstPageIcon from '@mui/icons-material/FirstPage';
 import KeyboardArrowLeft from '@mui/icons-material/KeyboardArrowLeft';
 import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
-import * as React from 'react';
 import PropTypes from 'prop-types';
+import Swal from 'sweetalert2';
 import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
+import './Report.css';
 
 function TablePaginationActions(props) {
     const theme = useTheme();
@@ -81,6 +82,8 @@ TablePaginationActions.propTypes = {
     rowsPerPage: PropTypes.number.isRequired,
 };
 
+
+// Get report for all bills of the current date
 function Report() {
     const getCurrentDate = () => {
         const now = new Date();
@@ -93,9 +96,9 @@ function Report() {
     const currentDate = getCurrentDate();
 
     const [report, setReport] = useState([]);
+    const [selectedReportType, setSelectedReportType] = useState('bills'); // Default to 'bills'
 
     useEffect(() => {
-        // Fetch data from localhost:8080/tables
         fetch(`http://localhost:8080/bills/${currentDate}`)
             .then((response) => {
                 if (!response.ok) {
@@ -110,6 +113,42 @@ function Report() {
                 console.error('Error fetching data:', error);
             });
     }, [currentDate]);
+
+    // Get count of all items present in the bill
+    const menuItemCounts = {};
+
+    // Iterate through the data and count menu items with the same id
+    report.forEach((item) => {
+        item.items.forEach((itemDetail) => {
+            const itemId = itemDetail.menuItem.id;
+            if (menuItemCounts[itemId]) {
+                menuItemCounts[itemId] += itemDetail.qty; // Add quantity to the count
+            } else {
+                menuItemCounts[itemId] = itemDetail.qty; // Initialize count with quantity
+            }
+        });
+    });
+
+    // Create an object to store the desired properties for each unique menu item
+    const uniqueItems = {};
+
+    // Iterate through the data and store the unique menu items with combined totalCount
+    report.forEach((item) => {
+        item.items.forEach((itemDetail) => {
+            const itemId = itemDetail.menuItem.id;
+            if (!uniqueItems[itemId]) {
+                uniqueItems[itemId] = {
+                    itemId: itemId,
+                    itemName: itemDetail.menuItem.itemName,
+                    itemPrice: itemDetail.menuItem.itemPrice,
+                    totalCount: menuItemCounts[itemId],
+                };
+            }
+        });
+    });
+
+    // Convert uniqueItems object to an array for easy printing
+    const itemsWithCounts = Object.values(uniqueItems);
 
     // For table
     const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -148,62 +187,157 @@ function Report() {
         setPage(0);
     };
 
+    //Get total sale value
+    const calculateTotalPrice = (itemsWithCounts) => {
+        let totalPrice = 0;
+        itemsWithCounts.forEach((item) => {
+            totalPrice += item.itemPrice * item.totalCount;
+        });
+        return totalPrice;
+    }
+
+    const getTotalSale = () => {
+        const totalPrice = calculateTotalPrice(itemsWithCounts);
+        console.log(`Total Price : ${totalPrice}`);
+        Swal.fire({
+            icon: 'success',
+            title: `TOTAL SALE IS RS.${totalPrice.toFixed(2)}`,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+        });
+    }
+
     return (
         <div className="report">
             <Header />
+            <div className='report-actions'>
+                <div className="report-type-dropdown">
+                    <label className='report-label'>GET REPORT BY : </label>
+                    <select
+                        className="form-select form-select-sm"
+                        value={selectedReportType}
+                        onChange={(e) => setSelectedReportType(e.target.value)}
+                    >
+                        <option value="bills">BILLS</option>
+                        <option value="quantity">QUANTITY</option>
+                    </select>
+                </div>
+                <button className='btn btn-success' onClick={() => getTotalSale()}>TOTAL SALE</button>
+            </div>
             <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                    <TableHead>
-                        <TableRow>
-                            <StyledTableCell>Bill ID</StyledTableCell>
-                            <StyledTableCell align="right">Created Time</StyledTableCell>
-                            <StyledTableCell align="right">Item Name</StyledTableCell>
-                            <StyledTableCell align="right">Item Price</StyledTableCell>
-                            <StyledTableCell align="right">Quantity</StyledTableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {(rowsPerPage > 0
-                            ? report.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                            : report
-                        ).map((item) =>
-                            item.items.map((itemData) => (
-                                <StyledTableRow key={itemData.id}>
-                                    <StyledTableCell align="right">{item.id}</StyledTableCell>
-                                    <StyledTableCell align="right">{item.createdTime}</StyledTableCell>
-                                    <StyledTableCell align="right">{itemData.menuItem.itemName}</StyledTableCell>
-                                    <StyledTableCell align="right">{itemData.menuItem.itemPrice}</StyledTableCell>
-                                    <StyledTableCell align="right">{itemData.qty}</StyledTableCell>
+                {/* Render the table based on the selected report type */}
+                {selectedReportType === 'bills' ? (
+                    <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                        <TableHead>
+                            <TableRow>
+                                <StyledTableCell align="center">BILL ID</StyledTableCell>
+                                <StyledTableCell align="center">CREATED TIME</StyledTableCell>
+                                <StyledTableCell align="center">MENU ITEM</StyledTableCell>
+                                <StyledTableCell align="center">PRICE</StyledTableCell>
+                                <StyledTableCell align="center">QUANTITY</StyledTableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {(rowsPerPage > 0
+                                ? report.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                : report
+                            ).map((item) =>
+                                item.items.map((itemData) => (
+                                    <StyledTableRow key={itemData.id}>
+                                        <StyledTableCell align="center">{item.id}</StyledTableCell>
+                                        <StyledTableCell align="center">{item.createdTime.toUpperCase()}</StyledTableCell>
+                                        <StyledTableCell align="center">{itemData.menuItem.itemName}</StyledTableCell>
+                                        <StyledTableCell align="center">{itemData.menuItem.itemPrice}</StyledTableCell>
+                                        <StyledTableCell align="center">{itemData.qty}</StyledTableCell>
+                                    </StyledTableRow>
+                                ))
+                            )}
+                            {emptyRows > 0 && (
+                                <StyledTableRow style={{ height: 53 * emptyRows }}>
+                                    <StyledTableCell colSpan={5} />
                                 </StyledTableRow>
-                            ))
-                        )}
-                        {emptyRows > 0 && (
-                            <StyledTableRow style={{ height: 53 * emptyRows }}>
-                                <StyledTableCell colSpan={5} />
-                            </StyledTableRow>
-                        )}
-                    </TableBody>
-                    <TableFooter>
-                        <TableRow>
-                            <TablePagination
-                                rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                                colSpan={3}
-                                count={report.length}
-                                rowsPerPage={rowsPerPage}
-                                page={page}
-                                SelectProps={{
-                                    inputProps: {
-                                        'aria-label': 'rows per page',
-                                    },
-                                    native: true,
-                                }}
-                                onPageChange={handleChangePage}
-                                onRowsPerPageChange={handleChangeRowsPerPage}
-                                ActionsComponent={TablePaginationActions}
-                            />
-                        </TableRow>
-                    </TableFooter>
-                </Table>
+                            )}
+                        </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                                    colSpan={3}
+                                    count={report.length}
+                                    rowsPerPage={rowsPerPage}
+                                    page={page}
+                                    SelectProps={{
+                                        inputProps: {
+                                            'aria-label': 'rows per page',
+                                        },
+                                        native: true,
+                                    }}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                    ActionsComponent={TablePaginationActions}
+                                />
+                            </TableRow>
+                        </TableFooter>
+                    </Table>
+                ) : (
+                    <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                        <TableHead>
+                            <TableRow>
+                                <StyledTableCell align="center">ID</StyledTableCell>
+                                <StyledTableCell align="center">MENU ITEM</StyledTableCell>
+                                <StyledTableCell align="center">PRICE</StyledTableCell>
+                                <StyledTableCell align="center">COUNT</StyledTableCell>
+                                <StyledTableCell align="center">TOTAL PRICE</StyledTableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            {(rowsPerPage > 0
+                                ? itemsWithCounts.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                : itemsWithCounts
+                            ).map((item) => (
+                                <StyledTableRow key={item.itemId}>
+                                    <StyledTableCell align="center">{item.itemId}</StyledTableCell>
+                                    <StyledTableCell align="center">{item.itemName}</StyledTableCell>
+                                    <StyledTableCell align="center">{item.itemPrice}</StyledTableCell>
+                                    <StyledTableCell align="center">{item.totalCount}</StyledTableCell>
+                                    <StyledTableCell align="center">{(item.totalCount) * (item.itemPrice)}</StyledTableCell>
+                                </StyledTableRow>
+                            ))}
+                            {emptyRows > 0 && (
+                                <StyledTableRow style={{ height: 53 * emptyRows }}>
+                                    <StyledTableCell colSpan={4} />
+                                </StyledTableRow>
+                            )}
+                        </TableBody>
+                        <TableFooter>
+                            <TableRow>
+                                <TablePagination
+                                    rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                                    colSpan={3}
+                                    count={itemsWithCounts.length}
+                                    rowsPerPage={rowsPerPage}
+                                    page={page}
+                                    SelectProps={{
+                                        inputProps: {
+                                            'aria-label': 'rows per page',
+                                        },
+                                        native: true,
+                                    }}
+                                    onPageChange={handleChangePage}
+                                    onRowsPerPageChange={handleChangeRowsPerPage}
+                                    ActionsComponent={TablePaginationActions}
+                                />
+                            </TableRow>
+                        </TableFooter>
+                    </Table>
+                )}
             </TableContainer>
         </div>
     );

@@ -40,10 +40,10 @@ function Home() {
     const location = useLocation();
     useEffect(() => {
         if (location.pathname === '/order') {
-          handleClear();
-          setTableData({})
+            handleClear();
+            setTableData({})
         }
-      }, [location.pathname]);
+    }, [location.pathname]);
 
     useEffect(() => {
         if (tableId) {
@@ -82,7 +82,20 @@ function Home() {
             .catch((error) => {
                 console.error('Error fetching menu items :', error);
             });
-    }, []);
+    },[])
+
+    const fetchAllMenuItems = () => {
+        const apiUrl = 'http://localhost:8080/menuitems';
+
+        fetch(apiUrl)
+            .then((response) => response.json())
+            .then((result) => {
+                setAllMenuItems(result);
+            })
+            .catch((error) => {
+                console.error('Error fetching menu items :', error);
+            });
+    };
 
     useEffect(() => {
         const apiUrl = 'http://localhost:8080/mainmenu';
@@ -657,6 +670,8 @@ function Home() {
                 setSection1Data([...section1Data, newMenuItemData]);
                 setNewMenuItem('');
                 closeModal();
+                // After successfully adding a new main menu item, fetch the updated main menu items
+                fetchMainMenuItems();
             }).then(() => {
                 Swal.fire({
                     icon: 'success',
@@ -672,6 +687,20 @@ function Home() {
                     },
                 });
             })
+    };
+
+    // Function to fetch the main menu items
+    const fetchMainMenuItems = () => {
+        const apiUrl = 'http://localhost:8080/mainmenu';
+
+        fetch(apiUrl)
+            .then((response) => response.json())
+            .then((result) => {
+                setSection1Data(result);
+            })
+            .catch((error) => {
+                console.error('Error fetching main menu items:', error);
+            });
     };
 
     //For Editing Main Menu
@@ -740,10 +769,14 @@ function Home() {
             },
             body: JSON.stringify(formData),
         })
-            .then((response) => response.json())
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`HTTP error! Status: ${response.status}`);
+                }
+                return response.json();
+            })
             .then((result) => {
                 console.log('New Menu item added:', result);
-            }).then(() => {
                 Swal.fire({
                     icon: 'success',
                     title: `${formData.itemName.toUpperCase()} Added Successfully`,
@@ -757,9 +790,23 @@ function Home() {
                         toast.addEventListener('mouseleave', Swal.resumeTimer);
                     },
                 });
+                fetchAllMenuItems();
             })
             .catch((error) => {
                 console.error('Error adding new item:', error);
+                Swal.fire({
+                    icon: 'error',
+                    title: `${formData.itemName.toUpperCase()} Was Not Added, Try Again`,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    },
+                });
             });
 
         setNewSubMenuItem('');
