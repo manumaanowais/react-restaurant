@@ -68,14 +68,13 @@
         background-color: black;
         color: white !important;
         width: 0px;
-        height: calc(100vh - 60px);
-        transition: all 0.3s ease-in;
+        height: calc(100vh - 175px);
+        transition: all 0.2s ease-in;
         overflow: hidden;
     }
 
     .nav-elements.active {
-        width: 270px;
-        height: auto;
+        width: 220px;
     }
 
     .nav-elements ul {

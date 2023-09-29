@@ -65,7 +65,7 @@ main {
     flex-wrap: wrap;
     .section2-content-buttons-btn {
         width: 110px;
-        margin: 20px;
+        margin: 10px;
         border-radius: 4px;
         padding: 5px;
         min-height: 70px;
@@ -89,7 +89,7 @@ main {
     height: 390px;
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 5px;
 
     .menu-item {
         display: flex;
@@ -180,6 +180,16 @@ main {
     border-left: 0;
     border-right: 0;
 }
+
+.table-occupied {
+    text-align: center;
+    padding: 12px;
+    background-color: lightgreen;
+}
+
+.table-occupied b {
+    color: green;
+ }
 
  .custom-modal {
     text-align: center;

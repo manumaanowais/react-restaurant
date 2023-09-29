@@ -49,118 +49,23 @@ function Tables() {
       });
   }, []);
 
-  //get all bills
-  // useEffect(() => {
-  //   const apiUrl = 'http://localhost:8080/bill/';
-
-  //   fetch(apiUrl)
-  //     .then((response) => response.json())
-  //     .then((result) => {
-  //       setBill(result);
-  //     })
-  //     .catch((error) => {
-  //       console.error('Error fetching menu items :', error);
-  //     });
-  // });
-
+  // Calculate occupied time
   const [occupiedTimes, setOccupiedTimes] = useState({});
-  //Get current time
-  // const getCurrentTime = () => {
-  //   const now = new Date();
-  //   const year = now.getFullYear();
-  //   const month = String(now.getMonth() + 1).padStart(2, '0');
-  //   const day = String(now.getDate()).padStart(2, '0');
-  //   const hours = String(now.getHours()).padStart(2, '0'); // 24-hour format
-  //   const minutes = String(now.getMinutes()).padStart(2, '0');
-  //   const seconds = String(now.getSeconds()).padStart(2, '0');
-  //   return `${day}-${month}-${year} ${hours}:${minutes}:${seconds}`;
-  // }
+  const getOccupiedTime = (tableId) => {
+    const currentTable = tableData.find((table) => table.id === tableId);
+    if (!currentTable || !currentTable.bill || !currentTable.bill.createdTime) {
+      console.log("Occupied Times : ", occupiedTimes)
+      return "Bill doesn't exist";
+    }
+    const createdTime = currentTable.bill.createdTime;
 
-  // useEffect(() => {
-  //   //Calculating from how much time the table is occupied
-  //   const getOccupiedTime = (tableId) => {
-  //     const currentTable = tableData.find((table) => table.id === tableId);
-  //     const createdTime = currentTable.bill.createdTime;
-  //     const [datePart, timePart] = createdTime.split(' ');
-  //     const [day, month, year] = datePart.split('-');
-  //     const [hours, minutes, seconds] = timePart.split(':');
-  //     const createTime = new Date(`${year}-${month}-${day}T${hours}:${minutes}:${seconds}`);
-  //     const currentTime = getCurrentTime();
-  //     const [currentDatePart, currentTimePart] = currentTime.split(' ');
-  //     const [currentDay, currentMonth, currentYear] = currentDatePart.split('-');
-  //     const [currentHours, currentMinutes, currentSeconds] = currentTimePart.split(':');
-  //     const currentTimeObj = new Date(`${currentYear}-${currentMonth}-${currentDay}T${currentHours}:${currentMinutes}:${currentSeconds}`);
-  //     const timeDifference = currentTimeObj - createTime;
-  //     const totalSeconds = Math.floor(timeDifference / 1000);
-  //     const hoursDiff = Math.floor(totalSeconds / 3600);
-  //     const minutesDiff = Math.floor((totalSeconds % 3600) / 60);
-  //     const secondsDiff = totalSeconds % 60;
-
-  //     const formattedTime = `${hoursDiff.toString().padStart(2, '0')}:${minutesDiff.toString().padStart(2, '0')}:${secondsDiff.toString().padStart(2, '0')}`;
-
-  //     return formattedTime;
-  // }
-
-  // Get current time in 12-hour format with AM/PM
-  const getCurrentTime12Hr = () => {
-    const now = new Date();
-    const year = now.getFullYear();
-    const month = String(now.getMonth() + 1).padStart(2, '0');
-    const day = String(now.getDate()).padStart(2, '0');
-    const hours = now.getHours();
-    const ampm = hours >= 12 ? 'PM' : 'AM';
-    const formattedHours = (hours % 12 || 12).toString().padStart(2, '0'); // Convert to 12-hour format
-    const minutes = String(now.getMinutes()).padStart(2, '0');
-    const seconds = String(now.getSeconds()).padStart(2, '0');
-    return `${day}-${month}-${year} ${formattedHours}:${minutes}:${seconds} ${ampm}`;
+    // Calculate and display the time difference
+    const timeDifference = calculateTimeDifference(createdTime);
+    return timeDifference;
   }
 
+  //To render the exact occupied time on tables
   useEffect(() => {
-    // Calculate occupied time
-    const getOccupiedTime = (tableId) => {
-      const currentTable = tableData.find((table) => table.id === tableId);
-      if (!currentTable || !currentTable.bill || !currentTable.bill.createdTime) {
-        return "Bill doesn't exist";
-      }
-      const createdTime = currentTable.bill.createdTime;
-      // Parse createdTime
-      const [datePart, timePart] = createdTime.split(' ');
-      const [day, month, year] = datePart.split('-');
-      const [hours, minutes, seconds, ampm] = timePart.split(/:| /); // Split on ':' or space
-      // Convert hours to 24-hour format
-      let hours24 = parseInt(hours, 10);
-      if (ampm === 'pm' && hours24 < 12) {
-        hours24 += 12;
-      } else if (ampm === 'am' && hours24 === 12) {
-        hours24 = 0;
-      }
-      const createTime = new Date(year, month - 1, day, hours24, parseInt(minutes, 10), parseInt(seconds, 10));
-      // Get current time in 12-hour format with AM/PM
-      const currentTime = getCurrentTime12Hr();
-      const [currentDatePart, currentTimePart] = currentTime.split(' ');
-      const [currentDay, currentMonth, currentYear] = currentDatePart.split('-');
-      const [currentHours, currentMinutes, currentSeconds, currentAmPm] = currentTimePart.split(/:| /); // Split on ':' or space
-      // Convert current hours to 24-hour format
-      let currentHours24 = parseInt(currentHours, 10);
-      if (currentAmPm === 'pm' && currentHours24 < 12) {
-        currentHours24 += 12;
-      } else if (currentAmPm === 'am' && currentHours24 === 12) {
-        currentHours24 = 0;
-      }
-      const currentTimeObj = new Date(currentYear, currentMonth - 1, currentDay, currentHours24, parseInt(currentMinutes, 10), parseInt(currentSeconds, 10));
-      // Calculate time difference in seconds
-      const timeDifference = currentTimeObj - createTime;
-      const totalSeconds = Math.floor(timeDifference / 1000);
-      // Calculate hours, minutes, and seconds
-      const hoursDiff = Math.floor(totalSeconds / 3600);
-      const minutesDiff = Math.floor((totalSeconds % 3600) / 60);
-      const secondsDiff = totalSeconds % 60;
-      // Format the result with AM/PM
-      // const amPm = currentAmPm === 'am' ? 'AM' : 'PM';
-      const formattedTime = `${hoursDiff.toString().padStart(2, '0')} : ${minutesDiff.toString().padStart(2, '0')} : ${secondsDiff.toString().padStart(2, '0')}`;
-      return formattedTime;
-    }
-
     const intervalId = setInterval(() => {
       const updatedOccupiedTimes = {};
       // Calculate occupied times for each table
@@ -173,9 +78,39 @@ function Tables() {
       // Update the state with the new occupied times
       setOccupiedTimes(updatedOccupiedTimes);
     }, 1000); // Update every 1000ms (1 second)
+    checkAllTablesHaveBills();
 
     return () => clearInterval(intervalId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [tableData]);
+
+  function convertTo24HourFormat(timeString) {
+    const [datePart, timePart] = timeString.split(" ");
+    const [day, month, year] = datePart.split("-");
+    const [hours, minutes, seconds] = timePart.split(":");
+    let hour = parseInt(hours, 10);
+
+    if (timeString.toLowerCase().includes("pm") && hour !== 12) {
+      hour += 12;
+    } else if (timeString.toLowerCase().includes("am") && hour === 12) {
+      hour = 0;
+    }
+
+    return new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10), hour, parseInt(minutes, 10), parseInt(seconds, 10));
+  }
+
+  function calculateTimeDifference(createdTime) {
+    const currentDateTime = new Date();
+    const createdDateTime = convertTo24HourFormat(createdTime);
+
+    const timeDifferenceMilliseconds = currentDateTime - createdDateTime;
+
+    const hoursDifference = Math.floor(timeDifferenceMilliseconds / (1000 * 60 * 60));
+    const minutesDifference = Math.floor((timeDifferenceMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+    const secondsDifference = Math.floor((timeDifferenceMilliseconds % (1000 * 60)) / 1000);
+
+    return `${hoursDifference} : ${minutesDifference} : ${secondsDifference}`;
+  }
 
   // Form for adding table
   const [isTableOpen, setIsTableOpen] = useState(false);
@@ -307,8 +242,6 @@ function Tables() {
     }
   };
 
-
-
   //For Deleting Table
   const handleDeleteTable = (tableId) => {
     const tableToDelete = tableData.find((table) => table.id === tableId);
@@ -377,7 +310,6 @@ function Tables() {
         total += table.bill.price;
       }
     }
-
     return total;
   }
 
@@ -404,23 +336,23 @@ function Tables() {
     if (!result.destination) {
       return; // Item was dropped outside of the droppable area
     }
-  
+
     const reorderedTableData = [...tableData];
     const [reorderedItem] = reorderedTableData.splice(result.source?.index, 1);
     reorderedTableData.splice(result.destination.index, 0, reorderedItem);
-  
+
     setTableData(reorderedTableData);
-  
+
     const updatedSequence = reorderedTableData.map((table, index) => ({
       id: table.id,
       name: table.name,
       bill: table.bill,
       sequence: index + 1,
     }));
-  
+
     let successCount = 0;
     let errorCount = 0;
-  
+
     for (const table of updatedSequence) {
       try {
         const response = await fetch("http://localhost:8080/table", {
@@ -430,7 +362,7 @@ function Tables() {
           },
           body: JSON.stringify(table),
         });
-  
+
         if (response.ok) {
           successCount++;
         } else {
@@ -441,9 +373,9 @@ function Tables() {
         errorCount++;
       }
     }
-  
+
     if (successCount > 0) {
-      const successMessage = `Successfully modified ${successCount} table(s)`;
+      const successMessage = `Successfully Modified Tables`;
       console.log(successMessage);
       Swal.fire({
         icon: 'success',
@@ -459,9 +391,9 @@ function Tables() {
         },
       });
     }
-  
+
     if (errorCount > 0) {
-      const errorMessage = `Failed to modify ${errorCount} table(s)`;
+      const errorMessage = `Failed To Modify Tables, Try Again`;
       console.error(errorMessage);
       Swal.fire({
         icon: 'error',
@@ -478,7 +410,28 @@ function Tables() {
       });
     }
   };
+
+  //Method to check all tables are having bills or not
+  const checkAllTablesHaveBills = () => {
+    const allTablesHaveBills = tableData.every((table) => table.bill !== null);
   
+    if (allTablesHaveBills && tableData.length > 0) {
+      Swal.fire({
+        icon: 'success',
+        title: 'ALL TABLES ARE OCCUPIED',
+        toast: true,
+        position: 'top-end',
+        showConfirmButton: false,
+        timer: 1500,
+        timerProgressBar: true,
+        didOpen: (toast) => {
+          toast.addEventListener('mouseenter', Swal.stopTimer);
+          toast.addEventListener('mouseleave', Swal.resumeTimer);
+        },
+      });
+    }
+  };
+
   return (
     <div>
       <Header />
@@ -519,25 +472,33 @@ function Tables() {
                         >
                           {dragEnabled ? `Sequence: ${table.sequence}` : ''}
                           <br />
-                          {table.bill?.status === 'open' && occupiedTimes[table.id]}
+                          {table.bill?.status === 'open' && getOccupiedTime(table.id)}
                           <br />
                           {/* {table.id}
                           <br /> */}
                           {table.name}
                           <br />
-                          {table.bill?.status === 'open' && (`Order Value : ${table.bill?.price}`)}
-                          {showActions && (
-                            <>
-                              <EditIcon onClick={(e) => { e.stopPropagation(); handleEditTable(table.id) }} />
-                              <DeleteIcon
-                                className="delete-table-btn"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  handleDeleteTable(table.id);
-                                }}
-                              />
-                            </>
+                          {table.bill?.status === 'open' && (
+                            <div>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-currency-rupee" viewBox="0 0 16 16">
+                                <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z" />
+                              </svg> {table.bill?.price}
+                            </div>
                           )}
+                          <div className="table-actions">
+                            {showActions && (
+                              <>
+                                <EditIcon onClick={(e) => { e.stopPropagation(); handleEditTable(table.id) }} />
+                                <DeleteIcon
+                                  className="delete-table-btn"
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleDeleteTable(table.id);
+                                  }}
+                                />
+                              </>
+                            )}
+                          </div>
                         </div>
                       )}
                     </Draggable>
@@ -559,26 +520,35 @@ function Tables() {
                 <Link to={`/table/${table.id}`}>
                   {dragEnabled ? `Sequence: ${table.sequence}` : ''}
                   <br />
-                  {table.bill?.status === 'open' && occupiedTimes[table.id]}
+                  {table.bill?.status === 'open' && getOccupiedTime(table.id)}
                   <br />
                   {/* {table.id}
                   <br /> */}
                   {table.name}
                   <br />
-                  {table.bill?.status === 'open' && (`Order Value : ${table.bill?.price}`)}
+                  {table.bill?.status === 'open' && (
+                    <div>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" name="bi bi-currency-rupee" viewBox="0 0 16 16">
+                        <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z" />
+                      </svg> {table.bill?.price}<br />
+                    </div>
+                  )}
+
                 </Link>
-                {showActions && (
-                  <>
-                    <EditIcon onClick={(e) => { e.stopPropagation(); handleEditTable(table.id) }} />
-                    <DeleteIcon
-                      className="delete-table-btn"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteTable(table.id);
-                      }}
-                    />
-                  </>
-                )}
+                <div className="table-actions">
+                  {showActions && (
+                    <>
+                      <EditIcon onClick={(e) => { e.stopPropagation(); handleEditTable(table.id) }} />
+                      <DeleteIcon
+                        className="delete-table-btn"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleDeleteTable(table.id);
+                        }}
+                      />
+                    </>
+                  )}
+                </div>
               </div>
             ))}
 
@@ -676,45 +646,6 @@ function Tables() {
           </Button>
         </DialogActions>
       </Dialog>
-
-      {/* {isEditFormOpen && (
-  <form onSubmit={handleTableSubmit}>
-    <input
-      className="formInput"
-      type="text"
-      placeholder="Enter Table Name"
-      value={editedTable ? editedTable.name : newTableName}
-      onChange={(e) =>
-        editedTable
-          ? setEditedTable({ ...editedTable, name: e.target.value })
-          : setNewTableName(e.target.value)
-      }
-      required
-    />
-    <br />
-    <input
-      className="formInput"
-      type="text"
-      placeholder="Enter Table Sequence"
-      value={editedTable ? editedTable.sequence : newTableSequence}
-      onChange={(e) =>
-        editedTable
-          ? setEditedTable({ ...editedTable, sequence: e.target.value })
-          : setNewTableSequence(e.target.value)
-      }
-      required
-    />
-    <DialogActions>
-      <Button className="formBtn" type="submit">
-        {editedTable ? 'Update' : 'Add'}
-      </Button>
-      <Button className="formBtn" onClick={closeTable}>
-        Cancel
-      </Button>
-    </DialogActions>
-  </form>
-)} */}
-
     </div>
   );
 }

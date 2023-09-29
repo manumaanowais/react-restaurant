@@ -3,6 +3,7 @@
     height: 150px !important;
     background-color: #F0E68C;
     display: flex;
+    flex-direction: column;
     justify-content: center;
     align-items: center;
     cursor: pointer;
@@ -26,6 +27,12 @@
   overflow-y: auto;
   scroll-behavior: smooth;
   text-align: center;
+}
+
+.table-actions {
+  display: flex;
+  padding: 10px;
+  gap: 10px;
 }
 
 .occupied {

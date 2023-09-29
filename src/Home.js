@@ -82,7 +82,7 @@ function Home() {
             .catch((error) => {
                 console.error('Error fetching menu items :', error);
             });
-    },[])
+    }, [])
 
     const fetchAllMenuItems = () => {
         const apiUrl = 'http://localhost:8080/menuitems';
@@ -841,20 +841,6 @@ function Home() {
     //To display actions
     const [showActions, setShowActions] = useState(false);
 
-    // Get current time in 12-hour format with AM/PM
-    const getCurrentTime12Hr = () => {
-        const now = new Date();
-        const year = now.getFullYear();
-        const month = String(now.getMonth() + 1).padStart(2, '0');
-        const day = String(now.getDate()).padStart(2, '0');
-        const hours = now.getHours();
-        const ampm = hours >= 12 ? 'PM' : 'AM';
-        const formattedHours = (hours % 12 || 12).toString().padStart(2, '0'); // Convert to 12-hour format
-        const minutes = String(now.getMinutes()).padStart(2, '0');
-        const seconds = String(now.getSeconds()).padStart(2, '0');
-        return `${day}-${month}-${year} ${formattedHours}:${minutes}:${seconds} ${ampm}`;
-    }
-
     // Calculate occupied time
     const getOccupiedTime = () => {
         const currentTable = tableData;
@@ -862,44 +848,40 @@ function Home() {
             return "Bill doesn't exist";
         }
         const createdTime = currentTable.bill.createdTime;
-        // Parse createdTime
-        const [datePart, timePart] = createdTime.split(' ');
-        const [day, month, year] = datePart.split('-');
-        const [hours, minutes, seconds, ampm] = timePart.split(/:| /); // Split on ':' or space
-        // Convert hours to 24-hour format
-        let hours24 = parseInt(hours, 10);
-        if (ampm === 'pm' && hours24 < 12) {
-            hours24 += 12;
-        } else if (ampm === 'am' && hours24 === 12) {
-            hours24 = 0;
-        }
-        const createTime = new Date(year, month - 1, day, hours24, parseInt(minutes, 10), parseInt(seconds, 10));
-        // Get current time in 12-hour format with AM/PM
-        const currentTime = getCurrentTime12Hr();
-        const [currentDatePart, currentTimePart] = currentTime.split(' ');
-        const [currentDay, currentMonth, currentYear] = currentDatePart.split('-');
-        const [currentHours, currentMinutes, currentSeconds, currentAmPm] = currentTimePart.split(/:| /); // Split on ':' or space
-        // Convert current hours to 24-hour format
-        let currentHours24 = parseInt(currentHours, 10);
-        if (currentAmPm === 'pm' && currentHours24 < 12) {
-            currentHours24 += 12;
-        } else if (currentAmPm === 'am' && currentHours24 === 12) {
-            currentHours24 = 0;
-        }
-        const currentTimeObj = new Date(currentYear, currentMonth - 1, currentDay, currentHours24, parseInt(currentMinutes, 10), parseInt(currentSeconds, 10));
-        // Calculate time difference in seconds
-        const timeDifference = currentTimeObj - createTime;
-        const totalSeconds = Math.floor(timeDifference / 1000);
-        // Calculate hours, minutes, and seconds
-        const hoursDiff = Math.floor(totalSeconds / 3600);
-        const minutesDiff = Math.floor((totalSeconds % 3600) / 60);
-        const secondsDiff = totalSeconds % 60;
-        // Format the result with AM/PM
-        // const amPm = currentAmPm === 'am' ? 'AM' : 'PM';
-        const formattedTime = `${hoursDiff.toString().padStart(2, '0')} : ${minutesDiff.toString().padStart(2, '0')} : ${secondsDiff.toString().padStart(2, '0')}`;
-        return formattedTime;
+
+        // Calculate and display the time difference
+        const timeDifference = calculateTimeDifference(createdTime);
+        return timeDifference;
+
     }
 
+    function convertTo24HourFormat(timeString) {
+        const [datePart, timePart] = timeString.split(" ");
+        const [day, month, year] = datePart.split("-");
+        const [hours, minutes, seconds] = timePart.split(":");
+        let hour = parseInt(hours, 10);
+
+        if (timeString.toLowerCase().includes("pm") && hour !== 12) {
+            hour += 12;
+        } else if (timeString.toLowerCase().includes("am") && hour === 12) {
+            hour = 0;
+        }
+
+        return new Date(parseInt(year, 10), parseInt(month, 10) - 1, parseInt(day, 10), hour, parseInt(minutes, 10), parseInt(seconds, 10));
+    }
+
+    function calculateTimeDifference(createdTime) {
+        const currentDateTime = new Date();
+        const createdDateTime = convertTo24HourFormat(createdTime);
+
+        const timeDifferenceMilliseconds = currentDateTime - createdDateTime;
+
+        const hoursDifference = Math.floor(timeDifferenceMilliseconds / (1000 * 60 * 60));
+        const minutesDifference = Math.floor((timeDifferenceMilliseconds % (1000 * 60 * 60)) / (1000 * 60));
+        const secondsDifference = Math.floor((timeDifferenceMilliseconds % (1000 * 60)) / 1000);
+
+        return `${hoursDifference} : ${minutesDifference} : ${secondsDifference}`;
+    }
     return (
         <div className="Home">
             <Header />
@@ -1017,7 +999,7 @@ function Home() {
                                 {tableData?.bill?.items.length > 0 ? (
                                     // Render the table when selectedTableData has data
                                     <>
-                                        {tableData.bill?.items.length > 0 ? (<h6 style={{ textAlign: 'center' }}>Table {tableData?.name} is occupied from <b style={{ color: 'green' }}>{getOccupiedTime(tableData.id)}</b></h6>) : ('')}
+                                        {tableData.bill?.items.length > 0 ? (<h6 className='table-occupied'>Table {tableData?.name} is occupied from <b>{getOccupiedTime(tableData.id)}</b></h6>) : ('')}
                                         <table className='billing-table table table-bordered'>
                                             <thead className="table-dark">
                                                 <tr>
