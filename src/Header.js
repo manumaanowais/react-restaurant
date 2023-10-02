@@ -1,6 +1,10 @@
-import React, { useState } from 'react';
 import { NavLink } from 'react-router-dom';
 import './Header.css';
+import { onAuthStateChanged, signOut } from "firebase/auth";
+import React, { useEffect, useState } from "react";
+import { auth } from "./firebase";
+import { useNavigate } from "react-router-dom";
+import Swal from 'sweetalert2';
 
 function Header() {
     const [showNavbar, setShowNavbar] = useState(false);
@@ -9,6 +13,51 @@ function Header() {
         setShowNavbar(!showNavbar);
     };
 
+    const [authUser, setAuthUser] = useState(null);
+
+    useEffect(() => {
+        const listen = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setAuthUser(user);
+            } else {
+                setAuthUser(null);
+            }
+        });
+
+        return () => {
+            listen();
+        };
+    }, []);
+
+    let navigate = useNavigate();
+
+    const userSignOut = () => {
+        signOut(auth)
+            .then(() => {
+                navigate(`/`);
+                window.history.replaceState(null, null, '/');
+                console.log("sign out successfull");
+                Swal.fire({
+                    icon: 'success',
+                    title: `Signed Out Successfully`,
+                    toast: true,
+                    position: 'top-end',
+                    showConfirmButton: false,
+                    timer: 1500,
+                    timerProgressBar: true,
+                    didOpen: (toast) => {
+                        toast.addEventListener('mouseenter', Swal.stopTimer);
+                        toast.addEventListener('mouseleave', Swal.resumeTimer);
+                    },
+                });
+
+            })
+            .catch((error) => console.log(error));
+    };
+
+    const userSignIn = () => {
+        navigate(`/`);
+    }
     return (
         <div className="Header">
             <header id="header">
@@ -51,6 +100,16 @@ function Header() {
                                     </li>
                                     <li>
                                         <NavLink to="/report">Report</NavLink>
+                                    </li>
+                                    <li className='sign-out'>
+                                            {authUser ? (
+                                                <>
+                                                    <span>{`${authUser.email}`}</span>
+                                                    <button type="button" className="btn btn-danger" onClick={userSignOut}>Logout</button>
+                                                </>
+                                            ) : (
+                                                <button type="button" className="btn btn-success" onClick={userSignIn}>Login</button>
+                                            )}
                                     </li>
                                 </ul>
                             </div>

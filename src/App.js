@@ -5,8 +5,8 @@ import Tables from './Tables';
 import Report from './Report';
 import "bootstrap/dist/css/bootstrap.min.css"
 import "./App.css"
-import SignIn from "./SignIn"
-import SignUp from "./SignUp"
+import SignIn from "./components/auth/Signin"
+import SignUp from "./components/auth/Signup"
 import ForgotPassword from "./ForgotPassword"
 import AddUser from "./AddUser"
 

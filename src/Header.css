@@ -22,7 +22,8 @@
 }
 
 .nav-elements {
-    margin-top: -16px;
+    line-height: normal;
+    margin: auto;
 }
 
 .nav-elements ul {
@@ -33,6 +34,7 @@
 
 .nav-elements ul li:not(:last-child) {
     margin-right: 60px;
+    width: auto;
 }
 
 .nav-elements ul a {
@@ -45,6 +47,17 @@
 .nav-elements ul a.active {
     color: white;
     font-weight: 500;
+}
+
+.sign-out {
+    color: white;
+    display: flex;
+    flex-direction: column;
+}
+
+.sign-out button {
+    margin-left: auto;
+    padding: 6px !important;
 }
 
 
@@ -68,7 +81,7 @@
         background-color: black;
         color: white !important;
         width: 0px;
-        height: calc(100vh - 175px);
+        height: calc(100vh - 150px);
         transition: all 0.2s ease-in;
         overflow: hidden;
     }
@@ -97,5 +110,9 @@
     .navbar .container {
         display: flex;
         justify-content: space-between !important;
+    }
+
+    .sign-out button {
+        margin: 5px 30px 5px 5px;
     }
 }
