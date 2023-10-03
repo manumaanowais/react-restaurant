@@ -104,7 +104,7 @@ function Header() {
                                     <li className='sign-out'>
                                             {authUser ? (
                                                 <>
-                                                    <span>{`${authUser.email}`}</span>
+                                                    <span>{`${authUser.displayName}`}</span>
                                                     <button type="button" className="btn btn-danger" onClick={userSignOut}>Logout</button>
                                                 </>
                                             ) : (

@@ -3,13 +3,13 @@ import { Link } from 'react-router-dom';
 import { auth } from "../../firebase";
 import Swal from 'sweetalert2';
 import { useNavigate } from "react-router-dom";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, updateProfile, AuthErrorCodes } from "firebase/auth";
 
 function SignUp(props) {
 
     const [showPassword, setShowPassword] = useState(false);
 
-    // const [displayName, setDisplayName] = useState("");
+    const [name, setName] = useState("");
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
 
@@ -21,7 +21,21 @@ function SignUp(props) {
 
     const signUp = (e) => {
         e.preventDefault();
-        if (email === null || email === '') {
+        if (name === null || name === '') {
+            Swal.fire({
+                icon: 'error',
+                title: `Please Enter Name`,
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
+        } else if (email === null || email === '') {
             Swal.fire({
                 icon: 'error',
                 title: `Please Enter Email`,
@@ -52,7 +66,7 @@ function SignUp(props) {
         } else if (password.length < 6) {
             Swal.fire({
                 icon: 'error',
-                title: `Password Should Be Atlease 6 Characters`,
+                title: `Password Should Be Atleast 6 Characters`,
                 toast: true,
                 position: 'top-end',
                 showConfirmButton: false,
@@ -65,10 +79,15 @@ function SignUp(props) {
             });
         } else {
             createUserWithEmailAndPassword(auth, email, password)
-                .then((userCredential) => {
+                .then(async (res) => {
+                    const user = res.user;
+                    await updateProfile(user, {
+                        displayName: name,
+                    })
+                }).then((userCredential) => {
                     navigate(`/`);
                     console.log(userCredential);
-                    // setDisplayName('');
+                    setName('');
                     setEmail('');
                     setPassword('');
                     Swal.fire({
@@ -86,20 +105,36 @@ function SignUp(props) {
                     });
                 })
                 .catch((error) => {
-                    console.log(error);
-                    Swal.fire({
-                        icon: 'error',
-                        title: `Error Signing Up, Try Again`,
-                        toast: true,
-                        position: 'top-end',
-                        showConfirmButton: false,
-                        timer: 1500,
-                        timerProgressBar: true,
-                        didOpen: (toast) => {
-                            toast.addEventListener('mouseenter', Swal.stopTimer);
-                            toast.addEventListener('mouseleave', Swal.resumeTimer);
-                        },
-                    });
+                    if (error.code === AuthErrorCodes.EMAIL_EXISTS) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: `Email Already Exists`,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            },
+                        });
+                    } else {
+                        console.log(error);
+                        Swal.fire({
+                            icon: 'error',
+                            title: `Error Signing Up, Try Again`,
+                            toast: true,
+                            position: 'top-end',
+                            showConfirmButton: false,
+                            timer: 1500,
+                            timerProgressBar: true,
+                            didOpen: (toast) => {
+                                toast.addEventListener('mouseenter', Swal.stopTimer);
+                                toast.addEventListener('mouseleave', Swal.resumeTimer);
+                            },
+                        });
+                    }
                 });
         }
     };
@@ -114,11 +149,11 @@ function SignUp(props) {
                         Already registered?{" "}
                         <Link to="/">Sign In</Link>
                     </div><br />
-                    {/* <div className="form-floating mb-3">
-                        <input type="text" className="form-control" id="floatingInput" placeholder="John Doe" value={displayName}
-                            onChange={(e) => setDisplayName(e.target.value)} />
+                    <div className="form-floating mb-3">
+                        <input type="text" className="form-control" id="floatingInput" placeholder="John Doe" value={name}
+                            onChange={(e) => setName(e.target.value)} />
                         <label htmlFor="floatingInput">Full Name</label>
-                    </div> */}
+                    </div>
                     <div className="form-floating mb-3">
                         <input type="email" className="form-control" id="floatingInput2" placeholder="john@example.com" value={email}
                             onChange={(e) => setEmail(e.target.value)} />

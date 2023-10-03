@@ -55,6 +55,10 @@
     flex-direction: column;
 }
 
+.sign-out span {
+    width: max-content;
+}
+
 .sign-out button {
     margin-left: auto;
     padding: 6px !important;
@@ -81,13 +85,13 @@
         background-color: black;
         color: white !important;
         width: 0px;
-        height: calc(100vh - 150px);
+        height: calc(100vh - 120px);
         transition: all 0.2s ease-in;
         overflow: hidden;
     }
 
     .nav-elements.active {
-        width: 220px;
+        width: 230px;
     }
 
     .nav-elements ul {
@@ -111,6 +115,10 @@
         display: flex;
         justify-content: space-between !important;
     }
+
+    .sign-out span {
+        width: auto;
+    }    
 
     .sign-out button {
         margin: 5px 30px 5px 5px;
