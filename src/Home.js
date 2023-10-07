@@ -289,6 +289,8 @@ function Home() {
         }));
     };
 
+    const [descriptionData, setDescriptionData] = useState([]);
+
     const addSection3Content = (buttonLabel, buttonPrice) => {
         if (tableData.bill?.items.length > 0) {
             if (tableData) {
@@ -318,30 +320,12 @@ function Home() {
                 setTableData({ ...tableData });
                 console.log("total : ", total)
             }
-            // else {
-            //     // If the item doesn't exist, add a new item
-            //     const item = allMenuItems.find((item) => item.itemName === buttonLabel);
-
-            //     if (item) {
-            //         const newItem = {
-            //             menuItem: item,
-            //             qty: 1,
-            //         };
-            //         tableData.bill.items.push(newItem);
-            //     }
-            //     tableData.bill.price += buttonPrice;
-            //     setTotal(tableData.bill.price)
-
-            //     // Update the state with the modified table data
-            //     setTableData({...tableData});
-            //     console.log("total : ", total)
-            // }
         } else {
 
             const updatedButtonCountMap = { ...buttonCountMap };
 
             if (!updatedButtonCountMap[buttonLabel]) {
-                updatedButtonCountMap[buttonLabel] = { item: buttonLabel, count: 1, itemPrice: buttonPrice };
+                updatedButtonCountMap[buttonLabel] = { item: buttonLabel, count: 1, itemPrice: buttonPrice, desc: '' };
                 setSelectedButtons([...selectedButtons, buttonLabel]);
             } else {
                 updatedButtonCountMap[buttonLabel].count++;
@@ -349,8 +333,11 @@ function Home() {
             }
 
             setButtonCountMap(updatedButtonCountMap);
+            setDescriptionData(updatedButtonCountMap);
 
             setTotal((prevTotal) => prevTotal + buttonPrice);
+            console.log("Description data : ", descriptionData)
+
         }
     };
 
@@ -404,6 +391,79 @@ function Home() {
         }
     };
 
+    //For handling description form submit
+    const [isDescriptionFormOpen, setIsDescriptionFormOpen] = useState(false);
+    const [itemDescription, setNewItemDescription] = useState('');
+    const [itemsDescription, setItemsDescription] = useState(null);
+
+    const openDescriptionForm = (items) => {
+        setIsDescriptionFormOpen(true);
+        setItemsDescription(items);
+    };
+
+    const closeDescriptionForm = () => {
+        setIsDescriptionFormOpen(false);
+    };
+
+    const handleDescriptionSubmit = async () => {
+        if (itemDescription.trim() === '') {
+            return;
+        }
+
+        let matchedItem = null;
+
+        for (const key in allMenuItems) {
+            if (allMenuItems[key].itemName === itemsDescription) {
+                matchedItem = allMenuItems[key];
+                break;
+            }
+        }
+
+        if (matchedItem !== null) {
+            console.log("Matched Item:", matchedItem);
+
+
+            const updatedButtonCountMap = { ...buttonCountMap };
+
+            if (!updatedButtonCountMap[matchedItem.itemName]) {
+                if (tableData && tableData.bill?.items.length > 0 && tableData.bill.id !== null) {
+                    const matchingItem = tableData.bill.items.find(item => item.menuItem.id === matchedItem.id);
+                    if (matchingItem) {
+                        matchingItem.desc = itemDescription.toUpperCase();
+                        const billData = {
+                            items: selectedButtons.map(buttonLabel => {
+                                const item = allMenuItems.find(item => item.itemName === buttonLabel);
+                                return {
+                                    menuItem: {
+                                        id: item?.id,
+                                        mainMenuItemId: item?.mainMenuItemId,
+                                        itemName: item?.itemName,
+                                        itemPrice: item?.itemPrice
+                                    },
+                                    qty: buttonCountMap[buttonLabel]?.count,
+                                    desc: buttonCountMap[buttonLabel]?.desc
+                                };
+                            })
+                        };
+                        console.log("Added description successfully:", billData);
+                    } else {
+                        updatedButtonCountMap[matchedItem.itemName] = {}; // Initialize with an empty object
+                    }
+                } else {
+                    updatedButtonCountMap[matchedItem.itemName] = {}; // Initialize with an empty object
+                }
+            } else {
+
+            updatedButtonCountMap[matchedItem.itemName].desc = itemDescription.toUpperCase();
+            setButtonCountMap(updatedButtonCountMap);
+            }
+        } else {
+            console.log("No matching item found.");
+        }
+        setNewItemDescription('');
+        closeDescriptionForm();
+    }
+
     const saveAndPrint = async () => {
         // var printableContent = document.getElementById('section3-content').innerHTML + "<br><br>";
         // printableContent += document.getElementById('total-section').innerHTML;
@@ -442,7 +502,6 @@ function Home() {
             const billData = {
                 items: selectedButtons.map(buttonLabel => {
                     const item = allMenuItems.find(item => item.itemName === buttonLabel);
-
                     return {
                         menuItem: {
                             id: item?.id,
@@ -450,7 +509,8 @@ function Home() {
                             itemName: item?.itemName,
                             itemPrice: item?.itemPrice
                         },
-                        qty: buttonCountMap[buttonLabel]?.count
+                        qty: buttonCountMap[buttonLabel]?.count,
+                        desc: buttonCountMap[buttonLabel]?.desc
                     };
                 })
             };
@@ -539,7 +599,8 @@ function Home() {
                             itemName: item?.itemName,
                             itemPrice: item?.itemPrice
                         },
-                        qty: buttonCountMap[name]?.count
+                        qty: buttonCountMap[name]?.count,
+                        desc: buttonCountMap[name]?.desc
                     };
                 })
             };
@@ -978,6 +1039,7 @@ function Home() {
                                         <th>Item</th>
                                         <th>Quantity</th>
                                         <th>Price</th>
+                                        <th>Description</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -990,6 +1052,20 @@ function Home() {
                                                 <button className='increment-btn' onClick={() => updateQuantity(buttonLabel, 1, data.find(item => item.itemName === buttonLabel)?.itemPrice)}>+</button>
                                             </td>
                                             <td>{buttonCountMap[buttonLabel].itemPrice.toFixed(2)}</td>
+                                            <td>{buttonCountMap[buttonLabel].desc ? (
+                                                buttonCountMap[buttonLabel].desc
+                                            )
+                                                : (
+                                                    <div className='addDesc'>
+                                                        {selectedButtons.length > 0 || tableData?.bill?.items.length > 0 ? (
+                                                            <>
+                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                                                                    <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                                                                </svg>
+                                                                <Link onClick={() => openDescriptionForm(buttonLabel)}>Add</Link><br />
+                                                            </>) : ('')}
+                                                    </div>
+                                                )}</td>
                                         </tr>
                                     ))}
                                 </tbody>
@@ -1006,6 +1082,7 @@ function Home() {
                                                     <th>Item</th>
                                                     <th>Quantity</th>
                                                     <th>Price</th>
+                                                    <th>Description</th>
                                                 </tr>
                                             </thead>
                                             <tbody>
@@ -1018,11 +1095,23 @@ function Home() {
                                                             <button className='increment-btn' onClick={() => updateQuantity(item.menuItem.itemName, 1, item.menuItem.itemPrice)}>+</button>
                                                         </td>
                                                         <td>{(item.qty * item.menuItem?.itemPrice).toFixed(2)}</td>
+                                                        <td>
+                                                            {item.desc ? item.desc : (
+                                                                <div className='addDesc'>
+                                                                    {selectedButtons.length > 0 || tableData?.bill?.items.length > 0 ? (
+                                                                        <>
+                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                                                                                <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                                                                            </svg>
+                                                                            <Link onClick={() => openDescriptionForm(item.menuItem.itemName)}>Add</Link><br />
+                                                                        </>) : ('')}
+                                                                </div>
+                                                            )}
+                                                        </td>
                                                     </tr>
                                                 ))}
                                             </tbody>
                                         </table>
-
                                     </>
                                 ) : (
                                     // Render "No item found." when selectedTableData is empty
@@ -1038,7 +1127,6 @@ function Home() {
                             {(selectedButtons.length !== 0 || (tableData && tableData.bill && tableData.bill.items && tableData.bill.items.length > 0)) ? `Total RS ${total.toFixed(2)}` : ''}
                         </div>
                         <br />
-
                         <div className="col-lg-3">
                             {selectedButtons.length > 0 || tableData?.bill?.items.length > 0 ? (
                                 <>
@@ -1054,6 +1142,36 @@ function Home() {
                         </div>
                     </div>
                 </div>
+                {/* For Adding Item Description */}
+                <Dialog
+                    fullScreen={fullScreen}
+                    open={isDescriptionFormOpen}
+                    onClose={closeDescriptionForm}
+                    className="custom-modal"
+                    aria-labelledby="responsive-dialog-title"
+                >
+                    <DialogTitle id="responsive-dialog-title" className="formHeading">
+                        {"Add Item Description"}
+                    </DialogTitle>
+                    <DialogContent>
+                        <DialogContentText>
+                            <textarea
+                                className='formInput'
+                                type="text"
+                                placeholder="Enter Description"
+                                value={itemDescription}
+                                onChange={(e) => setNewItemDescription(e.target.value)} />
+                        </DialogContentText>
+                    </DialogContent>
+                    <DialogActions>
+                        <Button className="formBtn" onClick={handleDescriptionSubmit}>
+                            Add
+                        </Button>
+                        <Button className="formBtn" onClick={closeDescriptionForm}>
+                            Cancel
+                        </Button>
+                    </DialogActions>
+                </Dialog>
                 {/* For Adding Main Menu */}
                 <Dialog
                     fullScreen={fullScreen}

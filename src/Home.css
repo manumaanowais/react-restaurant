@@ -134,6 +134,22 @@ main {
     }
 }
 
+.addDesc {
+    display: flex;
+    gap: 2px;
+    align-items: center;
+    justify-content: center;
+}
+
+.addDesc svg {
+    fill: blue;
+    margin-bottom: 2px;
+}
+
+.addDesc a {
+    text-decoration: none;
+}
+
 .actions {
     border: 1px solid darkcyan;
     border-left-width: 4px;

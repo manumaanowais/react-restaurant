@@ -96,9 +96,6 @@ function Header() {
                                         <NavLink to="/">Delivery</NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to="/">About Us</NavLink>
-                                    </li>
-                                    <li>
                                         <NavLink to="/report">Report</NavLink>
                                     </li>
                                     <li className='sign-out'>

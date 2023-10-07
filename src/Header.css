@@ -85,7 +85,7 @@
         background-color: black;
         color: white !important;
         width: 0px;
-        height: calc(100vh - 120px);
+        /* height: calc(100vh - 120px); */
         transition: all 0.2s ease-in;
         overflow: hidden;
     }

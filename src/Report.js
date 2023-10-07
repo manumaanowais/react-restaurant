@@ -214,6 +214,10 @@ function Report() {
         });
     }
 
+    useEffect(() => {
+        console.log("Report : ", report)
+    })
+
     return (
         <div className="report">
             <Header />
@@ -227,6 +231,7 @@ function Report() {
                     >
                         <option value="bills">BILLS</option>
                         <option value="quantity">QUANTITY</option>
+                        <option value="type">TYPE</option>
                     </select>
                 </div>
                 <button className='btn btn-success' onClick={() => getTotalSale()}>TOTAL SALE</button>
@@ -286,7 +291,7 @@ function Report() {
                             </TableRow>
                         </TableFooter>
                     </Table>
-                ) : (
+                ) : (selectedReportType === 'quantity' ? (
                     <Table sx={{ minWidth: 700 }} aria-label="customized table">
                         <TableHead>
                             <TableRow>
@@ -337,7 +342,28 @@ function Report() {
                             </TableRow>
                         </TableFooter>
                     </Table>
-                )}
+                ) : (
+                    <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                        <TableHead>
+                            <TableRow>
+                                <StyledTableCell align="center">TYPE</StyledTableCell>
+                                <StyledTableCell align="center">SALE</StyledTableCell>
+                            </TableRow>
+                        </TableHead>
+                        <TableBody>
+                            <>
+                                <StyledTableRow>
+                                    <StyledTableCell align="center">TAKE AWAY</StyledTableCell>
+                                    <StyledTableCell align="center">4000</StyledTableCell>
+                                </StyledTableRow>
+                                <StyledTableRow>
+                                    <StyledTableCell align="center">Dine In</StyledTableCell>
+                                    <StyledTableCell align="center">4000</StyledTableCell>
+                                </StyledTableRow>
+                            </>
+                        </TableBody>
+                    </Table>
+                ))}
             </TableContainer>
         </div>
     );
