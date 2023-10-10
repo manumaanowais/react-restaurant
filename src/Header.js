@@ -96,6 +96,9 @@ function Header() {
                                         <NavLink to="/">Delivery</NavLink>
                                     </li>
                                     <li>
+                                        <NavLink to="/signup">Add User</NavLink>
+                                    </li>
+                                    <li>
                                         <NavLink to="/report">Report</NavLink>
                                     </li>
                                     <li className='sign-out'>

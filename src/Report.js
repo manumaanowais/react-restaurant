@@ -214,9 +214,30 @@ function Report() {
         });
     }
 
+    const [takeAwayCount, setTakeAwayCount] = useState(0);
+    const [dineInCount, setDineInCount] = useState(0);
+    const [takeAwayTotalPrice, setTakeAwayTotalPrice] = useState(0);
+    const [dineInTotalPrice, setDineInTotalPrice] = useState(0);
+
     useEffect(() => {
-        console.log("Report : ", report)
-    })
+        const takeAwayItems = report.filter((item) => item.takeAway === true);
+        const dineInItems = report.filter((item) => item.takeAway === false);
+
+        const takeAwayTrueCount = takeAwayItems.length;
+        setTakeAwayCount(takeAwayTrueCount);
+        const takeAwayFalseCount = dineInItems.length;
+        setDineInCount(takeAwayFalseCount);
+
+        const takeAwayTrueTotalPrice = takeAwayItems.reduce((total, item) => {
+            return total + item.price;
+        }, 0);
+        setTakeAwayTotalPrice(takeAwayTrueTotalPrice);
+
+        const takeAwayFalseTotalPrice = dineInItems.reduce((total, item) => {
+            return total + item.price;
+        }, 0);
+        setDineInTotalPrice(takeAwayFalseTotalPrice);
+    }, [report]);
 
     return (
         <div className="report">
@@ -347,6 +368,7 @@ function Report() {
                         <TableHead>
                             <TableRow>
                                 <StyledTableCell align="center">TYPE</StyledTableCell>
+                                <StyledTableCell align="center">ORDERS</StyledTableCell>
                                 <StyledTableCell align="center">SALE</StyledTableCell>
                             </TableRow>
                         </TableHead>
@@ -354,11 +376,21 @@ function Report() {
                             <>
                                 <StyledTableRow>
                                     <StyledTableCell align="center">TAKE AWAY</StyledTableCell>
-                                    <StyledTableCell align="center">4000</StyledTableCell>
+                                    <StyledTableCell align="center">{takeAwayCount}</StyledTableCell>
+                                    <StyledTableCell align="center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" name="bi bi-currency-rupee" viewBox="0 0 16 16">
+                                            <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z" />
+                                        </svg>{takeAwayTotalPrice}
+                                    </StyledTableCell>
                                 </StyledTableRow>
                                 <StyledTableRow>
                                     <StyledTableCell align="center">Dine In</StyledTableCell>
-                                    <StyledTableCell align="center">4000</StyledTableCell>
+                                    <StyledTableCell align="center">{dineInCount}</StyledTableCell>
+                                    <StyledTableCell align="center">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" name="bi bi-currency-rupee" viewBox="0 0 16 16">
+                                            <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z" />
+                                        </svg>{dineInTotalPrice}
+                                    </StyledTableCell>
                                 </StyledTableRow>
                             </>
                         </TableBody>

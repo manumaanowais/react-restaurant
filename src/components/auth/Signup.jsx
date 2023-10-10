@@ -92,7 +92,7 @@ function SignUp(props) {
                     setPassword('');
                     Swal.fire({
                         icon: 'success',
-                        title: `Signed Up Successfully`,
+                        title: `Added User Successfully`,
                         toast: true,
                         position: 'top-end',
                         showConfirmButton: false,
@@ -144,7 +144,7 @@ function SignUp(props) {
         <div className="Auth-form-container">
             <form className="Auth-form" onSubmit={signUp}>
                 <div className="Auth-form-content">
-                    <h3 className="Auth-form-title">Sign Up</h3>
+                    <h3 className="Auth-form-title">Add User</h3>
                     <div className="text-center">
                         Already registered?{" "}
                         <Link to="/">Sign In</Link>

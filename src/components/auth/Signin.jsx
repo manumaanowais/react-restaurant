@@ -93,10 +93,10 @@ function SignIn(props) {
             <form className="Auth-form" onSubmit={signIn}>
                 <div className="Auth-form-content">
                     <h3 className="Auth-form-title">Sign In</h3>
-                    <div className="text-center">
+                    {/* <div className="text-center">
                         Not registered yet?{" "}
                         <Link to="/signup">Sign Up</Link>
-                    </div><br />
+                    </div><br /> */}
                     <div className="form-floating mb-3">
                         <input type="email" className="form-control" id="floatingInput1" placeholder="name@example.com" value={email}
                             onChange={(e) => setEmail(e.target.value)} />
