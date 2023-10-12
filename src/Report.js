@@ -379,7 +379,10 @@ function Report() {
                             <TableBody>
                                 <>
                                     <StyledTableRow>
-                                        <StyledTableCell align="center">TAKE AWAY</StyledTableCell>
+                                        <StyledTableCell align="center">
+                                            <img src="https://cdn-icons-png.flaticon.com/128/1585/1585302.png?ga=GA1.1.1226481460.1697015811" alt="TakeAway" className='report-img' />
+                                            TAKE AWAY
+                                        </StyledTableCell>
                                         <StyledTableCell align="center">{takeAwayCount}</StyledTableCell>
                                         <StyledTableCell align="center">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" name="bi bi-currency-rupee" viewBox="0 0 16 16">
@@ -388,7 +391,10 @@ function Report() {
                                         </StyledTableCell>
                                     </StyledTableRow>
                                     <StyledTableRow>
-                                        <StyledTableCell align="center">DINE IN</StyledTableCell>
+                                        <StyledTableCell align="center">
+                                            <img src="https://cdn-icons-png.flaticon.com/128/2555/2555794.png" alt="DineIn" className='report-img' />
+                                            DINE IN
+                                        </StyledTableCell>
                                         <StyledTableCell align="center">{dineInCount}</StyledTableCell>
                                         <StyledTableCell align="center">
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" name="bi bi-currency-rupee" viewBox="0 0 16 16">

@@ -397,6 +397,7 @@ function Home() {
     const [itemsDescription, setItemsDescription] = useState(null);
 
     const openDescriptionForm = (items) => {
+        setNewItemDescription('');
         setIsDescriptionFormOpen(true);
         setItemsDescription(items);
     };
@@ -463,6 +464,16 @@ function Home() {
         setNewItemDescription('');
         closeDescriptionForm();
     }
+
+    //Editing description
+
+    const openEditDescriptionForm = (items, desc) => {
+        setIsDescriptionFormOpen(true);
+        setItemsDescription(items);
+        setNewItemDescription(desc);
+    };
+
+
 
     const saveAndPrint = async () => {
         // var printableContent = document.getElementById('section3-content').innerHTML + "<br><br>";
@@ -1053,16 +1064,21 @@ function Home() {
                                             </td>
                                             <td>{buttonCountMap[buttonLabel].itemPrice.toFixed(2)}</td>
                                             <td>{buttonCountMap[buttonLabel].desc ? (
-                                                buttonCountMap[buttonLabel].desc
+                                                <div className='editDesc' onClick={() => openEditDescriptionForm(buttonLabel, buttonCountMap[buttonLabel].desc)}>
+                                                    {buttonCountMap[buttonLabel].desc}
+                                                    <EditIcon />
+                                                </div>
                                             )
                                                 : (
                                                     <div className='addDesc'>
                                                         {selectedButtons.length > 0 || tableData?.bill?.items.length > 0 ? (
                                                             <>
-                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
-                                                                    <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
-                                                                </svg>
-                                                                <Link onClick={() => openDescriptionForm(buttonLabel)}>Add</Link><br />
+                                                                <Link onClick={() => openDescriptionForm(buttonLabel)}>
+                                                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                                                                        <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                                                                    </svg>
+                                                                    Add
+                                                                </Link><br />
                                                             </>) : ('')}
                                                     </div>
                                                 )}</td>
@@ -1096,15 +1112,23 @@ function Home() {
                                                         </td>
                                                         <td>{(item.qty * item.menuItem?.itemPrice).toFixed(2)}</td>
                                                         <td>
-                                                            {item.desc ? item.desc : (
-                                                                <div className='addDesc'>
+                                                            {item.desc ? (
+                                                                <div className='editDesc' onClick={() => openEditDescriptionForm(item.menuItem.itemName, item.desc)}>
+                                                                    {item.desc}
+                                                                    <EditIcon />
+                                                                </div>
+                                                                ): (
+                                                                    <div className='addDesc'>
                                                                     {selectedButtons.length > 0 || tableData?.bill?.items.length > 0 ? (
                                                                         <>
-                                                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
-                                                                                <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
-                                                                            </svg>
-                                                                            <Link onClick={() => openDescriptionForm(item.menuItem.itemName)}>Add</Link><br />
-                                                                        </>) : ('')}
+                                                                            <Link onClick={() => openDescriptionForm(item.menuItem.itemName)}>
+                                                                                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" className="bi bi-plus-lg" viewBox="0 0 16 16">
+                                                                                    <path fillRule="evenodd" d="M8 2a.5.5 0 0 1 .5.5v5h5a.5.5 0 0 1 0 1h-5v5a.5.5 0 0 1-1 0v-5h-5a.5.5 0 0 1 0-1h5v-5A.5.5 0 0 1 8 2Z" />
+                                                                                </svg>
+                                                                                Add
+                                                                            </Link><br />
+                                                                        </>
+                                                                    ) : ('')}
                                                                 </div>
                                                             )}
                                                         </td>

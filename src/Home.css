@@ -150,6 +150,15 @@ main {
     text-decoration: none;
 }
 
+.editDesc {
+    cursor: pointer;
+}
+
+.editDesc svg {
+    fill: #007bff;
+    margin-left: 5px;
+}
+
 .actions {
     border: 1px solid darkcyan;
     border-left-width: 4px;
