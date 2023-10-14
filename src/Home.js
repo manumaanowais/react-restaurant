@@ -455,8 +455,8 @@ function Home() {
                 }
             } else {
 
-            updatedButtonCountMap[matchedItem.itemName].desc = itemDescription.toUpperCase();
-            setButtonCountMap(updatedButtonCountMap);
+                updatedButtonCountMap[matchedItem.itemName].desc = itemDescription.toUpperCase();
+                setButtonCountMap(updatedButtonCountMap);
             }
         } else {
             console.log("No matching item found.");
@@ -473,40 +473,8 @@ function Home() {
         setNewItemDescription(desc);
     };
 
-
-
+    const [takeAwayRecieptData, setTakeAwayRecieptData] = useState(null);
     const saveAndPrint = async () => {
-        // var printableContent = document.getElementById('section3-content').innerHTML + "<br><br>";
-        // printableContent += document.getElementById('total-section').innerHTML;
-
-        // const printWindow = window.open('', '', 'height=900, width=1200');
-
-        // printWindow.document.write('<html>');
-        // printWindow.document.write('<head>');
-        // printWindow.document.write('<style>');
-        // printWindow.document.write(`
-        //   .decrement-btn,
-        //   .increment-btn {
-        //     display: none;
-        //   }
-
-        //   .billing-table {
-        //     border: none;
-        //     margin: 50px;
-        //   }
-        // `);
-        // printWindow.document.write('</style>');
-        // printWindow.document.write('</head>');
-        // printWindow.document.write('<body>');
-
-        // printWindow.document.write('<h1>Restaurant</h1><p>Hyderabad Telangana State</p><br>');
-        // printWindow.document.write(printableContent);
-
-        // printWindow.document.write('</body></html>');
-        // printWindow.document.close();
-
-        // printWindow.print();
-        // printWindow.close();
         if (tableData && tableData.bill?.id && tableData.bill?.price > 0) {
             handleCloseTable();
         } else {
@@ -542,6 +510,8 @@ function Home() {
             }
 
             const data = await response.json();
+            setTakeAwayRecieptData(data)
+            setIsRecieptOpen(true);
             console.log("New bill added successfully:", data);
             Swal.fire({
                 icon: 'success',
@@ -560,6 +530,8 @@ function Home() {
         }
     };
 
+    const [dineInData, setDineInData] = useState(null);
+    const [alreadyDineInData, setAlreadyDineInData] = useState(null);
     const handleCreateBillClick = async () => {
         if (tableData.bill?.price > 0) {
             console.log("Table data : ", tableData)
@@ -581,6 +553,8 @@ function Home() {
             }
 
             const data = await response.json();
+            setAlreadyDineInData(data);
+            setIsAlreadyDineInRecieptOpen(true);
             console.log("Bill modified successfully:", data);
 
             // Display a success message or handle other UI updates
@@ -632,6 +606,8 @@ function Home() {
             }
 
             const data = await response.json();
+            setDineInData(data);
+            setIsDineInRecieptOpen(true);
             console.log("New bill added successfully:", data);
             Swal.fire({
                 icon: 'success',
@@ -667,6 +643,8 @@ function Home() {
             }
 
             const data = await response.json();
+            setAlreadyDineInData(data);
+            setIsAlreadyDineInRecieptOpen(true);
             console.log("Table Modified successfully:", data);
             Swal.fire({
                 icon: 'success',
@@ -954,10 +932,93 @@ function Home() {
 
         return `${hoursDifference} : ${minutesDifference} : ${secondsDifference}`;
     }
+
+    //TakeAway Reciept
+    const [isRecieptOpen, setIsRecieptOpen] = useState(false);
+
+    const closeReciept = () => {
+        setIsRecieptOpen(false)
+    }
+
+    const handleRecieptSubmit = (e) => {
+        console.log("TAke away data : ",takeAwayRecieptData)
+        closeReciept();
+        Swal.fire({
+            icon: 'success',
+            title: `Bill Printed Successfully`,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+        });
+    }
+
+    //DineIn Receipt
+    const [isDineInRecieptOpen, setIsDineInRecieptOpen] = useState(false);
+
+    const closeDineInReciept = () => {
+        setIsDineInRecieptOpen(false)
+    }
+
+    const handleDineInRecieptSubmit = (e) => {
+        console.log("Dine in data : ",dineInData)
+        closeDineInReciept();
+        Swal.fire({
+            icon: 'success',
+            title: `KOT Printed Successfully`,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+        });
+    }
+
+    //Already DineIn Receipt
+    const [isAlreadyDineInRecieptOpen, setIsAlreadyDineInRecieptOpen] = useState(false);
+
+    const closeAlreadyDineInReciept = () => {
+        setIsAlreadyDineInRecieptOpen(false)
+    }
+
+    const handleAlreadyDineInRecieptSubmit = (e) => {
+        console.log("Already dine in data : ",alreadyDineInData)
+        closeAlreadyDineInReciept();
+        Swal.fire({
+            icon: 'success',
+            title: `KOT Printed Successfully`,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+        });
+    }
+
+
+
+
+
+
+
+
     return (
         <div className="Home">
             <Header />
-            <div className='add-buttons'>
+            <div id='add-buttons' className='add-buttons'>
                 <button className={`${showActions ? 'btn' : 'displayNone'}`} onClick={openModal}>Add Menu</button>
                 <button className={`${showActions ? 'btn' : 'displayNone'}`} onClick={openSubMenuModal}>Add Menu Item</button>
                 <button
@@ -967,7 +1028,7 @@ function Home() {
                     {showActions ? 'Disable Actions' : 'Enable Actions'}
                 </button>
             </div>
-            <main className="Home-main">
+            <main id="main-page" className="Home-main">
                 <div className="section" style={{ width: '15%' }}>
                     {/* <h4>Menu Items</h4> */}
                     {section1Data.length > 0 ? (
@@ -1117,8 +1178,8 @@ function Home() {
                                                                     {item.desc}
                                                                     <EditIcon />
                                                                 </div>
-                                                                ): (
-                                                                    <div className='addDesc'>
+                                                            ) : (
+                                                                <div className='addDesc'>
                                                                     {selectedButtons.length > 0 || tableData?.bill?.items.length > 0 ? (
                                                                         <>
                                                                             <Link onClick={() => openDescriptionForm(item.menuItem.itemName)}>
@@ -1154,15 +1215,12 @@ function Home() {
                         <div className="col-lg-3">
                             {selectedButtons.length > 0 || tableData?.bill?.items.length > 0 ? (
                                 <>
-                                    <button type="button" className="btn btn-success" onClick={saveAndPrint}>Save & Print</button>
+                                    {(tableData.id) ? ('') : (<button type="button" className="btn btn-success" onClick={saveAndPrint}>Save & Print</button>)}
                                     <button type="button" className="btn btn-danger" onClick={handleClear}>Clear All</button>
                                     {(!tableData.id) ? ('') : (<button type="button" className="btn btn-info" onClick={handleCreateBillClick}>KOT & Print</button>)}
                                     {(!tableData.id || !tableData.bill) ? ('') : (<button type="button" className="btn btn-info" onClick={handleCloseTable}>Close Table</button>)}
                                 </>
                             ) : ''}
-                            {/* {tableData.bill?.price > 0 ? (
-                                <button type="button" className="btn btn-primary" onClick={kotAndPrint}>KOT & Print</button>
-                            ) : ''} */}
                         </div>
                     </div>
                 </div>
@@ -1391,6 +1449,192 @@ function Home() {
                     </DialogActions>
                 </Dialog>
             </main>
+
+            {/* Take away receipt */}
+            <Dialog
+                fullScreen={fullScreen}
+                open={isRecieptOpen}
+                onClose={closeReciept}
+                className="custom-modal"
+                aria-labelledby="responsive-dialog-title"
+            >
+                <DialogTitle id="responsive-dialog-title" className="formHeading">
+                    {"TANDOOR HOTEL"}
+                </DialogTitle>
+                <DialogContent>
+                    {/* <DialogContentText> */}
+                    <span>----------------------------------------------------------</span><br />
+                    <span><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br />
+                    <span>----------------------------------------------------------</span><br />
+                    <span>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
+                    <span>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br />
+                    <span>---------------------------------------------------------</span><br />
+                    <div className='takeawayRecieptDiv'>
+                        <table className='takeawayRecieptTable'>
+                            <thead className='takeawayRecieptTable-thead'>
+                                <tr>
+                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
+                                    <th className='takeawayRecieptTable-th2'>QTY</th>
+                                    <th className='takeawayRecieptTable-th3'>PRICE</th>
+                                    <th className='takeawayRecieptTable-th4'>AMOUNT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {takeAwayRecieptData?.bill?.items.map((item) => (
+                                    <tr className='takeawayRecieptTable-tr' key={item.id}>
+                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
+                                        <td className='takeawayRecieptTable-td2'>{item.qty}</td>
+                                        <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
+                                        <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <br />
+                    <span>----------------------------------------------------------</span><br />
+                    <b style={{ textAlign: 'right' }}>Sub Total : RS.{takeAwayRecieptData?.bill?.price}</b><br />
+                    <span>----------------------------------------------------------</span><br />
+                    <b style={{ textAlign: 'right' }}>Net Total : RS.{takeAwayRecieptData?.bill?.price}</b><br />
+                    <span>----------------------------------------------------------</span><br />
+                    <span>THANK YOU PLEASE COME AGAIN</span>
+                    {/* </DialogContentText> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button className="formBtn" onClick={handleRecieptSubmit}>
+                        Print
+                    </Button>
+                    <Button className="formBtn" onClick={closeReciept}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* Dine in reciept */}
+            <Dialog
+                fullScreen={fullScreen}
+                open={isDineInRecieptOpen}
+                onClose={closeDineInReciept}
+                className="custom-modal"
+                aria-labelledby="responsive-dialog-title"
+            >
+                <DialogTitle id="responsive-dialog-title" className="formHeading">
+                    {"TANDOOR HOTEL"}
+                </DialogTitle>
+                <DialogContent>
+                    {/* <DialogContentText> */}
+                    <span>----------------------------------------------------------</span><br />
+                    <span><b>KOT ( {dineInData?.bill?.id} ) </b></span><br />
+                    <span>----------------------------------------------------------</span><br />
+                    <span>Bill #{dineInData?.bill?.id} </span><br />
+                    <span>Date: {dineInData?.bill?.createdTime.toUpperCase()}</span><br />
+                    <span>---------------------------------------------------------</span><br />
+                    <div className='takeawayRecieptDiv'>
+                        <table className='takeawayRecieptTable'>
+                            <thead className='takeawayRecieptTable-thead'>
+                                <tr>
+                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
+                                    <th className='takeawayRecieptTable-th2'>QTY</th>
+                                    <th className='takeawayRecieptTable-th3'>PRICE</th>
+                                    <th className='takeawayRecieptTable-th4'>AMOUNT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {dineInData?.bill?.items.map((item) => (
+                                    <tr className='takeawayRecieptTable-tr' key={item.id}>
+                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
+                                        <td className='takeawayRecieptTable-td2'>{item.qty}</td>
+                                        <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
+                                        <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <br />
+                    <span>----------------------------------------------------------</span><br />
+                    <b style={{ textAlign: 'right' }}>Sub Total : RS.{dineInData?.bill?.price}</b><br />
+                    <span>----------------------------------------------------------</span><br />
+                    {/* </DialogContentText> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button className="formBtn" onClick={handleDineInRecieptSubmit}>
+                        Print
+                    </Button>
+                    <Button className="formBtn" onClick={closeDineInReciept}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* already Dine in reciept */}
+            <Dialog
+                fullScreen={fullScreen}
+                open={isAlreadyDineInRecieptOpen}
+                onClose={closeAlreadyDineInReciept}
+                className="custom-modal"
+                aria-labelledby="responsive-dialog-title"
+            >
+                <DialogTitle id="responsive-dialog-title" className="formHeading">
+                    {"TANDOOR HOTEL"}
+                </DialogTitle>
+                <DialogContent>
+                    {/* <DialogContentText> */}
+                    {alreadyDineInData?.status === 'closed' ? (
+                        <>
+                            <span>----------------------------------------------------------</span><br />
+                            <span><b>BILL ( {alreadyDineInData?.id} ) </b></span><br />
+                            <span>----------------------------------------------------------</span><br />
+                        </>
+                    ) : (
+                        <>
+                            <span>----------------------------------------------------------</span><br />
+                            <span><b>KOT ( {alreadyDineInData?.id} ) </b></span><br />
+                            <span>----------------------------------------------------------</span><br />
+                        </>
+                    )}
+                    <span>Bill #{alreadyDineInData?.id} </span><br />
+                    <span>Date: {alreadyDineInData?.createdTime.toUpperCase()}</span><br />
+                    <span>---------------------------------------------------------</span><br />
+                    <div className='takeawayRecieptDiv'>
+                        <table className='takeawayRecieptTable'>
+                            <thead className='takeawayRecieptTable-thead'>
+                                <tr>
+                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
+                                    <th className='takeawayRecieptTable-th2'>QTY</th>
+                                    <th className='takeawayRecieptTable-th3'>PRICE</th>
+                                    <th className='takeawayRecieptTable-th4'>AMOUNT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {alreadyDineInData?.items.map((item) => (
+                                    <tr className='takeawayRecieptTable-tr' key={item.id}>
+                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
+                                        <td className='takeawayRecieptTable-td2'>{item.qty}</td>
+                                        <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
+                                        <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
+                                    </tr>
+                                ))}
+                            </tbody>
+                        </table>
+                    </div>
+                    <br />
+                    <span>----------------------------------------------------------</span><br />
+                    <b style={{ textAlign: 'right' }}>Sub Total : RS.{alreadyDineInData?.price}</b><br />
+                    <span>----------------------------------------------------------</span><br />
+                    {/* </DialogContentText> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button className="formBtn" onClick={handleAlreadyDineInRecieptSubmit}>
+                        Print
+                    </Button>
+                    <Button className="formBtn" onClick={closeAlreadyDineInReciept}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+
         </div>
     );
 }

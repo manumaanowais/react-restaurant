@@ -1,6 +1,11 @@
 .report-actions {
     display: flex;
     justify-content: space-between;
+}
+
+.report-buttons {
+    display: flex;
+    justify-content: space-between;
     padding: 10px;
 }
 
@@ -24,4 +29,8 @@
     width: 35px;
     height: auto;
     margin-right: 10px;
+}
+
+.form-select-sm {
+    margin: auto;
 }

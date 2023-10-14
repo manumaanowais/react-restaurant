@@ -46,7 +46,7 @@ main {
 .section1 .selected {
     border: 1px solid darkred !important;
     border-left-width: 5px !important;
-  }
+}
 
 .section1-link {
     display: flex;
@@ -173,7 +173,7 @@ main {
     border: 1px solid darkred;
     border-left-width: 4px;
 }
-  
+
 .btn-delete {
     color: orangered;
 }
@@ -214,9 +214,9 @@ main {
 
 .table-occupied b {
     color: green;
- }
+}
 
- .custom-modal {
+.custom-modal {
     text-align: center;
     margin: auto;
 }
@@ -248,22 +248,22 @@ main {
 .custom-select {
     width: 250px;
     margin: auto;
-  }
-  
-  .custom-select select {
+}
+
+.custom-select select {
     appearance: none;
     padding: 10px;
     width: 100%;
     border: 1px solid #ccc;
     border-radius: 5px;
-  }
-  
-  .custom-select select:focus {
+}
+
+.custom-select select:focus {
     outline: none;
     border-color: #007bff;
-  }
-  
-  .custom-select .options {
+}
+
+.custom-select .options {
     display: none;
     max-height: 135px;
     overflow-y: auto;
@@ -274,21 +274,60 @@ main {
     width: 58%;
     background-color: #fff;
     z-index: 1;
-  }
-  
-  .custom-select .options.show {
+}
+
+.custom-select .options.show {
     display: block;
-  }
-  
-  .custom-select .option {
+}
+
+.custom-select .option {
     padding: 10px;
     cursor: pointer;
-  }
-  
-  .custom-select .option:hover {
+}
+
+.custom-select .option:hover {
     background-color: #f0f0f0;
-  }
-  
+}
+
+.takeawayRecieptTable {
+    margin: auto;
+    width: 100%;
+}
+
+.takeawayRecieptTable-thead {
+    border-bottom: 1px dashed black;
+    width: 100%
+}
+
+.takeawayRecieptTable-th1 {
+    text-align: left;
+}
+
+.takeawayRecieptTable-th2, .takeawayRecieptTable-th3 {
+    text-align: center;
+}
+
+.takeawayRecieptTable-th4 {
+    text-align: right;
+}
+
+.takeawayRecieptTable-tr {
+    text-align: left;
+}
+
+.takeawayRecieptTable-td1 {
+    text-align: left;
+}
+
+.takeawayRecieptTable-td2, .takeawayRecieptTable-td3 {
+    text-align: center;
+}
+
+.takeawayRecieptTable-td4 {
+    text-align: right;
+}
+
+
 @media screen and (max-width: 768px) {
     main {
         display: flex;
@@ -299,7 +338,7 @@ main {
         width: 84% !important;
         min-height: 0px;
     }
-    
+
     .formHeading {
         width: 250px;
     }

@@ -87,20 +87,20 @@ TablePaginationActions.propTypes = {
 function Report() {
 
     //Fetch all mainmenues
-const [allMainMenues, setAllMainMenues] = useState([]);
-useEffect(() => {
-    const apiUrl = 'http://localhost:8080/mainmenu';
+    const [allMainMenues, setAllMainMenues] = useState([]);
+    useEffect(() => {
+        const apiUrl = 'http://localhost:8080/mainmenu';
 
-    fetch(apiUrl)
-        .then((response) => response.json())
-        .then((result) => {
-            setAllMainMenues(result);
-        })
-        .catch((error) => {
-            console.error('Error fetching data:', error);
-        });
-},[])
-console.log("menues : ", allMainMenues)
+        fetch(apiUrl)
+            .then((response) => response.json())
+            .then((result) => {
+                setAllMainMenues(result);
+            })
+            .catch((error) => {
+                console.error('Error fetching data:', error);
+            });
+    }, [])
+    console.log("menues : ", allMainMenues)
 
 
     const getCurrentDate = () => {
@@ -281,7 +281,24 @@ console.log("menues : ", allMainMenues)
     const getItemNameWithMainMenuId = (id) => {
         const menu = allMainMenues.find(item => item.id === id);
         return menu ? menu.itemName : ''; // Return the item name if found, or an empty string if not found
-    }    
+    }
+
+    const [reportData, setReportData] = useState();
+    const printReport = (reportType) => {
+        console.log("Report type : ", reportType)
+        if(reportType === 'bills') {
+            setReportData(report);
+            console.log("Bills Report : ", reportData)
+        } else if(reportType === 'quantity') {
+            setReportData(itemsWithCounts);
+            console.log("Quantity Report : ", reportData)
+        } else {
+            console.log("TakeAway count : ", takeAwayCount);
+            console.log("TakeAway price : ", takeAwayTotalPrice);
+            console.log("DineIn count : ", dineInCount);
+            console.log("DineIn price : ", dineInTotalPrice);
+        }
+    }
 
     return (
         <div className="report">
@@ -299,7 +316,10 @@ console.log("menues : ", allMainMenues)
                         <option value="type">TYPE</option>
                     </select>
                 </div>
-                <button className='btn btn-success' onClick={() => getTotalSale()}>TOTAL SALE</button>
+                <div className='report-buttons'>
+                    <button className='btn btn-info' onClick={() => printReport(selectedReportType)}>PRINT</button>
+                    <button className='btn btn-success' onClick={() => getTotalSale()}>TOTAL SALE</button>
+                </div>
             </div>
             <TableContainer component={Paper}>
                 {/* Render the table based on the selected report type */}
