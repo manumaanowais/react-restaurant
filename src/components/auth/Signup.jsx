@@ -154,7 +154,7 @@ function SignUp(props) {
                         </div><br />
                         <div className="form-floating mb-3">
                             <input type="text" className="form-control" id="floatingInput" placeholder="John Doe" value={name}
-                                onChange={(e) => setName(e.target.value)} />
+                                autoFocus onChange={(e) => setName(e.target.value)} />
                             <label htmlFor="floatingInput">Full Name</label>
                         </div>
                         <div className="form-floating mb-3">

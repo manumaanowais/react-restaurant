@@ -98,8 +98,7 @@ function SignIn(props) {
                         <Link to="/signup">Sign Up</Link>
                     </div><br /> */}
                     <div className="form-floating mb-3">
-                        <input type="email" className="form-control" id="floatingInput1" placeholder="name@example.com" value={email}
-                            onChange={(e) => setEmail(e.target.value)} />
+                        <input type="email" className="form-control" id="floatingInput1" placeholder="name@example.com" value={email} autoFocus onChange={(e) => setEmail(e.target.value)} />
                         <label htmlFor="floatingInput1">Email address</label>
                     </div>
                     <div className="form-floating mb-3">

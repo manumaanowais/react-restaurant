@@ -17,10 +17,17 @@ import KeyboardArrowRight from '@mui/icons-material/KeyboardArrowRight';
 import LastPageIcon from '@mui/icons-material/LastPage';
 import PropTypes from 'prop-types';
 import Swal from 'sweetalert2';
-import { useTheme } from '@mui/material/styles';
 import Box from '@mui/material/Box';
 import './Report.css';
 import OrderChart from './OrderChart';
+import Dialog from '@mui/material/Dialog';
+import DialogActions from '@mui/material/DialogActions';
+import DialogContent from '@mui/material/DialogContent';
+// import DialogContentText from '@mui/material/DialogContentText';
+import DialogTitle from '@mui/material/DialogTitle';
+import Button from '@mui/material/Button';
+import useMediaQuery from '@mui/material/useMediaQuery';
+import { useTheme } from '@mui/material/styles';
 
 function TablePaginationActions(props) {
     const theme = useTheme();
@@ -85,6 +92,8 @@ TablePaginationActions.propTypes = {
 
 // Get report for all bills of the current date
 function Report() {
+    const theme = useTheme();
+    const fullScreen = useMediaQuery(theme.breakpoints.down('md'));
 
     //Fetch all mainmenues
     const [allMainMenues, setAllMainMenues] = useState([]);
@@ -283,21 +292,131 @@ function Report() {
         return menu ? menu.itemName : ''; // Return the item name if found, or an empty string if not found
     }
 
+
+    //Organizing for quantity report
+    const organizedData = {};
+
+    itemsWithCounts.forEach(item => {
+        const { mainMenuItemId, itemId, itemName, itemPrice, totalCount, totalItemPrice } = item;
+
+        // Create a sub-object for the mainMenuItemId if it doesn't exist
+        if (!organizedData[mainMenuItemId]) {
+            organizedData[mainMenuItemId] = {
+                mainMenuItemId,
+                items: []
+            };
+        }
+
+        // Add the item data to the sub-object
+        organizedData[mainMenuItemId].items.push({
+            itemId,
+            itemName,
+            itemPrice,
+            totalCount,
+            totalItemPrice
+        });
+    });
+
+    // Convert the organized data object to an array of objects
+    const resultArray = Object.values(organizedData);
+
     const [reportData, setReportData] = useState();
     const printReport = (reportType) => {
         console.log("Report type : ", reportType)
-        if(reportType === 'bills') {
+        if (reportType === 'bills') {
+            setReportData('');
             setReportData(report);
             console.log("Bills Report : ", reportData)
-        } else if(reportType === 'quantity') {
-            setReportData(itemsWithCounts);
+            setIsBillReportOpen(true);
+        } else if (reportType === 'quantity') {
+            setReportData('');
+            setReportData(resultArray);
             console.log("Quantity Report : ", reportData)
+            setIsQuantityReportOpen(true);
         } else {
+            setReportData('');
             console.log("TakeAway count : ", takeAwayCount);
             console.log("TakeAway price : ", takeAwayTotalPrice);
             console.log("DineIn count : ", dineInCount);
             console.log("DineIn price : ", dineInTotalPrice);
+            setIsTypeReportOpen(true);
         }
+    }
+
+
+    //Dialog for bills report
+    const [isBillReportOpen, setIsBillReportOpen] = useState(false);
+
+    const closeBillReport = () => {
+        setIsBillReportOpen(false)
+    }
+
+    const handleBillReportSubmit = (e) => {
+        console.log("Bill Report : ", reportData)
+        closeBillReport();
+        Swal.fire({
+            icon: 'success',
+            title: `Bill Report Printed Successfully`,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+        });
+    }
+
+    //Dialog for quantity report
+    const [isQuantityReportOpen, setIsQuantityReportOpen] = useState(false);
+
+    const closeQuantityReport = () => {
+        setIsQuantityReportOpen(false)
+    }
+
+    const handleQuantityReportSubmit = (e) => {
+        console.log("Quantity Report : ", reportData)
+        closeQuantityReport();
+        Swal.fire({
+            icon: 'success',
+            title: `Quantity Report Printed Successfully`,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+        });
+    }
+
+    //Dialog for type report
+    const [isTypeReportOpen, setIsTypeReportOpen] = useState(false);
+
+    const closeTypeReport = () => {
+        setIsTypeReportOpen(false)
+    }
+
+    const handleTypeReportSubmit = (e) => {
+        console.log("Type Report : ", reportData)
+        closeTypeReport();
+        Swal.fire({
+            icon: 'success',
+            title: `Type Report Printed Successfully`,
+            toast: true,
+            position: 'top-end',
+            showConfirmButton: false,
+            timer: 1500,
+            timerProgressBar: true,
+            didOpen: (toast) => {
+                toast.addEventListener('mouseenter', Swal.stopTimer);
+                toast.addEventListener('mouseleave', Swal.resumeTimer);
+            },
+        });
     }
 
     return (
@@ -474,6 +593,186 @@ function Report() {
                 ) : ('')
                 ))}
             </TableContainer>
+
+            {/* For showing bill report */}
+            <Dialog
+                fullScreen={fullScreen}
+                open={isBillReportOpen}
+                onClose={closeBillReport}
+                className="custom-modal"
+                aria-labelledby="responsive-dialog-title"
+            >
+                <DialogTitle id="responsive-dialog-title" className="formHeading">
+                    {"TANDOOR HOTEL BILL REPORT"}
+                </DialogTitle>
+                <DialogContent>
+                    {/* <DialogContentText> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <span><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br /> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <span>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
+                    <span>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br /> */}
+                    <span>---------------------------------------------------------</span><br />
+                    <div className='takeawayRecieptDiv'>
+                        <table className='takeawayRecieptTable'>
+                            <thead className='takeawayRecieptTable-thead'>
+                                <tr>
+                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
+                                    <th className='takeawayRecieptTable-th2'>QTY</th>
+                                    <th className='takeawayRecieptTable-th3'>PRICE</th>
+                                    <th className='takeawayRecieptTable-th4'>AMOUNT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {/* {takeAwayRecieptData?.bill?.items.map((item) => (
+                                    <tr className='takeawayRecieptTable-tr' key={item.id}>
+                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
+                                        <td className='takeawayRecieptTable-td2'>{item.qty}</td>
+                                        <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
+                                        <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
+                                    </tr>
+                                ))} */}
+                            </tbody>
+                        </table>
+                    </div>
+                    <br />
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <b style={{ textAlign: 'right' }}>Sub Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <b style={{ textAlign: 'right' }}>Net Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <span>THANK YOU PLEASE COME AGAIN</span> */}
+                    {/* </DialogContentText> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button className="formBtn" onClick={handleBillReportSubmit}>
+                        Print
+                    </Button>
+                    <Button className="formBtn" onClick={closeBillReport}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* For showing quantity report */}
+            <Dialog
+                fullScreen={fullScreen}
+                open={isQuantityReportOpen}
+                onClose={closeQuantityReport}
+                className="custom-modal"
+                aria-labelledby="responsive-dialog-title"
+            >
+                <DialogTitle id="responsive-dialog-title" className="formHeading">
+                    {"TANDOOR HOTEL QUANTITY REPORT"}
+                </DialogTitle>
+                <DialogContent>
+                    {/* <DialogContentText> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <span><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br /> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <span>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
+                    <span>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br /> */}
+                    <span>---------------------------------------------------------</span><br />
+                    <div className='takeawayRecieptDiv'>
+                        <table className='takeawayRecieptTable'>
+                            <thead className='takeawayRecieptTable-thead'>
+                                <tr>
+                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
+                                    <th className='takeawayRecieptTable-th2'>QTY</th>
+                                    <th className='takeawayRecieptTable-th3'>PRICE</th>
+                                    <th className='takeawayRecieptTable-th4'>AMOUNT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {/* {takeAwayRecieptData?.bill?.items.map((item) => (
+                                    <tr className='takeawayRecieptTable-tr' key={item.id}>
+                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
+                                        <td className='takeawayRecieptTable-td2'>{item.qty}</td>
+                                        <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
+                                        <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
+                                    </tr>
+                                ))} */}
+                            </tbody>
+                        </table>
+                    </div>
+                    <br />
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <b style={{ textAlign: 'right' }}>Sub Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <b style={{ textAlign: 'right' }}>Net Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <span>THANK YOU PLEASE COME AGAIN</span> */}
+                    {/* </DialogContentText> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button className="formBtn" onClick={handleQuantityReportSubmit}>
+                        Print
+                    </Button>
+                    <Button className="formBtn" onClick={closeQuantityReport}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
+
+            {/* For showing type report */}
+            <Dialog
+                fullScreen={fullScreen}
+                open={isTypeReportOpen}
+                onClose={closeTypeReport}
+                className="custom-modal"
+                aria-labelledby="responsive-dialog-title"
+            >
+                <DialogTitle id="responsive-dialog-title" className="formHeading">
+                    {"TANDOOR HOTEL TYPE REPORT"}
+                </DialogTitle>
+                <DialogContent>
+                    {/* <DialogContentText> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <span><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br /> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <span>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
+                    <span>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br /> */}
+                    <span>---------------------------------------------------------</span><br />
+                    <div className='takeawayRecieptDiv'>
+                        <table className='takeawayRecieptTable'>
+                            <thead className='takeawayRecieptTable-thead'>
+                                <tr>
+                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
+                                    <th className='takeawayRecieptTable-th2'>QTY</th>
+                                    <th className='takeawayRecieptTable-th3'>PRICE</th>
+                                    <th className='takeawayRecieptTable-th4'>AMOUNT</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {/* {takeAwayRecieptData?.bill?.items.map((item) => (
+                                    <tr className='takeawayRecieptTable-tr' key={item.id}>
+                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
+                                        <td className='takeawayRecieptTable-td2'>{item.qty}</td>
+                                        <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
+                                        <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
+                                    </tr>
+                                ))} */}
+                            </tbody>
+                        </table>
+                    </div>
+                    <br />
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <b style={{ textAlign: 'right' }}>Sub Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <b style={{ textAlign: 'right' }}>Net Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
+                    <span>----------------------------------------------------------</span><br />
+                    {/* <span>THANK YOU PLEASE COME AGAIN</span> */}
+                    {/* </DialogContentText> */}
+                </DialogContent>
+                <DialogActions>
+                    <Button className="formBtn" onClick={handleTypeReportSubmit}>
+                        Print
+                    </Button>
+                    <Button className="formBtn" onClick={closeTypeReport}>
+                        Cancel
+                    </Button>
+                </DialogActions>
+            </Dialog>
         </div>
     );
 }

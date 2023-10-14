@@ -406,7 +406,8 @@ function Home() {
         setIsDescriptionFormOpen(false);
     };
 
-    const handleDescriptionSubmit = async () => {
+    const handleDescriptionSubmit = async (e) => {
+        e.preventDefault();
         if (itemDescription.trim() === '') {
             return;
         }
@@ -686,6 +687,7 @@ function Home() {
         // });
     };
 
+    //For adding main menu
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newMenuItem, setNewMenuItem] = useState('');
 
@@ -772,6 +774,7 @@ function Home() {
     };
 
     const handleMainMenuSubmit = (e) => {
+        e.preventDefault();
         alert("From submitted")
         closeEditMainMenu();
     }
@@ -795,6 +798,7 @@ function Home() {
     };
 
     const handleSubMenuSubmit = (e) => {
+        e.preventDefault();
         if (newSubMenuItem.trim() === '' || newItemPrice.trim() === '' || selectedMainMenu.trim() === '') {
             return;
         }
@@ -884,6 +888,7 @@ function Home() {
     };
 
     const handleMenuItemSubmit = (e) => {
+        e.preventDefault();
         alert("From submitted")
         closeEditMenuItem();
     }
@@ -941,7 +946,7 @@ function Home() {
     }
 
     const handleRecieptSubmit = (e) => {
-        console.log("TAke away data : ",takeAwayRecieptData)
+        console.log("TAke away data : ", takeAwayRecieptData)
         closeReciept();
         Swal.fire({
             icon: 'success',
@@ -966,7 +971,7 @@ function Home() {
     }
 
     const handleDineInRecieptSubmit = (e) => {
-        console.log("Dine in data : ",dineInData)
+        console.log("Dine in data : ", dineInData)
         closeDineInReciept();
         Swal.fire({
             icon: 'success',
@@ -991,7 +996,7 @@ function Home() {
     }
 
     const handleAlreadyDineInRecieptSubmit = (e) => {
-        console.log("Already dine in data : ",alreadyDineInData)
+        console.log("Already dine in data : ", alreadyDineInData)
         closeAlreadyDineInReciept();
         Swal.fire({
             icon: 'success',
@@ -1007,13 +1012,6 @@ function Home() {
             },
         });
     }
-
-
-
-
-
-
-
 
     return (
         <div className="Home">
@@ -1232,27 +1230,30 @@ function Home() {
                     className="custom-modal"
                     aria-labelledby="responsive-dialog-title"
                 >
-                    <DialogTitle id="responsive-dialog-title" className="formHeading">
-                        {"Add Item Description"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            <textarea
-                                className='formInput'
-                                type="text"
-                                placeholder="Enter Description"
-                                value={itemDescription}
-                                onChange={(e) => setNewItemDescription(e.target.value)} />
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button className="formBtn" onClick={handleDescriptionSubmit}>
-                            Add
-                        </Button>
-                        <Button className="formBtn" onClick={closeDescriptionForm}>
-                            Cancel
-                        </Button>
-                    </DialogActions>
+                    <form onSubmit={handleDescriptionSubmit}>
+                        <DialogTitle id="responsive-dialog-title" className="formHeading">
+                            {"Add Item Description"}
+                        </DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>
+                                <textarea
+                                    className='formInput'
+                                    type="text"
+                                    placeholder="Enter Description"
+                                    value={itemDescription}
+                                    autoFocus
+                                    onChange={(e) => setNewItemDescription(e.target.value)} />
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button className="formBtn" type='submit'>
+                                Add
+                            </Button>
+                            <Button className="formBtn" onClick={closeDescriptionForm}>
+                                Cancel
+                            </Button>
+                        </DialogActions>
+                    </form>
                 </Dialog>
                 {/* For Adding Main Menu */}
                 <Dialog
@@ -1262,28 +1263,31 @@ function Home() {
                     className="custom-modal"
                     aria-labelledby="responsive-dialog-title"
                 >
-                    <DialogTitle id="responsive-dialog-title" className="formHeading">
-                        {"Add Main Menu"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            <input
-                                className='formInput'
-                                type="text"
-                                placeholder="Enter Main Menu"
-                                value={newMenuItem}
-                                required
-                                onChange={(e) => setNewMenuItem(e.target.value)} />
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button className="formBtn" onClick={handleSubmit}>
-                            Add
-                        </Button>
-                        <Button className="formBtn" onClick={closeModal}>
-                            Cancel
-                        </Button>
-                    </DialogActions>
+                    <form onSubmit={handleSubmit}>
+                        <DialogTitle id="responsive-dialog-title" className="formHeading">
+                            {"Add Main Menu"}
+                        </DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>
+                                <input
+                                    className='formInput'
+                                    type="text"
+                                    placeholder="Enter Main Menu"
+                                    value={newMenuItem}
+                                    required
+                                    autoFocus
+                                    onChange={(e) => setNewMenuItem(e.target.value)} />
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button className="formBtn" type='submit'>
+                                Add
+                            </Button>
+                            <Button className="formBtn" onClick={closeModal}>
+                                Cancel
+                            </Button>
+                        </DialogActions>
+                    </form>
                 </Dialog>
 
                 {/* For Editing Main Menu */}
@@ -1294,35 +1298,38 @@ function Home() {
                     className="custom-modal"
                     aria-labelledby="responsive-dialog-title"
                 >
-                    <DialogTitle id="responsive-dialog-title" className="formHeading">
-                        {"Modify Main Menu"}
-                    </DialogTitle>
-                    <DialogContent>
-                        <DialogContentText>
-                            <input
-                                className='formInput'
-                                type="text"
-                                placeholder="Enter Main Menu"
-                                value={editedMainMenu ? editedMainMenu.itemName : newMenuItem}
-                                onChange={(e) =>
-                                    editedMainMenu
-                                        ? setEditedMainMenu({ ...editedMainMenu, itemName: e.target.value })
-                                        : setNewMenuItem(e.target.value)
-                                }
-                                required />
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button className="formBtn" onClick={handleMainMenuSubmit}>
-                            {editedMainMenu ? 'Update' : 'Add'}
-                        </Button>
-                        <Button className="formBtn" onClick={closeEditMainMenu}>
-                            Cancel
-                        </Button>
-                    </DialogActions>
+                    <form onSubmit={handleMainMenuSubmit}>
+                        <DialogTitle id="responsive-dialog-title" className="formHeading">
+                            {"Modify Main Menu"}
+                        </DialogTitle>
+                        <DialogContent>
+                            <DialogContentText>
+                                <input
+                                    className='formInput'
+                                    type="text"
+                                    placeholder="Enter Main Menu"
+                                    value={editedMainMenu ? editedMainMenu.itemName : newMenuItem}
+                                    autoFocus
+                                    onChange={(e) =>
+                                        editedMainMenu
+                                            ? setEditedMainMenu({ ...editedMainMenu, itemName: e.target.value })
+                                            : setNewMenuItem(e.target.value)
+                                    }
+                                    required />
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button className="formBtn" type='submit'>
+                                {editedMainMenu ? 'Update' : 'Add'}
+                            </Button>
+                            <Button className="formBtn" onClick={closeEditMainMenu}>
+                                Cancel
+                            </Button>
+                        </DialogActions>
+                    </form>
                 </Dialog>
 
-                {/* For sub menuitems */}
+                {/* For adding sub menuitems */}
                 <Dialog
                     fullScreen={fullScreen}
                     open={isSubMenuModalOpen}
@@ -1330,56 +1337,59 @@ function Home() {
                     className="custom-modal"
                     aria-labelledby="responsive-dialog-title"
                 >
-                    <DialogTitle id="responsive-dialog-title" className="formHeading">
-                        {"Add Menu Item"}
-                    </DialogTitle>
-                    <div className="custom-select">
-                        <div onClick={toggleOptions} className="selected-option">
-                            {selectedMainMenu || 'Select Main Menu'}
+                    <form onSubmit={handleSubMenuSubmit}>
+                        <DialogTitle id="responsive-dialog-title" className="formHeading">
+                            {"Add Menu Item"}
+                        </DialogTitle>
+                        <div className="custom-select">
+                            <div onClick={toggleOptions} className="selected-option">
+                                {selectedMainMenu || 'Select Main Menu'}
+                            </div>
+                            <div className={`options ${showOptions ? 'show' : ''}`}>
+                                {section1Data.map((menuItem, index) => (
+                                    <div
+                                        key={index}
+                                        className="option"
+                                        onClick={() => {
+                                            setSelectedMainMenu(menuItem.itemName);
+                                            toggleOptions();
+                                        }}
+                                    >
+                                        {menuItem.itemName.toUpperCase()}
+                                    </div>
+                                ))}
+                            </div>
                         </div>
-                        <div className={`options ${showOptions ? 'show' : ''}`}>
-                            {section1Data.map((menuItem, index) => (
-                                <div
-                                    key={index}
-                                    className="option"
-                                    onClick={() => {
-                                        setSelectedMainMenu(menuItem.itemName);
-                                        toggleOptions();
-                                    }}
-                                >
-                                    {menuItem.itemName.toUpperCase()}
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                    <DialogContent>
-                        <DialogContentText>
-                            <input
-                                className='formInput'
-                                type="text"
-                                placeholder="Enter Menu Item"
-                                value={newSubMenuItem}
-                                onChange={(e) => setNewSubMenuItem(e.target.value)}
-                                required
-                            /><br />
-                            <input
-                                className='formInput'
-                                type="text"
-                                placeholder="Enter Price"
-                                value={newItemPrice}
-                                onChange={(e) => setNewItemPrice(e.target.value)}
-                                required
-                            /><br />
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button className="formBtn" onClick={handleSubMenuSubmit}>
-                            Add
-                        </Button>
-                        <Button className="formBtn" onClick={closeSubMenuModal}>
-                            Cancel
-                        </Button>
-                    </DialogActions>
+                        <DialogContent>
+                            <DialogContentText>
+                                <input
+                                    className='formInput'
+                                    type="text"
+                                    placeholder="Enter Menu Item"
+                                    value={newSubMenuItem}
+                                    autoFocus
+                                    onChange={(e) => setNewSubMenuItem(e.target.value)}
+                                    required
+                                /><br />
+                                <input
+                                    className='formInput'
+                                    type="text"
+                                    placeholder="Enter Price"
+                                    value={newItemPrice}
+                                    onChange={(e) => setNewItemPrice(e.target.value)}
+                                    required
+                                /><br />
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button className="formBtn" type='submit'>
+                                Add
+                            </Button>
+                            <Button className="formBtn" onClick={closeSubMenuModal}>
+                                Cancel
+                            </Button>
+                        </DialogActions>
+                    </form>
                 </Dialog>
 
                 {/* For Editing Menu Item */}
@@ -1390,63 +1400,66 @@ function Home() {
                     className="custom-modal"
                     aria-labelledby="responsive-dialog-title"
                 >
-                    <DialogTitle id="responsive-dialog-title" className="formHeading">
-                        {"Modify Menu Item"}
-                    </DialogTitle>
-                    <div className="custom-select">
-                        <div onClick={toggleOptions} className="selected-option">
-                            {selectedMainMenu || 'Select Main Menu'}
-                        </div>
-                        <div className={`options ${showOptions ? 'show' : ''}`}>
-                            {section1Data.map((menuItem, index) => (
-                                <div
-                                    key={index}
-                                    className="option"
-                                    value={editedMenuItem ? selectedMainMenu : ''}
-                                    onClick={() => {
-                                        setSelectedMainMenu(menuItem.itemName);
-                                        toggleOptions();
-                                    }}
-                                >
-                                    {menuItem.itemName.toUpperCase()}
-                                </div>
-                            ))}
-                        </div>
-                    </div><br />
-                    <DialogContent>
-                        <DialogContentText>
-                            <input
-                                className='formInput'
-                                type="text"
-                                placeholder="Enter Menu Item"
-                                value={editedMenuItem ? editedMenuItem.itemName : newSubMenuItem}
-                                onChange={(e) =>
-                                    editedMenuItem
-                                        ? setEditedMenuItem({ ...editedMenuItem, itemName: e.target.value })
-                                        : setNewSubMenuItem(e.target.value)
-                                }
-                                required /><br />
-                            <input
-                                className='formInput'
-                                type="text"
-                                placeholder="Enter Price"
-                                value={editedMenuItem ? editedMenuItem.itemPrice : newItemPrice}
-                                onChange={(e) =>
-                                    editedMenuItem
-                                        ? setEditedMenuItem({ ...editedMenuItem, itemPrice: e.target.value })
-                                        : setNewItemPrice(e.target.value)
-                                }
-                                required />
-                        </DialogContentText>
-                    </DialogContent>
-                    <DialogActions>
-                        <Button className="formBtn" onClick={handleMenuItemSubmit}>
-                            {editedMenuItem ? 'Update' : 'Add'}
-                        </Button>
-                        <Button className="formBtn" onClick={closeEditMenuItem}>
-                            Cancel
-                        </Button>
-                    </DialogActions>
+                    <form onSubmit={handleMenuItemSubmit}>
+                        <DialogTitle id="responsive-dialog-title" className="formHeading">
+                            {"Modify Menu Item"}
+                        </DialogTitle>
+                        <div className="custom-select">
+                            <div onClick={toggleOptions} className="selected-option">
+                                {selectedMainMenu || 'Select Main Menu'}
+                            </div>
+                            <div className={`options ${showOptions ? 'show' : ''}`}>
+                                {section1Data.map((menuItem, index) => (
+                                    <div
+                                        key={index}
+                                        className="option"
+                                        value={editedMenuItem ? selectedMainMenu : ''}
+                                        onClick={() => {
+                                            setSelectedMainMenu(menuItem.itemName);
+                                            toggleOptions();
+                                        }}
+                                    >
+                                        {menuItem.itemName.toUpperCase()}
+                                    </div>
+                                ))}
+                            </div>
+                        </div><br />
+                        <DialogContent>
+                            <DialogContentText>
+                                <input
+                                    className='formInput'
+                                    type="text"
+                                    placeholder="Enter Menu Item"
+                                    value={editedMenuItem ? editedMenuItem.itemName : newSubMenuItem}
+                                    autoFocus
+                                    onChange={(e) =>
+                                        editedMenuItem
+                                            ? setEditedMenuItem({ ...editedMenuItem, itemName: e.target.value })
+                                            : setNewSubMenuItem(e.target.value)
+                                    }
+                                    required /><br />
+                                <input
+                                    className='formInput'
+                                    type="text"
+                                    placeholder="Enter Price"
+                                    value={editedMenuItem ? editedMenuItem.itemPrice : newItemPrice}
+                                    onChange={(e) =>
+                                        editedMenuItem
+                                            ? setEditedMenuItem({ ...editedMenuItem, itemPrice: e.target.value })
+                                            : setNewItemPrice(e.target.value)
+                                    }
+                                    required />
+                            </DialogContentText>
+                        </DialogContent>
+                        <DialogActions>
+                            <Button className="formBtn" type='submit'>
+                                {editedMenuItem ? 'Update' : 'Add'}
+                            </Button>
+                            <Button className="formBtn" onClick={closeEditMenuItem}>
+                                Cancel
+                            </Button>
+                        </DialogActions>
+                    </form>
                 </Dialog>
             </main>
 

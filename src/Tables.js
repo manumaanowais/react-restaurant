@@ -126,6 +126,7 @@ function Tables() {
   };
 
   const handleTableSubmit = (e) => {
+    e.preventDefault();
     if (newTableName.trim() === '') {
       return;
     }
@@ -206,6 +207,7 @@ function Tables() {
   };
 
   const handleEditTableSubmit = async (e) => {
+    e.preventDefault();
     console.log("Table data : ", editedTable);
 
     try {
@@ -414,7 +416,7 @@ function Tables() {
   //Method to check all tables are having bills or not
   const checkAllTablesHaveBills = () => {
     const allTablesHaveBills = tableData.every((table) => table.bill !== null);
-  
+
     if (allTablesHaveBills && tableData.length > 0) {
       Swal.fire({
         icon: 'success',
@@ -564,38 +566,41 @@ function Tables() {
         className="custom-modal"
         aria-labelledby="responsive-dialog-title"
       >
-        <DialogTitle id="responsive-dialog-title" className="formHeading">
-          {"Add Table"}
-        </DialogTitle>
-        <DialogContent>
-          <DialogContentText>
-            <input
-              className="formInput"
-              type="text"
-              placeholder="Enter Table Name"
-              value={newTableName}
-              onChange={(e) => setNewTableName(e.target.value)}
-              required
-            />
-            <br />
-            <input
-              className="formInput"
-              type="text"
-              placeholder="Enter Table Sequence"
-              value={newTableSequence}
-              onChange={(e) => setNewTableSequence(e.target.value)}
-              required
-            />
-          </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-          <Button className="formBtn" onClick={handleTableSubmit}>
-            Add
-          </Button>
-          <Button className="formBtn" onClick={closeTable}>
-            Cancel
-          </Button>
-        </DialogActions>
+        <form onSubmit={handleTableSubmit}>
+          <DialogTitle id="responsive-dialog-title" className="formHeading">
+            {"Add Table"}
+          </DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              <input
+                className="formInput"
+                type="text"
+                placeholder="Enter Table Name"
+                value={newTableName}
+                autoFocus
+                onChange={(e) => setNewTableName(e.target.value)}
+                required
+              />
+              <br />
+              <input
+                className="formInput"
+                type="text"
+                placeholder="Enter Table Sequence"
+                value={newTableSequence}
+                onChange={(e) => setNewTableSequence(e.target.value)}
+                required
+              />
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button className="formBtn" type='submit'>
+              Add
+            </Button>
+            <Button className="formBtn" onClick={closeTable}>
+              Cancel
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
 
       {/* For Editing Tables */}
@@ -607,44 +612,47 @@ function Tables() {
         className="custom-modal"
         aria-labelledby="responsive-dialog-title"
       >
-        <DialogTitle id="responsive-dialog-title" className="formHeading">
-          {"Modify Table"}
-        </DialogTitle>
-        <DialogContentText>
-          <input
-            className="formInput"
-            type="text"
-            placeholder="Enter Table Name"
-            value={editedTable ? editedTable.name : newTableName}
-            onChange={(e) =>
-              editedTable
-                ? setEditedTable({ ...editedTable, name: e.target.value })
-                : setNewTableName(e.target.value)
-            }
-            required
-          />
-          <br />
-          <input
-            className="formInput"
-            type="text"
-            placeholder="Enter Table Sequence"
-            value={editedTable ? editedTable.sequence : newTableSequence}
-            onChange={(e) =>
-              editedTable
-                ? setEditedTable({ ...editedTable, sequence: e.target.value })
-                : setNewTableSequence(e.target.value)
-            }
-            required
-          />
-        </DialogContentText>
-        <DialogActions>
-          <Button className="formBtn" onClick={handleEditTableSubmit}>
-            {editedTable ? 'Update' : 'Add'}
-          </Button>
-          <Button className="formBtn" onClick={closeEditTable}>
-            Cancel
-          </Button>
-        </DialogActions>
+        <form onSubmit={handleEditTableSubmit}>
+          <DialogTitle id="responsive-dialog-title" className="formHeading">
+            {"Modify Table"}
+          </DialogTitle>
+          <DialogContentText>
+            <input
+              className="formInput"
+              type="text"
+              placeholder="Enter Table Name"
+              value={editedTable ? editedTable.name : newTableName}
+              autoFocus
+              onChange={(e) =>
+                editedTable
+                  ? setEditedTable({ ...editedTable, name: e.target.value })
+                  : setNewTableName(e.target.value)
+              }
+              required
+            />
+            <br />
+            <input
+              className="formInput"
+              type="text"
+              placeholder="Enter Table Sequence"
+              value={editedTable ? editedTable.sequence : newTableSequence}
+              onChange={(e) =>
+                editedTable
+                  ? setEditedTable({ ...editedTable, sequence: e.target.value })
+                  : setNewTableSequence(e.target.value)
+              }
+              required
+            />
+          </DialogContentText>
+          <DialogActions>
+            <Button className="formBtn" type='submit'>
+              {editedTable ? 'Update' : 'Add'}
+            </Button>
+            <Button className="formBtn" onClick={closeEditTable}>
+              Cancel
+            </Button>
+          </DialogActions>
+        </form>
       </Dialog>
     </div>
   );
