@@ -90,19 +90,13 @@ function Header() {
                                         <NavLink to="/tables">Dine In</NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to="/">Order</NavLink>
-                                    </li>
-                                    <li>
-                                        <NavLink to="/">Delivery</NavLink>
-                                    </li>
-                                    <li>
                                         <NavLink to="/addcash">Add Cash</NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to="/adduser">Add User</NavLink>
+                                        <NavLink to="/report">Report</NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to="/report">Report</NavLink>
+                                        <NavLink to="/adduser">Add User</NavLink>
                                     </li>
                                     <li className='sign-out'>
                                             {authUser ? (

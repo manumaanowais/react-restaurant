@@ -83,9 +83,26 @@ TablePaginationActions.propTypes = {
     rowsPerPage: PropTypes.number.isRequired,
 };
 
-
 // Get report for all bills of the current date
 function Report() {
+
+    //Fetch all mainmenues
+const [allMainMenues, setAllMainMenues] = useState([]);
+useEffect(() => {
+    const apiUrl = 'http://localhost:8080/mainmenu';
+
+    fetch(apiUrl)
+        .then((response) => response.json())
+        .then((result) => {
+            setAllMainMenues(result);
+        })
+        .catch((error) => {
+            console.error('Error fetching data:', error);
+        });
+},[])
+console.log("menues : ", allMainMenues)
+
+
     const getCurrentDate = () => {
         const now = new Date();
         const year = now.getFullYear();
@@ -142,6 +159,7 @@ function Report() {
                     itemId: itemId,
                     itemName: itemDetail.menuItem.itemName,
                     itemPrice: itemDetail.menuItem.itemPrice,
+                    mainMenuItemId: itemDetail.menuItem.mainMenuItemId,
                     totalCount: menuItemCounts[itemId],
                 };
             }
@@ -150,6 +168,25 @@ function Report() {
 
     // Convert uniqueItems object to an array for easy printing
     const itemsWithCounts = Object.values(uniqueItems);
+
+    // Create a dictionary to store the total itemPrice for each mainmenuitemid
+    const totalItemPriceByMainMenuItemId = {};
+
+    // Iterate through itemsWithCounts to calculate the total itemPrice
+    itemsWithCounts.forEach((item) => {
+        const mainMenuItemId = item.mainMenuItemId;
+        if (totalItemPriceByMainMenuItemId[mainMenuItemId]) {
+            totalItemPriceByMainMenuItemId[mainMenuItemId] += item.itemPrice * item.totalCount;
+        } else {
+            totalItemPriceByMainMenuItemId[mainMenuItemId] = item.itemPrice * item.totalCount;
+        }
+    });
+
+    // Add the total itemPrice as a new property in itemsWithCounts
+    itemsWithCounts.forEach((item) => {
+        const mainMenuItemId = item.mainMenuItemId;
+        item.totalItemPrice = totalItemPriceByMainMenuItemId[mainMenuItemId];
+    });
 
     // For table
     const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -240,6 +277,12 @@ function Report() {
         setDineInTotalPrice(takeAwayFalseTotalPrice);
     }, [report, takeAwayCount, dineInCount]);
 
+
+    const getItemNameWithMainMenuId = (id) => {
+        const menu = allMainMenues.find(item => item.id === id);
+        return menu ? menu.itemName : ''; // Return the item name if found, or an empty string if not found
+    }    
+
     return (
         <div className="report">
             <Header />
@@ -254,7 +297,6 @@ function Report() {
                         <option value="bills">BILLS</option>
                         <option value="quantity">QUANTITY</option>
                         <option value="type">TYPE</option>
-                        <option value="menu">MENU</option>
                     </select>
                 </div>
                 <button className='btn btn-success' onClick={() => getTotalSale()}>TOTAL SALE</button>
@@ -318,10 +360,11 @@ function Report() {
                     <Table sx={{ minWidth: 700 }} aria-label="customized table">
                         <TableHead>
                             <TableRow>
-                                <StyledTableCell align="center">ID</StyledTableCell>
+                                <StyledTableCell align="center">GROUP</StyledTableCell>
                                 <StyledTableCell align="center">MENU ITEM</StyledTableCell>
                                 <StyledTableCell align="center">PRICE</StyledTableCell>
-                                <StyledTableCell align="center">COUNT</StyledTableCell>
+                                <StyledTableCell align="center">QUANTITY</StyledTableCell>
+                                <StyledTableCell align="center">TOTAL ITEM PRICE</StyledTableCell>
                                 <StyledTableCell align="center">TOTAL PRICE</StyledTableCell>
                             </TableRow>
                         </TableHead>
@@ -331,11 +374,12 @@ function Report() {
                                 : itemsWithCounts
                             ).map((item) => (
                                 <StyledTableRow key={item.itemId}>
-                                    <StyledTableCell align="center">{item.itemId}</StyledTableCell>
+                                    <StyledTableCell align="center">{getItemNameWithMainMenuId(item.mainMenuItemId)}</StyledTableCell>
                                     <StyledTableCell align="center">{item.itemName}</StyledTableCell>
                                     <StyledTableCell align="center">{item.itemPrice}</StyledTableCell>
                                     <StyledTableCell align="center">{item.totalCount}</StyledTableCell>
                                     <StyledTableCell align="center">{(item.totalCount) * (item.itemPrice)}</StyledTableCell>
+                                    <StyledTableCell align="center">{item.totalItemPrice}</StyledTableCell>
                                 </StyledTableRow>
                             ))}
                             {emptyRows > 0 && (
@@ -407,63 +451,7 @@ function Report() {
                             </TableBody>
                         </Table>
                     </>
-                ) : (selectedReportType === 'menu' ? (
-                    <>
-                        <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                            <TableHead>
-                                <TableRow>
-                                    <StyledTableCell align="center">BILL ID</StyledTableCell>
-                                    <StyledTableCell align="center">CREATED TIME</StyledTableCell>
-                                    <StyledTableCell align="center">MENU ITEM</StyledTableCell>
-                                    <StyledTableCell align="center">PRICE</StyledTableCell>
-                                    <StyledTableCell align="center">QUANTITY</StyledTableCell>
-                                </TableRow>
-                            </TableHead>
-                            <TableBody>
-                                {(rowsPerPage > 0
-                                    ? report.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                                    : report
-                                ).map((item) =>
-                                    item.items.map((itemData) => (
-                                        <StyledTableRow key={itemData.id}>
-                                            <StyledTableCell align="center">{item.id}</StyledTableCell>
-                                            <StyledTableCell align="center">{item.createdTime.toUpperCase()}</StyledTableCell>
-                                            <StyledTableCell align="center">{itemData.menuItem.itemName}</StyledTableCell>
-                                            <StyledTableCell align="center">{itemData.menuItem.itemPrice}</StyledTableCell>
-                                            <StyledTableCell align="center">{itemData.qty}</StyledTableCell>
-                                        </StyledTableRow>
-                                    ))
-                                )}
-                                {emptyRows > 0 && (
-                                    <StyledTableRow style={{ height: 53 * emptyRows }}>
-                                        <StyledTableCell colSpan={5} />
-                                    </StyledTableRow>
-                                )}
-                            </TableBody>
-                            <TableFooter>
-                                <TableRow>
-                                    <TablePagination
-                                        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
-                                        colSpan={3}
-                                        count={report.length}
-                                        rowsPerPage={rowsPerPage}
-                                        page={page}
-                                        SelectProps={{
-                                            inputProps: {
-                                                'aria-label': 'rows per page',
-                                            },
-                                            native: true,
-                                        }}
-                                        onPageChange={handleChangePage}
-                                        onRowsPerPageChange={handleChangeRowsPerPage}
-                                        ActionsComponent={TablePaginationActions}
-                                    />
-                                </TableRow>
-                            </TableFooter>
-                        </Table>
-                    </>
                 ) : ('')
-                )
                 ))}
             </TableContainer>
         </div>
