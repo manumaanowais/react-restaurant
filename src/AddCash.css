@@ -1,0 +1,110 @@
+.Cash-form-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100vw;
+    height: 80vh;
+}
+
+.Cash-form {
+    width: 550px;
+    height: 512px;
+    box-shadow: rgb(0 0 0 / 16%) 1px 1px 10px;
+    padding-top: 30px;
+    padding-bottom: 20px;
+    border-radius: 8px;
+    background-color: white;
+}
+
+.Cash-form-content {
+    padding-left: 16%;
+    padding-right: 16%;
+}
+
+.Cash-form-title {
+    text-align: center;
+    margin-bottom: 1em;
+    font-size: 24px;
+    color: rgb(34, 34, 34);
+    font-weight: 800;
+}
+
+.Cash-form-table {
+    overflow: auto;
+    max-height: 340px;
+    margin: 10px;
+}
+
+.Cash-table {
+    margin: auto;
+}
+
+.total-value {
+    text-align: center;
+    margin-bottom: 1rem;
+}
+
+.note-td {
+    padding: 5px;
+    text-align: left;
+}
+
+.x-td {
+    padding: 5px;
+    text-align: center;
+}
+
+.input-td {
+    padding: 5px;
+    text-align: center;
+}
+
+.total-td {
+    padding: 5px;
+    text-align: left;
+}
+
+.note-th {
+    text-align: left;
+}
+
+.x-th {
+    text-align: center;
+}
+
+.input-th {
+    text-align: center;
+}
+
+.total-th {
+    text-align: left;
+}
+
+.action-buttons {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+
+    .btn-primary {
+        width: 180px;
+    }
+}
+
+
+/* Media query for phones */
+@media (max-width: 768px) {
+    .Cash-table {
+        margin: auto;
+    }
+
+    .Cash-form {
+        width: 300px;
+    }
+
+    .input-td-input {
+        width: 60px;
+        padding: 0 !important;
+        min-height: 0 !important;
+        line-height: 0 !important;
+    }
+}

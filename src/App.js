@@ -8,7 +8,8 @@ import "./App.css"
 import SignIn from "./components/auth/Signin"
 import SignUp from "./components/auth/Signup"
 import ForgotPassword from "./ForgotPassword"
-import AddUser from "./AddUser"
+// import AddUser from "./AddUser"
+import AddCash from "./AddCash"
 
 function App() {
 
@@ -16,14 +17,15 @@ function App() {
     <Router>
       <Routes>
         <Route path="/" element={<SignIn />} />
-        <Route path="/signup" element={<SignUp />} />
+        <Route path="/adduser" element={<SignUp />} />
         <Route path="/forgotpassword" element={<ForgotPassword />} />
-        <Route path="/adduser" element={<AddUser />} />
+        {/* <Route path="/adduser" element={<AddUser />} /> */}
         <Route path="/order" element={<Home />} />
         <Route path="/order/:id" element={<Home />} />
         <Route path="/tables" element={<Tables />} />
         <Route path="/table/:tableId" element={<Home />} />
         <Route path="/report" element={<Report />} />
+        <Route path="/addcash" element={<AddCash />} />
       </Routes>
     </Router>
   );

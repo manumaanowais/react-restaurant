@@ -96,7 +96,10 @@ function Header() {
                                         <NavLink to="/">Delivery</NavLink>
                                     </li>
                                     <li>
-                                        <NavLink to="/signup">Add User</NavLink>
+                                        <NavLink to="/addcash">Add Cash</NavLink>
+                                    </li>
+                                    <li>
+                                        <NavLink to="/adduser">Add User</NavLink>
                                     </li>
                                     <li>
                                         <NavLink to="/report">Report</NavLink>

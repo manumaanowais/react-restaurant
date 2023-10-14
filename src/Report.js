@@ -254,6 +254,7 @@ function Report() {
                         <option value="bills">BILLS</option>
                         <option value="quantity">QUANTITY</option>
                         <option value="type">TYPE</option>
+                        <option value="menu">MENU</option>
                     </select>
                 </div>
                 <button className='btn btn-success' onClick={() => getTotalSale()}>TOTAL SALE</button>
@@ -364,7 +365,7 @@ function Report() {
                             </TableRow>
                         </TableFooter>
                     </Table>
-                ) : (
+                ) : (selectedReportType === 'type' ? (
                     <>
                         <OrderChart takeAwayCount={takeAwayCount} dineInCount={dineInCount} takeAwayTotalPrice={takeAwayTotalPrice} dineInTotalPrice={dineInTotalPrice} />
 
@@ -406,6 +407,63 @@ function Report() {
                             </TableBody>
                         </Table>
                     </>
+                ) : (selectedReportType === 'menu' ? (
+                    <>
+                        <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                            <TableHead>
+                                <TableRow>
+                                    <StyledTableCell align="center">BILL ID</StyledTableCell>
+                                    <StyledTableCell align="center">CREATED TIME</StyledTableCell>
+                                    <StyledTableCell align="center">MENU ITEM</StyledTableCell>
+                                    <StyledTableCell align="center">PRICE</StyledTableCell>
+                                    <StyledTableCell align="center">QUANTITY</StyledTableCell>
+                                </TableRow>
+                            </TableHead>
+                            <TableBody>
+                                {(rowsPerPage > 0
+                                    ? report.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                                    : report
+                                ).map((item) =>
+                                    item.items.map((itemData) => (
+                                        <StyledTableRow key={itemData.id}>
+                                            <StyledTableCell align="center">{item.id}</StyledTableCell>
+                                            <StyledTableCell align="center">{item.createdTime.toUpperCase()}</StyledTableCell>
+                                            <StyledTableCell align="center">{itemData.menuItem.itemName}</StyledTableCell>
+                                            <StyledTableCell align="center">{itemData.menuItem.itemPrice}</StyledTableCell>
+                                            <StyledTableCell align="center">{itemData.qty}</StyledTableCell>
+                                        </StyledTableRow>
+                                    ))
+                                )}
+                                {emptyRows > 0 && (
+                                    <StyledTableRow style={{ height: 53 * emptyRows }}>
+                                        <StyledTableCell colSpan={5} />
+                                    </StyledTableRow>
+                                )}
+                            </TableBody>
+                            <TableFooter>
+                                <TableRow>
+                                    <TablePagination
+                                        rowsPerPageOptions={[5, 10, 25, { label: 'All', value: -1 }]}
+                                        colSpan={3}
+                                        count={report.length}
+                                        rowsPerPage={rowsPerPage}
+                                        page={page}
+                                        SelectProps={{
+                                            inputProps: {
+                                                'aria-label': 'rows per page',
+                                            },
+                                            native: true,
+                                        }}
+                                        onPageChange={handleChangePage}
+                                        onRowsPerPageChange={handleChangeRowsPerPage}
+                                        ActionsComponent={TablePaginationActions}
+                                    />
+                                </TableRow>
+                            </TableFooter>
+                        </Table>
+                    </>
+                ) : ('')
+                )
                 ))}
             </TableContainer>
         </div>
