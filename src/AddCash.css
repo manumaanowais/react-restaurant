@@ -1,9 +1,14 @@
+.enable-button {
+    padding: 0 20px;
+}
+
 .Cash-form-container {
     display: flex;
     justify-content: center;
     align-items: center;
     width: 100vw;
     height: 80vh;
+    padding: 0 20px;
 }
 
 .Cash-form {
@@ -92,16 +97,21 @@
 
 .edit-btn {
     fill: #007bff !important;
+    cursor: pointer;
 }
 
 .delete-btn {
     fill: orangered !important;
+    cursor: pointer;
 }
 
 .displayNone {
     display: none;
 }
 
+.notes-collection {
+    padding: 0 20px;
+}
 
 /* Media query for phones */
 @media (max-width: 768px) {

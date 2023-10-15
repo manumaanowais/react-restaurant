@@ -584,7 +584,7 @@ function Tables() {
               <br />
               <input
                 className="formInput"
-                type="text"
+                type="number"
                 placeholder="Enter Table Sequence"
                 value={newTableSequence}
                 onChange={(e) => setNewTableSequence(e.target.value)}
@@ -633,7 +633,7 @@ function Tables() {
             <br />
             <input
               className="formInput"
-              type="text"
+              type="number"
               placeholder="Enter Table Sequence"
               value={editedTable ? editedTable.sequence : newTableSequence}
               onChange={(e) =>
