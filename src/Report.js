@@ -23,7 +23,6 @@ import OrderChart from './OrderChart';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-// import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import useMediaQuery from '@mui/material/useMediaQuery';
@@ -109,8 +108,6 @@ function Report() {
                 console.error('Error fetching data:', error);
             });
     }, [])
-    console.log("menues : ", allMainMenues)
-
 
     const getCurrentDate = () => {
         const now = new Date();
@@ -243,6 +240,11 @@ function Report() {
         return totalPrice;
     }
 
+    const [totalSale, setTotalSale] = useState(0);
+    useEffect(() => {
+        const totalPrice = calculateTotalPrice(itemsWithCounts);
+        setTotalSale(totalPrice);
+    }, [itemsWithCounts])
     const getTotalSale = () => {
         const totalPrice = calculateTotalPrice(itemsWithCounts);
         console.log(`Total Price : ${totalPrice}`);
@@ -334,11 +336,6 @@ function Report() {
             console.log("Quantity Report : ", reportData)
             setIsQuantityReportOpen(true);
         } else {
-            setReportData('');
-            console.log("TakeAway count : ", takeAwayCount);
-            console.log("TakeAway price : ", takeAwayTotalPrice);
-            console.log("DineIn count : ", dineInCount);
-            console.log("DineIn price : ", dineInTotalPrice);
             setIsTypeReportOpen(true);
         }
     }
@@ -606,43 +603,45 @@ function Report() {
                     {"TANDOOR HOTEL BILL REPORT"}
                 </DialogTitle>
                 <DialogContent>
-                    {/* <DialogContentText> */}
+                    <span><b>DATE : {currentDate}</b></span><br />
                     <span>----------------------------------------------------------</span><br />
-                    {/* <span><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br /> */}
+                    <span><b>TOTAL BILLS CREATED : {reportData?.length}</b></span><br />
                     <span>----------------------------------------------------------</span><br />
-                    {/* <span>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
-                    <span>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br /> */}
-                    <span>---------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
                                 <tr>
-                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
+                                    <th className='takeawayRecieptTable-th1'>BILL ID</th>
+                                    <th className='takeawayRecieptTable-th2'>ITEMS</th>
                                     <th className='takeawayRecieptTable-th2'>QTY</th>
                                     <th className='takeawayRecieptTable-th3'>PRICE</th>
-                                    <th className='takeawayRecieptTable-th4'>AMOUNT</th>
+                                    <th className='takeawayRecieptTable-th4'>TYPE</th>
+                                    <th className='takeawayRecieptTable-th4'>TOTAL</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* {takeAwayRecieptData?.bill?.items.map((item) => (
-                                    <tr className='takeawayRecieptTable-tr' key={item.id}>
-                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
-                                        <td className='takeawayRecieptTable-td2'>{item.qty}</td>
-                                        <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
-                                        <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
-                                    </tr>
-                                ))} */}
+                                {reportData &&
+                                    reportData.map((report) => (
+                                        report?.items &&
+                                        report?.items?.map((item) => (
+                                            <tr className='takeawayRecieptTable-tr' key={item?.id}>
+                                                <td className='takeawayRecieptTable-td2'>{report?.id}</td>
+                                                <td className='takeawayRecieptTable-td1'>{item?.menuItem?.itemName}</td>
+                                                <td className='takeawayRecieptTable-td2'>{item?.qty}</td>
+                                                <td className='takeawayRecieptTable-td4' style={{ textAlign: 'center' }}>{item?.qty * item?.menuItem?.itemPrice}</td>
+                                                <td className='takeawayRecieptTable-td4'>{report?.takeAway ? 'TA' : 'DI'}</td>
+                                                <td className='takeawayRecieptTable-td4'>{report?.price}</td>
+                                            </tr>
+                                        ))
+                                    ))
+                                }
                             </tbody>
                         </table>
                     </div>
                     <br />
                     <span>----------------------------------------------------------</span><br />
-                    {/* <b style={{ textAlign: 'right' }}>Sub Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
+                    <b style={{ textAlign: 'right' }}>Total Sale Is RS.{totalSale.toFixed(2)}</b><br />
                     <span>----------------------------------------------------------</span><br />
-                    {/* <b style={{ textAlign: 'right' }}>Net Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
-                    <span>----------------------------------------------------------</span><br />
-                    {/* <span>THANK YOU PLEASE COME AGAIN</span> */}
-                    {/* </DialogContentText> */}
                 </DialogContent>
                 <DialogActions>
                     <Button className="formBtn" onClick={handleBillReportSubmit}>
@@ -666,43 +665,39 @@ function Report() {
                     {"TANDOOR HOTEL QUANTITY REPORT"}
                 </DialogTitle>
                 <DialogContent>
-                    {/* <DialogContentText> */}
-                    <span>----------------------------------------------------------</span><br />
-                    {/* <span><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br /> */}
-                    <span>----------------------------------------------------------</span><br />
-                    {/* <span>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
-                    <span>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br /> */}
-                    <span>---------------------------------------------------------</span><br />
+                    <span><b>DATE : {currentDate}</b></span><br />
                     <div className='takeawayRecieptDiv'>
-                        <table className='takeawayRecieptTable'>
-                            <thead className='takeawayRecieptTable-thead'>
-                                <tr>
-                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
-                                    <th className='takeawayRecieptTable-th2'>QTY</th>
-                                    <th className='takeawayRecieptTable-th3'>PRICE</th>
-                                    <th className='takeawayRecieptTable-th4'>AMOUNT</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {/* {takeAwayRecieptData?.bill?.items.map((item) => (
-                                    <tr className='takeawayRecieptTable-tr' key={item.id}>
-                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
-                                        <td className='takeawayRecieptTable-td2'>{item.qty}</td>
-                                        <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
-                                        <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
-                                    </tr>
-                                ))} */}
-                            </tbody>
-                        </table>
+                        {reportData?.map((group, index) => (
+                            <div key={index}>
+                                <span>----------------------------------------------------------</span><br />
+                                <h6>GROUP: {getItemNameWithMainMenuId(group?.mainMenuItemId)}</h6>
+                                <table className='takeawayRecieptTable'>
+                                    <thead className='takeawayRecieptTable-thead'>
+                                        <tr>
+                                            <th className='takeawayRecieptTable-th1'>Item</th>
+                                            <th className='takeawayRecieptTable-th2'>Price</th>
+                                            <th className='takeawayRecieptTable-th3'>Count</th>
+                                            <th className='takeawayRecieptTable-th4'>Total Price</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {group.items.map((item, itemIndex) => (
+                                            <tr className='takeawayRecieptTable-tr' key={itemIndex}>
+                                                <td className='takeawayRecieptTable-td1'>{item?.itemName}</td>
+                                                <td className='takeawayRecieptTable-td2'>{item?.itemPrice}</td>
+                                                <td className='takeawayRecieptTable-td3'>{item?.totalCount}</td>
+                                                <td className='takeawayRecieptTable-td4'>{isNaN((item?.itemPrice) * (item?.totalCount)) ? 0 : (item?.itemPrice) * (item?.totalCount)}</td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
+                            </div>
+                        ))}
                     </div>
                     <br />
                     <span>----------------------------------------------------------</span><br />
-                    {/* <b style={{ textAlign: 'right' }}>Sub Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
+                    <b style={{ textAlign: 'right' }}>Total Sale Is RS.{totalSale.toFixed(2)}</b><br />
                     <span>----------------------------------------------------------</span><br />
-                    {/* <b style={{ textAlign: 'right' }}>Net Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
-                    <span>----------------------------------------------------------</span><br />
-                    {/* <span>THANK YOU PLEASE COME AGAIN</span> */}
-                    {/* </DialogContentText> */}
                 </DialogContent>
                 <DialogActions>
                     <Button className="formBtn" onClick={handleQuantityReportSubmit}>
@@ -726,43 +721,35 @@ function Report() {
                     {"TANDOOR HOTEL TYPE REPORT"}
                 </DialogTitle>
                 <DialogContent>
-                    {/* <DialogContentText> */}
+                    <span><b>DATE : {currentDate}</b></span><br />
                     <span>----------------------------------------------------------</span><br />
-                    {/* <span><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br /> */}
-                    <span>----------------------------------------------------------</span><br />
-                    {/* <span>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
-                    <span>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br /> */}
-                    <span>---------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
                                 <tr>
-                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
-                                    <th className='takeawayRecieptTable-th2'>QTY</th>
-                                    <th className='takeawayRecieptTable-th3'>PRICE</th>
-                                    <th className='takeawayRecieptTable-th4'>AMOUNT</th>
+                                    <th className='takeawayRecieptTable-th1'>TYPE</th>
+                                    <th className='takeawayRecieptTable-th2'>ORDERS</th>
+                                    <th className='takeawayRecieptTable-th3'>SALE</th>
                                 </tr>
                             </thead>
                             <tbody>
-                                {/* {takeAwayRecieptData?.bill?.items.map((item) => (
-                                    <tr className='takeawayRecieptTable-tr' key={item.id}>
-                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
-                                        <td className='takeawayRecieptTable-td2'>{item.qty}</td>
-                                        <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
-                                        <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
-                                    </tr>
-                                ))} */}
+                                <tr className='takeawayRecieptTable-tr'>
+                                    <td className='takeawayRecieptTable-td1'>TAKEAWAY</td>
+                                    <td className='takeawayRecieptTable-td2'>{takeAwayCount}</td>
+                                    <td className='takeawayRecieptTable-td2'>{takeAwayTotalPrice}</td>
+                                </tr>
+                                <tr className='takeawayRecieptTable-tr'>
+                                    <td className='takeawayRecieptTable-td1'>DINEIN</td>
+                                    <td className='takeawayRecieptTable-td2'>{dineInCount}</td>
+                                    <td className='takeawayRecieptTable-td2'>{dineInTotalPrice}</td>
+                                </tr>
                             </tbody>
                         </table>
                     </div>
                     <br />
                     <span>----------------------------------------------------------</span><br />
-                    {/* <b style={{ textAlign: 'right' }}>Sub Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
+                    <b style={{ textAlign: 'right' }}>Total Sale Is RS.{totalSale.toFixed(2)}</b><br />
                     <span>----------------------------------------------------------</span><br />
-                    {/* <b style={{ textAlign: 'right' }}>Net Total : RS.{takeAwayRecieptData?.bill?.price}</b><br /> */}
-                    <span>----------------------------------------------------------</span><br />
-                    {/* <span>THANK YOU PLEASE COME AGAIN</span> */}
-                    {/* </DialogContentText> */}
                 </DialogContent>
                 <DialogActions>
                     <Button className="formBtn" onClick={handleTypeReportSubmit}>
