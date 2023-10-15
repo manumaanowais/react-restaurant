@@ -72,16 +72,7 @@ function Home() {
 
     //get all menuitems
     useEffect(() => {
-        const apiUrl = 'http://localhost:8080/menuitems';
-
-        fetch(apiUrl)
-            .then((response) => response.json())
-            .then((result) => {
-                setAllMenuItems(result);
-            })
-            .catch((error) => {
-                console.error('Error fetching menu items :', error);
-            });
+        fetchAllMenuItems();
     }, [])
 
     const fetchAllMenuItems = () => {
@@ -687,6 +678,11 @@ function Home() {
         // });
     };
 
+    const getItemNameWithMainMenuId = (id) => {
+        const menu = section1Data.find(item => item.id === id);
+        return menu ? menu.itemName : ''; 
+    }
+
     //For adding main menu
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newMenuItem, setNewMenuItem] = useState('');
@@ -773,16 +769,63 @@ function Home() {
         setIsEditMainMenuFormOpen(true);
     };
 
-    const handleMainMenuSubmit = (e) => {
+    const handleMainMenuSubmit = async (e) => {
         e.preventDefault();
-        alert("From submitted")
-        closeEditMainMenu();
+        console.log("Editedmainmenu : ", editedMainMenu)
+        try {
+            const response = await fetch("http://localhost:8080/mainmenu", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(editedMainMenu),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            fetchMainMenuItems();
+            console.log("Main Menu Modified successfully:", data);
+            Swal.fire({
+                icon: 'success',
+                title: 'Main Menu Modified Successfully',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
+            closeEditMainMenu();
+        } catch (error) {
+            console.error("Error Modifying Main Menu:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Main Menu was Not Updated, Try Again!',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
+            closeEditMainMenu();
+        }
     }
 
     const [isSubMenuModalOpen, setIsSubMenuModalOpen] = useState(false);
     const [newSubMenuItem, setNewSubMenuItem] = useState('');
     const [newItemPrice, setNewItemPrice] = useState('');
-    const [selectedMainMenu, setSelectedMainMenu] = useState('');
+    const [editedMenuItem, setEditedMenuItem] = useState(null);
+    const [selectedMainMenu, setSelectedMainMenu] = useState(editedMenuItem ? getItemNameWithMainMenuId(editedMenuItem.mainMenuItemId) : '');
     const [showOptions, setShowOptions] = useState(false);
 
     const toggleOptions = () => {
@@ -833,7 +876,7 @@ function Home() {
                 console.log('New Menu item added:', result);
                 Swal.fire({
                     icon: 'success',
-                    title: `${formData.itemName.toUpperCase()} Added Successfully`,
+                    title: `${formData.itemName.toUpperCase()} Added Successfully, Navigate Back To See!`,
                     toast: true,
                     position: 'top-end',
                     showConfirmButton: false,
@@ -871,12 +914,7 @@ function Home() {
 
     //For Editing Menu Item
 
-    const [editedMenuItem, setEditedMenuItem] = useState(null);
     const [isEditMenuItemFormOpen, setIsEditMenuItemFormOpen] = useState(false);
-
-    // const openEditMenuItem = () => {
-    //     setIsEditMenuItemFormOpen(true)
-    // }
 
     const closeEditMenuItem = () => {
         setIsEditMenuItemFormOpen(false)
@@ -887,10 +925,56 @@ function Home() {
         setIsEditMenuItemFormOpen(true);
     };
 
-    const handleMenuItemSubmit = (e) => {
+    const handleMenuItemSubmit = async (e) => {
         e.preventDefault();
-        alert("From submitted")
-        closeEditMenuItem();
+        console.log("Editedmenuitem : ", editedMenuItem)
+        try {
+            const response = await fetch("http://localhost:8080/menuitem", {
+                method: "PATCH",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify(editedMenuItem),
+            });
+
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+
+            const data = await response.json();
+            console.log("Menu Item Modified successfully:", data);
+            Swal.fire({
+                icon: 'success',
+                title: 'Menu Item Modified Successfully, Navigate Back To See!',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
+            closeEditMenuItem();
+            fetchAllMenuItems();
+        } catch (error) {
+            console.error("Error modifying menu item:", error);
+            Swal.fire({
+                icon: 'error',
+                title: 'Menu Item Was Not Modified, Try Again!',
+                toast: true,
+                position: 'top-end',
+                showConfirmButton: false,
+                timer: 1500,
+                timerProgressBar: true,
+                didOpen: (toast) => {
+                    toast.addEventListener('mouseenter', Swal.stopTimer);
+                    toast.addEventListener('mouseleave', Swal.resumeTimer);
+                },
+            });
+            closeEditMenuItem();
+        }
     }
 
     //To display actions
@@ -1077,7 +1161,7 @@ function Home() {
                                                 addSection3Content(menuItem.itemName, menuItem.itemPrice);
                                             }}
                                         >
-                                            {menuItem.itemName} <br /> ({menuItem.itemPrice})
+                                            {menuItem.itemName.toUpperCase()} <br /> ({menuItem.itemPrice})
                                             {showActions && (
                                                 <>
                                                     <EditIcon onClick={(e) => { e.stopPropagation(); handleEditMenuItem(menuItem.id) }} />
@@ -1308,7 +1392,7 @@ function Home() {
                                     className='formInput'
                                     type="text"
                                     placeholder="Enter Main Menu"
-                                    value={editedMainMenu ? editedMainMenu.itemName : newMenuItem}
+                                    value={editedMainMenu ? editedMainMenu.itemName.toUpperCase() : newMenuItem}
                                     autoFocus
                                     onChange={(e) =>
                                         editedMainMenu
@@ -1406,14 +1490,14 @@ function Home() {
                         </DialogTitle>
                         <div className="custom-select">
                             <div onClick={toggleOptions} className="selected-option">
-                                {selectedMainMenu || 'Select Main Menu'}
+                                {editedMenuItem ? getItemNameWithMainMenuId(editedMenuItem.mainMenuItemId) : selectedMainMenu || 'Select Main Menu'}
                             </div>
                             <div className={`options ${showOptions ? 'show' : ''}`}>
                                 {section1Data.map((menuItem, index) => (
                                     <div
                                         key={index}
                                         className="option"
-                                        value={editedMenuItem ? selectedMainMenu : ''}
+                                        value={editedMenuItem ? getItemNameWithMainMenuId(editedMenuItem.mainMenuItemId) : selectedMainMenu}
                                         onClick={() => {
                                             setSelectedMainMenu(menuItem.itemName);
                                             toggleOptions();
@@ -1430,7 +1514,7 @@ function Home() {
                                     className='formInput'
                                     type="text"
                                     placeholder="Enter Menu Item"
-                                    value={editedMenuItem ? editedMenuItem.itemName : newSubMenuItem}
+                                    value={editedMenuItem ? editedMenuItem.itemName.toUpperCase() : newSubMenuItem}
                                     autoFocus
                                     onChange={(e) =>
                                         editedMenuItem
