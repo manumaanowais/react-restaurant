@@ -108,6 +108,7 @@ const AddCash = () => {
   const apiUrl = `http://localhost:8080/noteCollection/${date}`;
 
   //Fetch Notes Collection
+  const [total, setTotal] = useState(0);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -117,6 +118,14 @@ const AddCash = () => {
         }
         const data = await response.json();
         setNotesCollectionData(data);
+      
+        const totalSum = data.reduce((acc, item) => {
+          const type = item.noteType.type;
+          const qty = item.qty;
+          return acc + (type * qty);
+      }, 0);
+
+      setTotal(totalSum)
       } catch (error) {
         console.error('Error fetching data:', error);
       }
@@ -427,9 +436,9 @@ const AddCash = () => {
       });
   };
 
-  const handleAddNotesCollection = () => {
+    const handleAddNotesCollection = () => {
     console.log("total notes : ", totalValue)
-    console.log("Note data : ", noteData)
+        console.log("Note data : ", noteData)
     console.log("Note Collection : ", noteCollection)
 
     const apiUrl = 'http://localhost:8080/noteCollection';
@@ -546,31 +555,39 @@ const AddCash = () => {
   return (
     <div className="add-cash">
       <Header />
-      <div className='enable-button'>
-        <button
-          onClick={() => setShowActions(!showActions)}
-          className={`btn ${showActions ? 'btn-danger' : 'btn-success'}`}
-        >
-          {showActions ? 'Disable Actions' : 'Enable Actions'}
-        </button>
-        {showActions && (
+      <div className='header-buttons'>
+        <div className='enable-button'>
           <button
-            type='button'
-            className='btn btn-primary'
-            onClick={handleAddNotesForm}
+            onClick={() => setShowActions(!showActions)}
+            className={`btn ${showActions ? 'btn-danger' : 'btn-success'}`}
           >
-            Add Notes
+            {showActions ? 'Disable Actions' : 'Enable Actions'}
           </button>
-        )}
+          {showActions && (
+            <button
+              type='button'
+              className='btn btn-primary'
+              onClick={handleAddNotesForm}
+            >
+              Add Notes
+            </button>
+          )}
+          {showActions && (
+            <button
+              type='button'
+              className='btn btn-success'
+              onClick={handleToggleView}
+            >
+              {showForm ? 'Show Notes Collection' : 'Add Collection'}
+            </button>
+          )}
+        </div>
         {showActions && (
-          <button
-            type='button'
-            className='btn btn-success'
-            onClick={handleToggleView}
-          >
-            {showForm ? 'Show Notes Collection' : 'Add Collection'}
-          </button>
-        )}
+        <div className='total-notes-value'>
+          <span><b>Total Collection: <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" name="bi bi-currency-rupee" viewBox="0 0 16 16">
+            <path d="M4 3.06h2.726c1.22 0 2.12.575 2.325 1.724H4v1.051h5.051C8.855 7.001 8 7.558 6.788 7.558H4v1.317L8.437 14h2.11L6.095 8.884h.855c2.316-.018 3.465-1.476 3.688-3.049H12V4.784h-1.345c-.08-.778-.357-1.335-.793-1.732H12V2H4v1.06Z" />
+          </svg>{total}</b></span>
+        </div>)}
       </div>
       {showForm && (
         <div id='notes-form' className="Cash-form-container">
