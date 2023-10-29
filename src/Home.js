@@ -504,6 +504,12 @@ function Home() {
             const data = await response.json();
             setTakeAwayRecieptData(data)
             setIsRecieptOpen(true);
+            window.addEventListener('afterprint', () => {
+                setIsRecieptOpen(false); // Close the dialog after printing
+            });
+            setTimeout(() => {
+                window.print();
+            }, 800)
             console.log("New bill added successfully:", data);
             Swal.fire({
                 icon: 'success',
@@ -547,6 +553,12 @@ function Home() {
             const data = await response.json();
             setAlreadyDineInData(data);
             setIsAlreadyDineInRecieptOpen(true);
+            window.addEventListener('afterprint', () => {
+                setIsAlreadyDineInRecieptOpen(false); // Close the dialog after printing
+            });
+            setTimeout(() => {
+                window.print();
+            }, 800)
             console.log("Bill modified successfully:", data);
 
             // Display a success message or handle other UI updates
@@ -600,6 +612,12 @@ function Home() {
             const data = await response.json();
             setDineInData(data);
             setIsDineInRecieptOpen(true);
+            window.addEventListener('afterprint', () => {
+                setIsDineInRecieptOpen(false); // Close the dialog after printing
+            });
+            setTimeout(() => {
+                window.print();
+            }, 800)
             console.log("New bill added successfully:", data);
             Swal.fire({
                 icon: 'success',
@@ -1029,23 +1047,23 @@ function Home() {
         setIsRecieptOpen(false)
     }
 
-    const handleRecieptSubmit = (e) => {
-        console.log("TAke away data : ", takeAwayRecieptData)
-        closeReciept();
-        Swal.fire({
-            icon: 'success',
-            title: `Bill Printed Successfully`,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            },
-        });
-    }
+    // const handleRecieptSubmit = (e) => {
+    //     console.log("TAke away data : ", takeAwayRecieptData)
+    //     closeReciept();
+    //     Swal.fire({
+    //         icon: 'success',
+    //         title: `Bill Printed Successfully`,
+    //         toast: true,
+    //         position: 'top-end',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //         didOpen: (toast) => {
+    //             toast.addEventListener('mouseenter', Swal.stopTimer);
+    //             toast.addEventListener('mouseleave', Swal.resumeTimer);
+    //         },
+    //     });
+    // }
 
     //DineIn Receipt
     const [isDineInRecieptOpen, setIsDineInRecieptOpen] = useState(false);
@@ -1054,23 +1072,23 @@ function Home() {
         setIsDineInRecieptOpen(false)
     }
 
-    const handleDineInRecieptSubmit = (e) => {
-        console.log("Dine in data : ", dineInData)
-        closeDineInReciept();
-        Swal.fire({
-            icon: 'success',
-            title: `KOT Printed Successfully`,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            },
-        });
-    }
+    // const handleDineInRecieptSubmit = (e) => {
+    //     console.log("Dine in data : ", dineInData)
+    //     closeDineInReciept();
+    //     Swal.fire({
+    //         icon: 'success',
+    //         title: `KOT Printed Successfully`,
+    //         toast: true,
+    //         position: 'top-end',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //         didOpen: (toast) => {
+    //             toast.addEventListener('mouseenter', Swal.stopTimer);
+    //             toast.addEventListener('mouseleave', Swal.resumeTimer);
+    //         },
+    //     });
+    // }
 
     //Already DineIn Receipt
     const [isAlreadyDineInRecieptOpen, setIsAlreadyDineInRecieptOpen] = useState(false);
@@ -1079,23 +1097,23 @@ function Home() {
         setIsAlreadyDineInRecieptOpen(false)
     }
 
-    const handleAlreadyDineInRecieptSubmit = (e) => {
-        console.log("Already dine in data : ", alreadyDineInData)
-        closeAlreadyDineInReciept();
-        Swal.fire({
-            icon: 'success',
-            title: `KOT Printed Successfully`,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            },
-        });
-    }
+    // const handleAlreadyDineInRecieptSubmit = (e) => {
+    //     console.log("Already dine in data : ", alreadyDineInData)
+    //     closeAlreadyDineInReciept();
+    //     Swal.fire({
+    //         icon: 'success',
+    //         title: `KOT Printed Successfully`,
+    //         toast: true,
+    //         position: 'top-end',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //         didOpen: (toast) => {
+    //             toast.addEventListener('mouseenter', Swal.stopTimer);
+    //             toast.addEventListener('mouseleave', Swal.resumeTimer);
+    //         },
+    //     });
+    // }
 
     return (
         <div className="Home">
@@ -1555,17 +1573,17 @@ function Home() {
                 className="custom-modal"
                 aria-labelledby="responsive-dialog-title"
             >
-                <DialogTitle id="responsive-dialog-title" className="formHeading">
+                <DialogTitle id="responsive-dialog-title" className="formHeading" style={{color:'black', fontWeight:'600', marginBottom: '0 !important', marginLeft:'-20px'}}>
                     {"TANDOOR HOTEL"}
                 </DialogTitle>
                 <DialogContent>
                     {/* <DialogContentText> */}
-                    <span>----------------------------------------------------------</span><br />
-                    <span><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br />
-                    <span>----------------------------------------------------------</span><br />
-                    <span>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
-                    <span>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br />
-                    <span>---------------------------------------------------------</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <span className='print-subheading'><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <span className='bill-number'>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
+                    <span className='bill-date'>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br />
+                    <span className='dashedLines'>---------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
@@ -1589,22 +1607,22 @@ function Home() {
                         </table>
                     </div>
                     <br />
-                    <span>----------------------------------------------------------</span><br />
-                    <b style={{ textAlign: 'right' }}>Sub Total : RS.{takeAwayRecieptData?.bill?.price}</b><br />
-                    <span>----------------------------------------------------------</span><br />
-                    <b style={{ textAlign: 'right' }}>Net Total : RS.{takeAwayRecieptData?.bill?.price}</b><br />
-                    <span>----------------------------------------------------------</span><br />
-                    <span>THANK YOU PLEASE COME AGAIN</span>
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <b className='bill-subtotal'>Sub Total : RS.{takeAwayRecieptData?.bill?.price}</b><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <b className='bill-nettotal'>Net Total : RS.{takeAwayRecieptData?.bill?.price}</b><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <span className='bill-thankyou'>THANK YOU PLEASE COME AGAIN</span>
                     {/* </DialogContentText> */}
                 </DialogContent>
-                <DialogActions>
+                {/* <DialogActions>
                     <Button className="formBtn" onClick={handleRecieptSubmit}>
                         Print
                     </Button>
                     <Button className="formBtn" onClick={closeReciept}>
                         Cancel
                     </Button>
-                </DialogActions>
+                </DialogActions> */}
             </Dialog>
 
             {/* Dine in reciept */}
@@ -1620,12 +1638,12 @@ function Home() {
                 </DialogTitle>
                 <DialogContent>
                     {/* <DialogContentText> */}
-                    <span>----------------------------------------------------------</span><br />
-                    <span><b>KOT ( {dineInData?.bill?.id} ) </b></span><br />
-                    <span>----------------------------------------------------------</span><br />
-                    <span>Bill #{dineInData?.bill?.id} </span><br />
-                    <span>Date: {dineInData?.bill?.createdTime.toUpperCase()}</span><br />
-                    <span>---------------------------------------------------------</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <span className='print-subheading'><b>KOT ( {dineInData?.bill?.id} ) </b></span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <span className='bill-number'>Bill #{dineInData?.bill?.id} </span><br />
+                    <span className='bill-date'>Date: {dineInData?.bill?.createdTime.toUpperCase()}</span><br />
+                    <span className='dashedLines'>---------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
@@ -1649,19 +1667,19 @@ function Home() {
                         </table>
                     </div>
                     <br />
-                    <span>----------------------------------------------------------</span><br />
-                    <b style={{ textAlign: 'right' }}>Sub Total : RS.{dineInData?.bill?.price}</b><br />
-                    <span>----------------------------------------------------------</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <b className='bill-subtotal'>Sub Total : RS.{dineInData?.bill?.price}</b><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
                     {/* </DialogContentText> */}
                 </DialogContent>
-                <DialogActions>
+                {/* <DialogActions>
                     <Button className="formBtn" onClick={handleDineInRecieptSubmit}>
                         Print
                     </Button>
                     <Button className="formBtn" onClick={closeDineInReciept}>
                         Cancel
                     </Button>
-                </DialogActions>
+                </DialogActions> */}
             </Dialog>
 
             {/* already Dine in reciept */}
@@ -1679,20 +1697,20 @@ function Home() {
                     {/* <DialogContentText> */}
                     {alreadyDineInData?.status === 'closed' ? (
                         <>
-                            <span>----------------------------------------------------------</span><br />
-                            <span><b>BILL ( {alreadyDineInData?.id} ) </b></span><br />
-                            <span>----------------------------------------------------------</span><br />
+                            <span className='dashedLines' >----------------------------------------------------------</span><br />
+                            <span className='print-subheading'><b>BILL ( {alreadyDineInData?.id} ) </b></span><br />
+                            <span className='dashedLines' >----------------------------------------------------------</span><br />
                         </>
                     ) : (
                         <>
-                            <span>----------------------------------------------------------</span><br />
-                            <span><b>KOT ( {alreadyDineInData?.id} ) </b></span><br />
-                            <span>----------------------------------------------------------</span><br />
+                            <span className='dashedLines' >----------------------------------------------------------</span><br />
+                            <span className='print-subheading'><b>KOT ( {alreadyDineInData?.id} ) </b></span><br />
+                            <span className='dashedLines' >----------------------------------------------------------</span><br />
                         </>
                     )}
-                    <span>Bill #{alreadyDineInData?.id} </span><br />
-                    <span>Date: {alreadyDineInData?.createdTime.toUpperCase()}</span><br />
-                    <span>---------------------------------------------------------</span><br />
+                    <span className='bill-number'>Bill #{alreadyDineInData?.id} </span><br />
+                    <span className='bill-date'>Date: {alreadyDineInData?.createdTime.toUpperCase()}</span><br />
+                    <span className='dashedLines' >---------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
@@ -1716,19 +1734,19 @@ function Home() {
                         </table>
                     </div>
                     <br />
-                    <span>----------------------------------------------------------</span><br />
-                    <b style={{ textAlign: 'right' }}>Sub Total : RS.{alreadyDineInData?.price}</b><br />
-                    <span>----------------------------------------------------------</span><br />
+                    <span className='dashedLines' >----------------------------------------------------------</span><br />
+                    <b className='bill-subtotal'>Sub Total : RS.{alreadyDineInData?.price}</b><br />
+                    <span className='dashedLines' >----------------------------------------------------------</span><br />
                     {/* </DialogContentText> */}
                 </DialogContent>
-                <DialogActions>
+                {/* <DialogActions>
                     <Button className="formBtn" onClick={handleAlreadyDineInRecieptSubmit}>
                         Print
                     </Button>
                     <Button className="formBtn" onClick={closeAlreadyDineInReciept}>
                         Cancel
                     </Button>
-                </DialogActions>
+                </DialogActions> */}
             </Dialog>
 
 

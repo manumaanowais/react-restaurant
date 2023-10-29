@@ -223,6 +223,28 @@ main {
 
 .formHeading {
     width: 400px;
+    color: black;
+    font-weight: 600 !important;
+    margin-bottom: 0px !important;
+    margin-left: -20px !important;
+}
+
+.dashedLines {
+    font-weight: bold;
+    color: black;
+}
+
+.print-subheading {
+    font-size: 18px;
+    color: black; 
+    font-weight: bold !important;
+    font-family: monospace;
+}
+
+.bill-date, .bill-number {
+    font-size: 16px;
+    color: black; 
+    font-weight: 700;
 }
 
 .formInput {
@@ -295,20 +317,32 @@ main {
 }
 
 .takeawayRecieptTable-thead {
-    border-bottom: 1px dashed black;
+    border-bottom: 2px dashed black;
     width: 100%
 }
 
 .takeawayRecieptTable-th1 {
     text-align: left;
+    font-size: 16px;
+    color: black;
+    font-weight: bold;
+    font-family: monospace'
 }
 
 .takeawayRecieptTable-th2, .takeawayRecieptTable-th3 {
     text-align: center;
+    font-size: 16px;
+    color: black;
+    font-weight: bold;
+    font-family: monospace'
 }
 
 .takeawayRecieptTable-th4 {
     text-align: right;
+    font-size: 16px;
+    color: black;
+    font-weight: bold;
+    font-family: monospace'
 }
 
 .takeawayRecieptTable-tr {
@@ -317,14 +351,50 @@ main {
 
 .takeawayRecieptTable-td1 {
     text-align: left;
+    font-size: 12px;
+    color: black;
+    font-weight: bold;
+    font-family: monospace'
 }
 
 .takeawayRecieptTable-td2, .takeawayRecieptTable-td3 {
     text-align: center;
+    font-size: 12px;
+    color: black;
+    font-weight: bold;
+    font-family: monospace'
 }
 
 .takeawayRecieptTable-td4 {
     text-align: right;
+    font-size: 12px;
+    color: black;
+    font-weight: bold;
+    font-family: monospace'
+}
+
+.bill-subtotal {
+    text-align: right;
+    font-size: 16px;
+    color: black;
+    font-weight: bold;
+    font-family: monospace; 
+}
+
+.bill-nettotal {
+    text-align: right;
+    font-size: 17px;
+    color: black;
+    font-weight: bold;
+    font-family: monospace; 
+}
+
+.bill-thankyou {
+    text-align: right;
+    font-size: 17px;
+    color: black;
+    font-weight: bold;
+    font-family: monospace;
 }
 
 

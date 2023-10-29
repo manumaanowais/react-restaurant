@@ -21,10 +21,10 @@ import Box from '@mui/material/Box';
 import './Report.css';
 import OrderChart from './OrderChart';
 import Dialog from '@mui/material/Dialog';
-import DialogActions from '@mui/material/DialogActions';
+// import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-import Button from '@mui/material/Button';
+// import Button from '@mui/material/Button';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
 
@@ -319,7 +319,7 @@ function Report() {
         });
     });
 
-    // Convert the organized data object to an array of objects
+// Convert the organized data object to an array of objects
     const resultArray = Object.values(organizedData);
 
     const [reportData, setReportData] = useState();
@@ -330,13 +330,31 @@ function Report() {
             setReportData(report);
             console.log("Bills Report : ", reportData)
             setIsBillReportOpen(true);
+            window.addEventListener('afterprint', () => {
+                setIsBillReportOpen(false); // Close the dialog after printing
+              });
+            setTimeout(() => {
+                window.print();
+            }, 800)
         } else if (reportType === 'quantity') {
             setReportData('');
             setReportData(resultArray);
             console.log("Quantity Report : ", reportData)
             setIsQuantityReportOpen(true);
+            window.addEventListener('afterprint', () => {
+                setIsQuantityReportOpen(false); // Close the dialog after printing
+            });
+            setTimeout(() => {
+                window.print();
+            }, 800)
         } else {
             setIsTypeReportOpen(true);
+            window.addEventListener('afterprint', () => {
+                setIsTypeReportOpen(false); // Close the dialog after printing
+              });
+            setTimeout(() => {
+                window.print();
+            }, 800)
         }
     }
 
@@ -348,23 +366,23 @@ function Report() {
         setIsBillReportOpen(false)
     }
 
-    const handleBillReportSubmit = (e) => {
-        console.log("Bill Report : ", reportData)
-        closeBillReport();
-        Swal.fire({
-            icon: 'success',
-            title: `Bill Report Printed Successfully`,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            },
-        });
-    }
+    // const handleBillReportSubmit = (e) => {
+    //     console.log("Bill Report : ", reportData)
+    //     closeBillReport();
+    //     Swal.fire({
+    //         icon: 'success',
+    //         title: `Bill Report Printed Successfully`,
+    //         toast: true,
+    //         position: 'top-end',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //         didOpen: (toast) => {
+    //             toast.addEventListener('mouseenter', Swal.stopTimer);
+    //             toast.addEventListener('mouseleave', Swal.resumeTimer);
+    //         },
+    //     });
+    // }
 
     //Dialog for quantity report
     const [isQuantityReportOpen, setIsQuantityReportOpen] = useState(false);
@@ -373,23 +391,23 @@ function Report() {
         setIsQuantityReportOpen(false)
     }
 
-    const handleQuantityReportSubmit = (e) => {
-        console.log("Quantity Report : ", reportData)
-        closeQuantityReport();
-        Swal.fire({
-            icon: 'success',
-            title: `Quantity Report Printed Successfully`,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            },
-        });
-    }
+    // const handleQuantityReportSubmit = (e) => {
+    //     console.log("Quantity Report : ", reportData)
+    //     closeQuantityReport();
+    //     Swal.fire({
+    //         icon: 'success',
+    //         title: `Quantity Report Printed Successfully`,
+    //         toast: true,
+    //         position: 'top-end',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //         didOpen: (toast) => {
+    //             toast.addEventListener('mouseenter', Swal.stopTimer);
+    //             toast.addEventListener('mouseleave', Swal.resumeTimer);
+    //         },
+    //     });
+    // }
 
     //Dialog for type report
     const [isTypeReportOpen, setIsTypeReportOpen] = useState(false);
@@ -398,23 +416,23 @@ function Report() {
         setIsTypeReportOpen(false)
     }
 
-    const handleTypeReportSubmit = (e) => {
-        console.log("Type Report : ", reportData)
-        closeTypeReport();
-        Swal.fire({
-            icon: 'success',
-            title: `Type Report Printed Successfully`,
-            toast: true,
-            position: 'top-end',
-            showConfirmButton: false,
-            timer: 1500,
-            timerProgressBar: true,
-            didOpen: (toast) => {
-                toast.addEventListener('mouseenter', Swal.stopTimer);
-                toast.addEventListener('mouseleave', Swal.resumeTimer);
-            },
-        });
-    }
+    // const handleTypeReportSubmit = (e) => {
+    //     console.log("Type Report : ", reportData)
+    //     closeTypeReport();
+    //     Swal.fire({
+    //         icon: 'success',
+    //         title: `Type Report Printed Successfully`,
+    //         toast: true,
+    //         position: 'top-end',
+    //         showConfirmButton: false,
+    //         timer: 1500,
+    //         timerProgressBar: true,
+    //         didOpen: (toast) => {
+    //             toast.addEventListener('mouseenter', Swal.stopTimer);
+    //             toast.addEventListener('mouseleave', Swal.resumeTimer);
+    //         },
+    //     });
+    // }
 
     return (
         <div className="report">
@@ -603,15 +621,15 @@ function Report() {
                     {"TANDOOR HOTEL BILL REPORT"}
                 </DialogTitle>
                 <DialogContent>
-                    <span><b>DATE : {currentDate}</b></span><br />
-                    <span>----------------------------------------------------------</span><br />
-                    <span><b>TOTAL BILLS CREATED : {reportData?.length}</b></span><br />
-                    <span>----------------------------------------------------------</span><br />
+                    <span className='bill-date'>DATE : {currentDate}</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <span className='bill-number'>TOTAL BILLS CREATED : {reportData?.length}</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
                                 <tr>
-                                    <th className='takeawayRecieptTable-th1'>BILL ID</th>
+                                    <th className='takeawayRecieptTable-th1'>BILLID</th>
                                     <th className='takeawayRecieptTable-th2'>ITEMS</th>
                                     <th className='takeawayRecieptTable-th2'>QTY</th>
                                     <th className='takeawayRecieptTable-th3'>PRICE</th>
@@ -639,18 +657,18 @@ function Report() {
                         </table>
                     </div>
                     <br />
-                    <span>----------------------------------------------------------</span><br />
-                    <b style={{ textAlign: 'right' }}>Total Sale Is RS.{totalSale.toFixed(2)}</b><br />
-                    <span>----------------------------------------------------------</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <b className='bill-nettotal'>Total Sale Is RS.{totalSale.toFixed(2)}</b><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
                 </DialogContent>
-                <DialogActions>
+                {/* <DialogActions>
                     <Button className="formBtn" onClick={handleBillReportSubmit}>
                         Print
                     </Button>
                     <Button className="formBtn" onClick={closeBillReport}>
                         Cancel
                     </Button>
-                </DialogActions>
+                </DialogActions> */}
             </Dialog>
 
             {/* For showing quantity report */}
@@ -665,12 +683,12 @@ function Report() {
                     {"TANDOOR HOTEL QUANTITY REPORT"}
                 </DialogTitle>
                 <DialogContent>
-                    <span><b>DATE : {currentDate}</b></span><br />
+                    <span className='bill-date'>DATE : {currentDate}</span><br />
                     <div className='takeawayRecieptDiv'>
                         {reportData?.map((group, index) => (
                             <div key={index}>
-                                <span>----------------------------------------------------------</span><br />
-                                <h6>GROUP: {getItemNameWithMainMenuId(group?.mainMenuItemId)}</h6>
+                                <span className='dashedLines'>----------------------------------------------------------</span><br />
+                                <h6 style={{fontWeight: '700',color:'black'}}>GROUP: {getItemNameWithMainMenuId(group?.mainMenuItemId)}</h6>
                                 <table className='takeawayRecieptTable'>
                                     <thead className='takeawayRecieptTable-thead'>
                                         <tr>
@@ -691,22 +709,23 @@ function Report() {
                                         ))}
                                     </tbody>
                                 </table>
+                                <div className='bill-subtotal' style={{textAlign:'left', borderTop: '2px dashed black'}}>TOTAL {getItemNameWithMainMenuId(group?.mainMenuItemId)} SALE : {group.items[0].totalItemPrice}</div>
                             </div>
                         ))}
                     </div>
                     <br />
-                    <span>----------------------------------------------------------</span><br />
-                    <b style={{ textAlign: 'right' }}>Total Sale Is RS.{totalSale.toFixed(2)}</b><br />
-                    <span>----------------------------------------------------------</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <b className='bill-nettotal'>Total Sale Is RS.{totalSale.toFixed(2)}</b><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
                 </DialogContent>
-                <DialogActions>
+                {/* <DialogActions>
                     <Button className="formBtn" onClick={handleQuantityReportSubmit}>
                         Print
                     </Button>
                     <Button className="formBtn" onClick={closeQuantityReport}>
                         Cancel
                     </Button>
-                </DialogActions>
+                </DialogActions> */}
             </Dialog>
 
             {/* For showing type report */}
@@ -721,8 +740,8 @@ function Report() {
                     {"TANDOOR HOTEL TYPE REPORT"}
                 </DialogTitle>
                 <DialogContent>
-                    <span><b>DATE : {currentDate}</b></span><br />
-                    <span>----------------------------------------------------------</span><br />
+                    <span className='bill-date'>DATE : {currentDate}</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
@@ -747,18 +766,18 @@ function Report() {
                         </table>
                     </div>
                     <br />
-                    <span>----------------------------------------------------------</span><br />
-                    <b style={{ textAlign: 'right' }}>Total Sale Is RS.{totalSale.toFixed(2)}</b><br />
-                    <span>----------------------------------------------------------</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <b className='bill-nettotal'>Total Sale Is RS.{totalSale.toFixed(2)}</b><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
                 </DialogContent>
-                <DialogActions>
+                {/* <DialogActions>
                     <Button className="formBtn" onClick={handleTypeReportSubmit}>
                         Print
                     </Button>
                     <Button className="formBtn" onClick={closeTypeReport}>
                         Cancel
                     </Button>
-                </DialogActions>
+                </DialogActions> */}
             </Dialog>
         </div>
     );
