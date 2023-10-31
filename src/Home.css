@@ -223,10 +223,10 @@ main {
 
 .formHeading {
     width: 400px;
-    color: black;
+    /* color: black;
     font-weight: 600 !important;
     margin-bottom: 0px !important;
-    margin-left: -20px !important;
+    margin-left: -20px !important; */
 }
 
 .dashedLines {
