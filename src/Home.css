@@ -317,32 +317,20 @@ main {
 }
 
 .takeawayRecieptTable-thead {
-    border-bottom: 2px dashed black;
+    border-bottom: 1px dashed black;
     width: 100%
 }
 
 .takeawayRecieptTable-th1 {
     text-align: left;
-    font-size: 16px;
-    color: black;
-    font-weight: bold;
-    font-family: monospace'
 }
 
 .takeawayRecieptTable-th2, .takeawayRecieptTable-th3 {
     text-align: center;
-    font-size: 16px;
-    color: black;
-    font-weight: bold;
-    font-family: monospace'
 }
 
 .takeawayRecieptTable-th4 {
     text-align: right;
-    font-size: 16px;
-    color: black;
-    font-weight: bold;
-    font-family: monospace'
 }
 
 .takeawayRecieptTable-tr {
@@ -351,26 +339,14 @@ main {
 
 .takeawayRecieptTable-td1 {
     text-align: left;
-    font-size: 12px;
-    color: black;
-    font-weight: bold;
-    font-family: monospace'
 }
 
 .takeawayRecieptTable-td2, .takeawayRecieptTable-td3 {
     text-align: center;
-    font-size: 12px;
-    color: black;
-    font-weight: bold;
-    font-family: monospace'
 }
 
 .takeawayRecieptTable-td4 {
     text-align: right;
-    font-size: 12px;
-    color: black;
-    font-weight: bold;
-    font-family: monospace'
 }
 
 .bill-subtotal {
