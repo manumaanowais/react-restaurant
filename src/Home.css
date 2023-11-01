@@ -223,10 +223,10 @@ main {
 
 .formHeading {
     width: 400px;
-    color: black;
+    /* color: black;
     font-weight: 600 !important;
     margin-bottom: 0px !important;
-    margin-left: -20px !important;
+    margin-left: -20px !important; */
 }
 
 .dashedLines {
@@ -332,7 +332,7 @@ main {
     font-size: 16px;
     color: black;
     font-weight: bold;
-    font-family: monospace'
+    font-family: monospace;
 }
 
 .takeawayRecieptTable-th2, .takeawayRecieptTable-th3 {
@@ -340,7 +340,7 @@ main {
     font-size: 16px;
     color: black;
     font-weight: bold;
-    font-family: monospace'
+    font-family: monospace;
 }
 
 .takeawayRecieptTable-th4 {
@@ -348,7 +348,7 @@ main {
     font-size: 16px;
     color: black;
     font-weight: bold;
-    font-family: monospace'
+    font-family: monospace;
 }
 
 .takeawayRecieptTable-tr {
@@ -360,7 +360,7 @@ main {
     font-size: 12px;
     color: black;
     font-weight: bold;
-    font-family: monospace'
+    font-family: monospace;
 }
 
 .takeawayRecieptTable-td2, .takeawayRecieptTable-td3 {
@@ -368,7 +368,7 @@ main {
     font-size: 12px;
     color: black;
     font-weight: bold;
-    font-family: monospace'
+    font-family: monospace;
 }
 
 .takeawayRecieptTable-td4 {
@@ -376,7 +376,7 @@ main {
     font-size: 12px;
     color: black;
     font-weight: bold;
-    font-family: monospace'
+    font-family: monospace;
 }
 
 .bill-subtotal {
