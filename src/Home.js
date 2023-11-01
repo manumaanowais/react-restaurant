@@ -14,9 +14,28 @@ import DialogTitle from '@mui/material/DialogTitle';
 import Button from '@mui/material/Button';
 import useMediaQuery from '@mui/material/useMediaQuery';
 import { useTheme } from '@mui/material/styles';
+import { onAuthStateChanged } from "firebase/auth";
+import { auth } from "./firebase";
 
 Modal.setAppElement('#root');
 function Home() {
+
+    const [authUser, setAuthUser] = useState(null);
+
+    useEffect(() => {
+        const listen = onAuthStateChanged(auth, (user) => {
+            if (user) {
+                setAuthUser(user);
+            } else {
+                setAuthUser(null);
+            }
+        });
+
+        return () => {
+            listen();
+        };
+    }, []);
+    
     const { tableId } = useParams();
     const [allTables, setAllTables] = useState([]);
     useEffect(() => {
@@ -655,6 +674,12 @@ function Home() {
             const data = await response.json();
             setAlreadyDineInData(data);
             setIsAlreadyDineInRecieptOpen(true);
+            window.addEventListener('afterprint', () => {
+                setIsDineInRecieptOpen(false); // Close the dialog after printing
+            });
+            setTimeout(() => {
+                window.print();
+            }, 800)
             console.log("Table Modified successfully:", data);
             Swal.fire({
                 icon: 'success',
@@ -1574,22 +1599,30 @@ function Home() {
                 aria-labelledby="responsive-dialog-title"
             >
                 <DialogTitle id="responsive-dialog-title" className="formHeading" style={{color:'black', fontWeight:'600', marginBottom: '0 !important', marginLeft:'-20px'}}>
-                    {"TANDOOR HOTEL"}
+                    {"TANDOOR MULTICUSINE RESTAURANT"}
                 </DialogTitle>
                 <DialogContent>
                     {/* <DialogContentText> */}
+                    <span className='dashedLines'>Shamirpet Road</span><br />
+                    <span className='dashedLines'>Dongala Mysama, Tumkunta</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
+                    <span className='receipt-hotel-details'>GST No :12ABCDE3456F7GH </span><br />
+                    <span className='receipt-hotel-details'>TIN No :ABCDE1234F </span><br />
+                    <span className='receipt-hotel-details'>FSSAI No :12345678901234 </span><br />
+                    <span className='print-subheading'><b>TAX INVOICE </b></span><br />
                     <span className='dashedLines'>----------------------------------------------------------</span><br />
                     <span className='print-subheading'><b>TAKE AWAY ( {takeAwayRecieptData?.bill?.id} ) </b></span><br />
                     <span className='dashedLines'>----------------------------------------------------------</span><br />
-                    <span className='bill-number'>Bill #{takeAwayRecieptData?.bill?.id} </span><br />
-                    <span className='bill-date'>Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br />
+                    <span className='bill-number'>Bill No: {takeAwayRecieptData?.bill?.id} </span><br />
+                    <span className='bill-date'>Bill Date: {takeAwayRecieptData?.bill?.createdTime.toUpperCase()}</span><br />
+                    <span className='bill-date'>Cashier: {authUser?.displayName}</span><br />
                     <span className='dashedLines'>---------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
                                 <tr>
-                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
                                     <th className='takeawayRecieptTable-th2'>QTY</th>
+                                    <th className='takeawayRecieptTable-th1'>ITEM NAME</th>
                                     <th className='takeawayRecieptTable-th3'>PRICE</th>
                                     <th className='takeawayRecieptTable-th4'>AMOUNT</th>
                                 </tr>
@@ -1597,8 +1630,8 @@ function Home() {
                             <tbody>
                                 {takeAwayRecieptData?.bill?.items.map((item) => (
                                     <tr className='takeawayRecieptTable-tr' key={item.id}>
-                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
                                         <td className='takeawayRecieptTable-td2'>{item.qty}</td>
+                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
                                         <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
                                         <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
                                     </tr>
@@ -1634,22 +1667,24 @@ function Home() {
                 aria-labelledby="responsive-dialog-title"
             >
                 <DialogTitle id="responsive-dialog-title" className="formHeading">
-                    {"TANDOOR HOTEL"}
+                    {"TANDOOR MULTICUSINE RESTAURANT"}
                 </DialogTitle>
                 <DialogContent>
                     {/* <DialogContentText> */}
+                    <span className='dashedLines'>Shamirpet Road</span><br />
+                    <span className='dashedLines'>Dongala Mysama, Tumkunta</span><br />
                     <span className='dashedLines'>----------------------------------------------------------</span><br />
                     <span className='print-subheading'><b>KOT ( {dineInData?.bill?.id} ) </b></span><br />
                     <span className='dashedLines'>----------------------------------------------------------</span><br />
-                    <span className='bill-number'>Bill #{dineInData?.bill?.id} </span><br />
-                    <span className='bill-date'>Date: {dineInData?.bill?.createdTime.toUpperCase()}</span><br />
+                    <span className='bill-number'>Bill No: {dineInData?.bill?.id} </span><br />
+                    <span className='bill-date'>Bill Date: {dineInData?.bill?.createdTime.toUpperCase()}</span><br />
                     <span className='dashedLines'>---------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
                                 <tr>
-                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
                                     <th className='takeawayRecieptTable-th2'>QTY</th>
+                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
                                     <th className='takeawayRecieptTable-th3'>PRICE</th>
                                     <th className='takeawayRecieptTable-th4'>AMOUNT</th>
                                 </tr>
@@ -1657,8 +1692,8 @@ function Home() {
                             <tbody>
                                 {dineInData?.bill?.items.map((item) => (
                                     <tr className='takeawayRecieptTable-tr' key={item.id}>
-                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
                                         <td className='takeawayRecieptTable-td2'>{item.qty}</td>
+                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
                                         <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
                                         <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
                                     </tr>
@@ -1691,12 +1726,19 @@ function Home() {
                 aria-labelledby="responsive-dialog-title"
             >
                 <DialogTitle id="responsive-dialog-title" className="formHeading">
-                    {"TANDOOR HOTEL"}
+                    {"TANDOOR MULTICUSINE RESTAURANT"}
                 </DialogTitle>
                 <DialogContent>
                     {/* <DialogContentText> */}
+                    <span className='dashedLines'>Shamirpet Road</span><br />
+                    <span className='dashedLines'>Dongala Mysama, Tumkunta</span><br />
                     {alreadyDineInData?.status === 'closed' ? (
                         <>
+                            <span className='dashedLines'>----------------------------------------------------------</span><br />
+                            <span className='receipt-hotel-details'>GST No :12ABCDE3456F7GH </span><br />
+                            <span className='receipt-hotel-details'>TIN No :ABCDE1234F </span><br />
+                            <span className='receipt-hotel-details'>FSSAI No :12345678901234 </span><br />
+                            <span className='print-subheading'><b>TAX INVOICE </b></span><br />
                             <span className='dashedLines' >----------------------------------------------------------</span><br />
                             <span className='print-subheading'><b>BILL ( {alreadyDineInData?.id} ) </b></span><br />
                             <span className='dashedLines' >----------------------------------------------------------</span><br />
@@ -1708,15 +1750,15 @@ function Home() {
                             <span className='dashedLines' >----------------------------------------------------------</span><br />
                         </>
                     )}
-                    <span className='bill-number'>Bill #{alreadyDineInData?.id} </span><br />
-                    <span className='bill-date'>Date: {alreadyDineInData?.createdTime.toUpperCase()}</span><br />
+                    <span className='bill-number'>Bill No: {alreadyDineInData?.id} </span><br />
+                    <span className='bill-date'>Bill Date: {alreadyDineInData?.createdTime.toUpperCase()}</span><br />
                     <span className='dashedLines' >---------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
                                 <tr>
-                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
                                     <th className='takeawayRecieptTable-th2'>QTY</th>
+                                    <th className='takeawayRecieptTable-th1'>DESCRIPTION</th>
                                     <th className='takeawayRecieptTable-th3'>PRICE</th>
                                     <th className='takeawayRecieptTable-th4'>AMOUNT</th>
                                 </tr>
@@ -1724,8 +1766,8 @@ function Home() {
                             <tbody>
                                 {alreadyDineInData?.items.map((item) => (
                                     <tr className='takeawayRecieptTable-tr' key={item.id}>
-                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
                                         <td className='takeawayRecieptTable-td2'>{item.qty}</td>
+                                        <td className='takeawayRecieptTable-td1'>{item.menuItem.itemName}</td>
                                         <td className='takeawayRecieptTable-td3'>{item.menuItem.itemPrice}</td>
                                         <td className='takeawayRecieptTable-td4'>{(item.qty) * (item.menuItem.itemPrice)}</td>
                                     </tr>

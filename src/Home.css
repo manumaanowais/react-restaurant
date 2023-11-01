@@ -234,6 +234,12 @@ main {
     color: black;
 }
 
+.receipt-hotel-details {
+    font-size: 15px;
+    color: black;
+    font-family: monospace;
+}
+
 .print-subheading {
     font-size: 18px;
     color: black; 
@@ -245,7 +251,7 @@ main {
     font-size: 16px;
     color: black; 
     font-weight: 700;
-}
+    }
 
 .formInput {
     width: 250px;
@@ -317,7 +323,7 @@ main {
 }
 
 .takeawayRecieptTable-thead {
-    border-bottom: 2px dashed black;
+    border-bottom: 1px solid black;
     width: 100%
 }
 

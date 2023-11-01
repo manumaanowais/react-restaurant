@@ -446,7 +446,7 @@ function Report() {
                         onChange={(e) => setSelectedReportType(e.target.value)}
                     >
                         <option value="bills">BILLS</option>
-                        <option value="quantity">QUANTITY</option>
+                        <option value="quantity">GROUP</option>
                         <option value="type">TYPE</option>
                     </select>
                 </div>
@@ -618,9 +618,12 @@ function Report() {
                 aria-labelledby="responsive-dialog-title"
             >
                 <DialogTitle id="responsive-dialog-title" className="formHeading">
-                    {"TANDOOR HOTEL BILL REPORT"}
+                    {"TANDOOR MULTICUSINE RESTAURANT BILL REPORT"}
                 </DialogTitle>
                 <DialogContent>
+                    <span className='dashedLines'>Shamirpet Road</span><br />
+                    <span className='dashedLines'>Dongala Mysama, Tumkunta</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
                     <span className='bill-date'>DATE : {currentDate}</span><br />
                     <span className='dashedLines'>----------------------------------------------------------</span><br />
                     <span className='bill-number'>TOTAL BILLS CREATED : {reportData?.length}</span><br />
@@ -629,12 +632,12 @@ function Report() {
                         <table className='takeawayRecieptTable'>
                             <thead className='takeawayRecieptTable-thead'>
                                 <tr>
-                                    <th className='takeawayRecieptTable-th1'>BILLID</th>
-                                    <th className='takeawayRecieptTable-th2'>ITEMS</th>
-                                    <th className='takeawayRecieptTable-th2'>QTY</th>
-                                    <th className='takeawayRecieptTable-th3'>PRICE</th>
-                                    <th className='takeawayRecieptTable-th4'>TYPE</th>
-                                    <th className='takeawayRecieptTable-th4'>TOTAL</th>
+                                    <th className='takeawayRecieptTable-th1'>BillId</th>
+                                    <th className='takeawayRecieptTable-th2'>Items</th>
+                                    <th className='takeawayRecieptTable-th2'>Qty</th>
+                                    <th className='takeawayRecieptTable-th3'>Price</th>
+                                    <th className='takeawayRecieptTable-th4'>Type</th>
+                                    <th className='takeawayRecieptTable-th4'>Total</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -680,9 +683,12 @@ function Report() {
                 aria-labelledby="responsive-dialog-title"
             >
                 <DialogTitle id="responsive-dialog-title" className="formHeading">
-                    {"TANDOOR HOTEL QUANTITY REPORT"}
+                    {"TANDOOR MULTICUSINE RESTAURANT GROUP REPORT"}
                 </DialogTitle>
                 <DialogContent>
+                    <span className='dashedLines'>Shamirpet Road</span><br />
+                    <span className='dashedLines'>Dongala Mysama, Tumkunta</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
                     <span className='bill-date'>DATE : {currentDate}</span><br />
                     <div className='takeawayRecieptDiv'>
                         {reportData?.map((group, index) => (
@@ -737,9 +743,12 @@ function Report() {
                 aria-labelledby="responsive-dialog-title"
             >
                 <DialogTitle id="responsive-dialog-title" className="formHeading">
-                    {"TANDOOR HOTEL TYPE REPORT"}
+                    {"TANDOOR MULTICUSINE RESTAURANT TYPE REPORT"}
                 </DialogTitle>
                 <DialogContent>
+                    <span className='dashedLines'>Shamirpet Road</span><br />
+                    <span className='dashedLines'>Dongala Mysama, Tumkunta</span><br />
+                    <span className='dashedLines'>----------------------------------------------------------</span><br />
                     <span className='bill-date'>DATE : {currentDate}</span><br />
                     <span className='dashedLines'>----------------------------------------------------------</span><br />
                     <div className='takeawayRecieptDiv'>
