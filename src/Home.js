@@ -35,7 +35,7 @@ function Home() {
             listen();
         };
     }, []);
-    
+
     const { tableId } = useParams();
     const [allTables, setAllTables] = useState([]);
     useEffect(() => {
@@ -675,7 +675,7 @@ function Home() {
             setAlreadyDineInData(data);
             setIsAlreadyDineInRecieptOpen(true);
             window.addEventListener('afterprint', () => {
-                setIsDineInRecieptOpen(false); // Close the dialog after printing
+                setIsAlreadyDineInRecieptOpen(false); // Close the dialog after printing
             });
             setTimeout(() => {
                 window.print();
@@ -723,7 +723,7 @@ function Home() {
 
     const getItemNameWithMainMenuId = (id) => {
         const menu = section1Data.find(item => item.id === id);
-        return menu ? menu.itemName : ''; 
+        return menu ? menu.itemName : '';
     }
 
     //For adding main menu
@@ -1598,7 +1598,7 @@ function Home() {
                 className="custom-modal"
                 aria-labelledby="responsive-dialog-title"
             >
-                <DialogTitle id="responsive-dialog-title" className="formHeading" style={{color:'black', fontWeight:'600', marginBottom: '0 !important', marginLeft:'-20px'}}>
+                <DialogTitle id="responsive-dialog-title" className="formHeading" style={{ color: 'black', fontWeight: '600', marginBottom: '0 !important', marginLeft: '-20px' }}>
                     {"TANDOOR MULTICUSINE RESTAURANT"}
                 </DialogTitle>
                 <DialogContent>
@@ -1666,7 +1666,7 @@ function Home() {
                 className="custom-modal"
                 aria-labelledby="responsive-dialog-title"
             >
-                <DialogTitle id="responsive-dialog-title" className="formHeading">
+                <DialogTitle id="responsive-dialog-title" className="formHeading" style={{ color: 'black', fontWeight: '600', marginBottom: '0 !important', marginLeft: '-20px' }}>
                     {"TANDOOR MULTICUSINE RESTAURANT"}
                 </DialogTitle>
                 <DialogContent>
@@ -1725,7 +1725,7 @@ function Home() {
                 className="custom-modal"
                 aria-labelledby="responsive-dialog-title"
             >
-                <DialogTitle id="responsive-dialog-title" className="formHeading">
+                <DialogTitle id="responsive-dialog-title" className="formHeading" style={{ color: 'black', fontWeight: '600', marginBottom: '0 !important', marginLeft: '-20px' }}>
                     {"TANDOOR MULTICUSINE RESTAURANT"}
                 </DialogTitle>
                 <DialogContent>
@@ -1779,6 +1779,13 @@ function Home() {
                     <span className='dashedLines' >----------------------------------------------------------</span><br />
                     <b className='bill-subtotal'>Sub Total : RS.{alreadyDineInData?.price}</b><br />
                     <span className='dashedLines' >----------------------------------------------------------</span><br />
+                    {alreadyDineInData?.status === 'closed' ? (
+                        <>
+                            <b className='bill-nettotal'>Net Total : RS.{alreadyDineInData?.price}</b><br />
+                            <span className='dashedLines'>----------------------------------------------------------</span><br />
+                            <span className='bill-thankyou'>THANK YOU PLEASE COME AGAIN</span>
+                        </>
+                    ) : ('')}
                     {/* </DialogContentText> */}
                 </DialogContent>
                 {/* <DialogActions>

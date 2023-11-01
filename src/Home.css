@@ -357,7 +357,7 @@ main {
 
 .takeawayRecieptTable-td1 {
     text-align: left;
-    font-size: 12px;
+    font-size: 14px;
     color: black;
     font-weight: bold;
     font-family: monospace;
@@ -365,7 +365,7 @@ main {
 
 .takeawayRecieptTable-td2, .takeawayRecieptTable-td3 {
     text-align: center;
-    font-size: 12px;
+    font-size: 14px;
     color: black;
     font-weight: bold;
     font-family: monospace;
@@ -373,7 +373,7 @@ main {
 
 .takeawayRecieptTable-td4 {
     text-align: right;
-    font-size: 12px;
+    font-size: 14px;
     color: black;
     font-weight: bold;
     font-family: monospace;
